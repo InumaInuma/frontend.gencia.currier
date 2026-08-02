@@ -1,17 +1,17 @@
 import { useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useQueryClient } from '@tanstack/react-query';
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5254';
+import { getApiBaseUrl } from '../../infrastructure/api/apiClient';
 
 export const useSignalR = () => {
   const queryClient = useQueryClient();
   const connectionRef = useRef<signalR.HubConnection | null>(null);
 
   useEffect(() => {
+    const baseUrl = getApiBaseUrl();
     // Inicializar conexión WebSocket SignalR
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${API_BASE_URL}/hubs/tracking`, {
+      .withUrl(`${baseUrl}/hubs/tracking`, {
         withCredentials: true,
         transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling,
       })
