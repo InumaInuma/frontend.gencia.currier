@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../application/context/AuthContext';
-import { usePWAInstall } from '../../application/hooks/usePWAInstall';
+import { InstallPwaButton } from './InstallPwaButton';
 import {
   ShoppingBag,
   Package,
@@ -16,8 +16,7 @@ import {
   Navigation,
   X,
   Repeat,
-  Receipt,
-  Download
+  Receipt
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -44,7 +43,6 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
   onOpenAgendarModal
 }) => {
   const { user, logout } = useAuth();
-  const { isInstalled, promptInstall } = usePWAInstall();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -310,23 +308,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
           )}
 
           {/* PWA App Install Button */}
-          {!isInstalled && (
-            <button
-              onClick={promptInstall}
-              className={`w-full flex items-center gap-3 py-2.5 px-3 rounded-xl bg-slate-900 border border-violet-500/40 hover:border-violet-400 text-violet-300 hover:text-white shadow-md transition-all cursor-pointer ${
-                contraido ? 'justify-center px-0' : ''
-              }`}
-              title="Instalar Dream Drivers como Aplicación"
-            >
-              <img src="/logoAlmain.png" alt="Logo" className="w-5 h-5 object-contain rounded-md shrink-0" />
-              {!contraido && (
-                <div className="text-left flex-1 flex items-center justify-between">
-                  <span className="font-bold text-xs">Instalar Aplicación</span>
-                  <Download size={14} className="text-violet-400" />
-                </div>
-              )}
-            </button>
-          )}
+          <InstallPwaButton variant={contraido ? "compact" : "full"} />
 
           {/* Square Toggle Button: Contraer (<) / Expandir (>) a Iconos (Visible on Mobile & Desktop) */}
           <button
