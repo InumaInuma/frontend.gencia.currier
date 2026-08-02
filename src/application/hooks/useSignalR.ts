@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useQueryClient } from '@tanstack/react-query';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5254';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://almaintic-001-site1.ctempurl.com';
 
 export const useSignalR = () => {
   const queryClient = useQueryClient();
