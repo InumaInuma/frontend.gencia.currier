@@ -6,7 +6,7 @@
   "description": "Plataforma de Logística Expresa, Envíos y Seguimiento en Tiempo Real - Almain TIC",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
+  "background_color": "#ffffff",
   "theme_color": "#7c3aed",
   "orientation": "portrait",
   "prefer_related_applications": false,
