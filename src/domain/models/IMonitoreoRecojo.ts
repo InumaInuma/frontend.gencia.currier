@@ -1,0 +1,37 @@
+export interface IMonitoreoRecojo {
+  idAsignacionRecojo: number;
+  idAsignacionEntrega?: number;
+  idConductor: number;
+  nombreConductor: string;
+  telefonoConductor?: string;
+  placaVehiculo: string;
+  tipoVehiculo: string;
+  idEstadosRecojo: number;
+  idEstadosEntrega?: number;
+  estadoAsignacion: string;
+  fechaAsignacion: string;
+  fechaCompletado?: string;
+  idPedido: number;
+  codigoSeguimiento: string;
+  idComercio: number;
+  nombreComercial: string;
+  razonSocial: string;
+  ruc: string;
+  direccionRecojo: string;
+  referenciaRecojo?: string;
+  telefonoComercio?: string;
+  googleMapsUrlComercio?: string;
+  nombreRemitente?: string;
+  nombreDestinatario: string;
+  telefonoDestinatario: string;
+  direccionDestinatario: string;
+  idDistritoDestinatario: number;
+  distritoNombre: string;
+  referenciaDestinatario?: string;
+  observaciones?: string;
+  googleMapsUrl?: string;
+  montoCobrar: number;
+  idEstadosPedido: number;
+  estadoPedido: string;
+  fechaRegistro: string;
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Dream Drivers — Logística & Envíos",
+  "short_name": "DreamDrivers",
+  "description": "Plataforma de Logística Expresa, Envíos y Seguimiento en Tiempo Real - Almain TIC",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#7c3aed",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/logoAlmain.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
