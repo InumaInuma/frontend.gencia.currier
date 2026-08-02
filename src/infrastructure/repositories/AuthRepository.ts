@@ -21,35 +21,44 @@ interface LoginResponseDto {
 
 export class AuthRepository implements IAuthRepository {
   async login(correo: string, clave: string): Promise<IUser> {
-    const response = await apiClient.post<BaseResponse<LoginResponseDto>>('/api/auth/login', {
-      correo,
-      clave,
-    });
+    try {
+      const response = await apiClient.post<BaseResponse<LoginResponseDto>>('/api/auth/login', {
+        correo,
+        clave,
+      });
 
-    const body = response.data;
+      const body = response.data;
 
-    if (!body.isSuccess || !body.data) {
-      throw new Error(body.message || 'Error en el inicio de sesión.');
+      if (!body.isSuccess || !body.data) {
+        throw new Error(body.message || 'Error en el inicio de sesión.');
+      }
+
+      return {
+        correo: body.data.correo,
+        nombreCompleto: body.data.nombreCompleto,
+        nombreComercial: body.data.nombreComercial,
+        ruc: body.data.ruc,
+        rolNombre: body.data.rolNombre,
+        idPersona: body.data.idPersona,
+        idTenant: body.data.idTenant,
+        token: body.data.token,
+      };
+    } catch (err: any) {
+      const errMsg = err.response?.data?.message || err.message || 'Error en el inicio de sesión.';
+      throw new Error(errMsg);
     }
-
-    return {
-      correo: body.data.correo,
-      nombreCompleto: body.data.nombreCompleto,
-      nombreComercial: body.data.nombreComercial,
-      ruc: body.data.ruc,
-      rolNombre: body.data.rolNombre,
-      idPersona: body.data.idPersona,
-      idTenant: body.data.idTenant,
-      token: body.data.token,
-    };
   }
 
   async logout(): Promise<void> {
-    const response = await apiClient.post<BaseResponse<string>>('/api/auth/logout');
-    const body = response.data;
+    try {
+      const response = await apiClient.post<BaseResponse<string>>('/api/auth/logout');
+      const body = response.data;
 
-    if (!body.isSuccess) {
-      throw new Error(body.message || 'Error al cerrar sesión.');
+      if (!body.isSuccess) {
+        throw new Error(body.message || 'Error al cerrar sesión.');
+      }
+    } catch (err: any) {
+      // Ignorar error de red al cerrar sesión para garantizar la desconexión en frontend
     }
   }
 
@@ -62,20 +71,25 @@ export class AuthRepository implements IAuthRepository {
     correo: string,
     clave: string
   ): Promise<void> {
-    const response = await apiClient.post<BaseResponse<string>>('/api/auth/register', {
-      nombre,
-      apellidoPaterno,
-      apellidoMaterno,
-      numeroDocumento,
-      telefono,
-      correo,
-      clave,
-    });
+    try {
+      const response = await apiClient.post<BaseResponse<string>>('/api/auth/register', {
+        nombre,
+        apellidoPaterno,
+        apellidoMaterno,
+        numeroDocumento,
+        telefono,
+        correo,
+        clave,
+      });
 
-    const body = response.data;
+      const body = response.data;
 
-    if (!body.isSuccess) {
-      throw new Error(body.message || 'Error en el registro de la cuenta.');
+      if (!body.isSuccess) {
+        throw new Error(body.message || 'Error en el registro de la cuenta.');
+      }
+    } catch (err: any) {
+      const errMsg = err.response?.data?.message || err.message || 'Error en el registro de la cuenta.';
+      throw new Error(errMsg);
     }
   }
 
@@ -88,31 +102,36 @@ export class AuthRepository implements IAuthRepository {
     googleMapsUrl?: string,
     telefono?: string
   ): Promise<IUser> {
-    const response = await apiClient.post<BaseResponse<LoginResponseDto>>('/api/auth/upgrade-to-comercio', {
-      ruc,
-      razonSocial,
-      nombreComercial,
-      direccionFiscal,
-      referenciaRecojo,
-      googleMapsUrl,
-      telefono,
-    });
+    try {
+      const response = await apiClient.post<BaseResponse<LoginResponseDto>>('/api/auth/upgrade-to-comercio', {
+        ruc,
+        razonSocial,
+        nombreComercial,
+        direccionFiscal,
+        referenciaRecojo,
+        googleMapsUrl,
+        telefono,
+      });
 
-    const body = response.data;
+      const body = response.data;
 
-    if (!body.isSuccess || !body.data) {
-      throw new Error(body.message || 'Error al ascender la cuenta a Comercio.');
+      if (!body.isSuccess || !body.data) {
+        throw new Error(body.message || 'Error al ascender la cuenta a Comercio.');
+      }
+
+      return {
+        correo: body.data.correo,
+        nombreCompleto: body.data.nombreCompleto,
+        nombreComercial: body.data.nombreComercial,
+        ruc: body.data.ruc,
+        rolNombre: body.data.rolNombre,
+        idPersona: body.data.idPersona,
+        idTenant: body.data.idTenant,
+        token: body.data.token,
+      };
+    } catch (err: any) {
+      const errMsg = err.response?.data?.message || err.message || 'Error al ascender la cuenta a Comercio.';
+      throw new Error(errMsg);
     }
-
-    return {
-      correo: body.data.correo,
-      nombreCompleto: body.data.nombreCompleto,
-      nombreComercial: body.data.nombreComercial,
-      ruc: body.data.ruc,
-      rolNombre: body.data.rolNombre,
-      idPersona: body.data.idPersona,
-      idTenant: body.data.idTenant,
-      token: body.data.token,
-    };
   }
 }
