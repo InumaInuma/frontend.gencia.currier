@@ -1,14 +1,15 @@
 {
-  "id": "/",
+  "id": "https://currier-almain.vercel.app/",
   "scope": "/",
   "name": "Dream Drivers — Logística & Envíos Expresos",
   "short_name": "DreamDrivers",
   "description": "Plataforma de Logística Expresa, Envíos y Seguimiento en Tiempo Real - Almain TIC",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020617",
+  "background_color": "#0f172a",
   "theme_color": "#7c3aed",
   "orientation": "portrait",
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icons/icon-192.png",
