@@ -29,12 +29,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Intentar recuperar la sesión guardada al arrancar la aplicación
-    const storedUser = localStorage.getItem('auth_user');
+    const storedUser = localStorage.getItem('auth_user') || localStorage.getItem('dreamdrivers_user');
     if (storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
       } catch (e) {
         localStorage.removeItem('auth_user');
+        localStorage.removeItem('dreamdrivers_user');
       }
     }
     setIsLoading(false);
@@ -44,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loggedUser = await authRepository.login(correo, clave);
     setUser(loggedUser);
     localStorage.setItem('auth_user', JSON.stringify(loggedUser));
+    localStorage.setItem('dreamdrivers_user', JSON.stringify(loggedUser));
     return loggedUser;
   };
 
@@ -53,6 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setUser(null);
       localStorage.removeItem('auth_user');
+      localStorage.removeItem('dreamdrivers_user');
     }
   };
 
@@ -76,6 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
     setUser(upgradedUser);
     localStorage.setItem('auth_user', JSON.stringify(upgradedUser));
+    localStorage.setItem('dreamdrivers_user', JSON.stringify(upgradedUser));
     return upgradedUser;
   };
 

@@ -30,7 +30,8 @@ apiClient.interceptors.request.use(
   (config) => {
     config.headers['X-Requested-With'] = 'XMLHttpRequest';
 
-    const savedUserStr = localStorage.getItem('dreamdrivers_user');
+    // Buscar en ambas claves de almacenamiento para compatibilidad total
+    const savedUserStr = localStorage.getItem('auth_user') || localStorage.getItem('dreamdrivers_user');
     if (savedUserStr) {
       try {
         const savedUser = JSON.parse(savedUserStr);
@@ -52,8 +53,15 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
+      localStorage.removeItem('auth_user');
       localStorage.removeItem('dreamdrivers_user');
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
+      // Evitar bucles de parpadeo (flicker loops) en PWA de Samsung Internet
+      if (
+        typeof window !== 'undefined' &&
+        window.location.pathname !== '/login' &&
+        window.location.pathname !== '/' &&
+        !window.location.pathname.includes('/login')
+      ) {
         window.location.href = '/login';
       }
     }
