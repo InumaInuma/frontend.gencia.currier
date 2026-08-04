@@ -30,7 +30,7 @@ export const ComercioDashboard: React.FC = () => {
   };
 
   const handleShareWhatsApp = (codigo: string, destinatario: string, telefono: string) => {
-    const text = `¡Hola ${destinatario}! Tu pedido ha sido agendado con Dream Drivers. Código de seguimiento: ${codigo}`;
+    const text = `¡Hola ${destinatario}! Tu pedido ha sido agendado con ALMAIN CURRIER. Código de seguimiento: ${codigo}`;
     window.open(`https://wa.me/51${telefono.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
   };
 

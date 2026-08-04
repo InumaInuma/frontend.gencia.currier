@@ -182,11 +182,11 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
         <div className={`h-16 flex items-center justify-between border-b border-slate-900 ${contraido ? 'justify-center px-2' : 'px-6'}`}>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-sm shrink-0 shadow-lg shadow-violet-500/20">
-              DD
+              AC
             </div>
             {!contraido && (
               <div className="flex flex-col truncate">
-                <span className="font-bold tracking-tight text-white text-base">Dream Drivers</span>
+                <span className="font-bold tracking-tight text-white text-base">ALMAIN CURRIER</span>
                 <span className="text-[10px] text-violet-400 font-semibold uppercase tracking-wider">
                   {isCurrentlyInClientView ? 'Vista Cliente Final' : user.rolNombre}
                 </span>

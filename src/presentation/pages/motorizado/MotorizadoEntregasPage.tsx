@@ -233,7 +233,7 @@ export const MotorizadoEntregasPage: React.FC = () => {
 
   const handleOpenWhatsApp = (telefono: string, cliente: string) => {
     const num = telefono.replace(/\D/g, '');
-    const msg = `¡Hola ${cliente}! Le saluda su repartidor de Dream Drivers 🏍️. Llevo su paquete en camino.`;
+    const msg = `¡Hola ${cliente}! Le saluda su repartidor de ALMAIN CURRIER 🏍️. Llevo su paquete en camino.`;
     window.open(`https://wa.me/51${num}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

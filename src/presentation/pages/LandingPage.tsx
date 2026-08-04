@@ -77,11 +77,11 @@ export const LandingPage: React.FC = () => {
           {/* Logo & Brand Name */}
           <Link to="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white font-black text-lg flex items-center justify-center shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-all">
-              DD
+              AC
             </div>
             <div>
               <span className="font-extrabold text-white text-lg tracking-tight block leading-tight">
-                Dream Drivers
+                ALMAIN CURRIER
               </span>
               <span className="text-[10px] text-violet-400 font-bold uppercase tracking-wider block">
                 Agencia Logística Expresa
@@ -146,7 +146,7 @@ export const LandingPage: React.FC = () => {
                 >
                   <img src="/logoAlmain.png" alt="Logo Almain" className="w-7 h-7 object-contain rounded-lg shadow-md shrink-0" />
                   <div className="text-left">
-                    <span className="block leading-tight font-extrabold text-violet-200">Instalar Dream Drivers App</span>
+                    <span className="block leading-tight font-extrabold text-violet-200">Instalar ALMAIN CURRIER App</span>
                     <span className="block text-[10px] text-slate-400 font-normal">Añadir a pantalla de inicio en Android / iOS / Windows</span>
                   </div>
                   <div className="w-8 h-8 rounded-xl bg-violet-600/30 border border-violet-500/50 text-violet-300 flex items-center justify-center group-hover:bg-violet-600 group-hover:text-white transition-all ml-1 shrink-0">
@@ -161,7 +161,7 @@ export const LandingPage: React.FC = () => {
             </h1>
 
             <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
-              Si compraste en una tienda afiliada a <strong className="text-slate-200">Dream Drivers</strong>, ingresa aquí tu código de envío para conocer el estado y ubicación de tu paquete en vivo.
+              Si compraste en una tienda afiliada a <strong className="text-slate-200">ALMAIN CURRIER</strong>, ingresa aquí tu código de envío para conocer el estado y ubicación de tu paquete en vivo.
             </p>
           </div>
 
@@ -497,7 +497,7 @@ export const LandingPage: React.FC = () => {
                 ¿Tienes una tienda o emprendimiento?
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-                Afíliate a <strong className="text-violet-300">Dream Drivers</strong> para gestionar tus envíos, definir direcciones de recojo y brindar seguimiento en vivo a tus clientes.
+                Afíliate a <strong className="text-violet-300">ALMAIN CURRIER</strong> para gestionar tus envíos, definir direcciones de recojo y brindar seguimiento en vivo a tus clientes.
               </p>
             </div>
 
@@ -517,11 +517,11 @@ export const LandingPage: React.FC = () => {
       <footer className="border-t border-slate-900 py-8 px-4 sm:px-8 text-center text-xs text-slate-500 space-y-2">
         <div className="flex items-center justify-center gap-2 font-bold text-slate-400">
           <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-violet-600 to-indigo-600 text-white text-xs font-black flex items-center justify-center">
-            DD
+            AC
           </div>
-          <span>Dream Drivers S.A.C.</span>
+          <span>ALMAIN CURRIER S.A.C.</span>
         </div>
-        <p>© {new Date().getFullYear()} Dream Drivers. Todos los derechos reservados.</p>
+        <p>© {new Date().getFullYear()} ALMAIN CURRIER. Todos los derechos reservados.</p>
       </footer>
     </div>
   );

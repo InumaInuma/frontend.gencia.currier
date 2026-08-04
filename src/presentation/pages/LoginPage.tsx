@@ -55,10 +55,10 @@ export const LoginPage: React.FC = () => {
         <div className="text-center mb-8">
           <Link to="/" className="inline-block group cursor-pointer">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white font-bold text-xl mb-4 shadow-lg shadow-violet-500/20 group-hover:scale-105 transition-all">
-              DD
+              AC
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-white group-hover:text-violet-300 transition-colors">
-              Dream Drivers
+              ALMAIN CURRIER
             </h1>
           </Link>
           <p className="text-sm text-slate-400 mt-1">

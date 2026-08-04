@@ -72,7 +72,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
     } else {
       // Fallback para navegadores que soportan PWA de forma directa en su menú
       alert(
-        '📱 Para instalar Dream Drivers:\nEn el menú de tu navegador (⋮), selecciona "Instalar Aplicación" o "Agregar a Pantalla de Inicio".'
+        '📱 Para instalar ALMAIN CURRIER:\nEn el menú de tu navegador (⋮), selecciona "Instalar Aplicación" o "Agregar a Pantalla de Inicio".'
       );
     }
   };
@@ -93,7 +93,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
         <button
           onClick={handleInstallClick}
           className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-medium text-xs shadow-lg shadow-violet-500/20 transition-all duration-200 cursor-pointer active:scale-95 ${className}`}
-          title="Descargar App Dream Drivers"
+          title="Descargar App ALMAIN CURRIER"
         >
           <Download className="w-3.5 h-3.5 animate-bounce" />
           <span>Descargar App</span>
@@ -132,7 +132,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
                 <Smartphone className="w-6 h-6 text-violet-400" />
               </div>
               <div>
-                <h3 className="font-bold text-lg text-white">Instalar Dream Drivers</h3>
+                <h3 className="font-bold text-lg text-white">Instalar ALMAIN CURRIER</h3>
                 <p className="text-xs text-slate-400">Instrucciones para iPhone & iPad</p>
               </div>
             </div>
