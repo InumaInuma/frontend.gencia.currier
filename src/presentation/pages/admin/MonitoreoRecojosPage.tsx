@@ -22,7 +22,8 @@ import {
   Filter,
   UserCheck,
   Package,
-  Store
+  Store,
+  Calendar
 } from 'lucide-react';
 
 // ─────────────────────────────────────────────
@@ -53,7 +54,13 @@ interface GroupedDriverRoute {
   totalPedidos: number;
 }
 
-
+const getTodayFormatted = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 // ─────────────────────────────────────────────
 // Main Page
@@ -69,7 +76,14 @@ export const MonitoreoRecojosPage: React.FC = () => {
   const [selectedDriverFilter, setSelectedDriverFilter] = useState<string>('todos');
   const [openRouteIds, setOpenRouteIds] = useState<number[]>([]);
 
-  const { data: monitoreoItems, isLoading, refetch } = useMonitoreoRecojosAdmin();
+  // Filtros por Rango de Fechas
+  const [fechaInicio, setFechaInicio] = useState<string>(getTodayFormatted());
+  const [fechaFin, setFechaFin] = useState<string>(getTodayFormatted());
+
+  const { data: monitoreoItems, isLoading, refetch } = useMonitoreoRecojosAdmin({
+    fechaInicio: fechaInicio || undefined,
+    fechaFin: fechaFin || undefined,
+  });
 
   const handleLogout = async () => {
     await logout();
@@ -240,8 +254,8 @@ export const MonitoreoRecojosPage: React.FC = () => {
           </div>
 
           {/* Filters */}
-          <div className="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full sm:w-80">
+          <div className="bg-slate-900/40 border border-slate-900 p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full md:w-80">
               <Search className="absolute left-3 top-2.5 text-slate-500" size={18} />
               <input
                 type="text"
@@ -251,18 +265,61 @@ export const MonitoreoRecojosPage: React.FC = () => {
                 className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
               />
             </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Filter size={16} className="text-slate-400 shrink-0" />
-              <select
-                value={selectedDriverFilter}
-                onChange={(e) => setSelectedDriverFilter(e.target.value)}
-                className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 cursor-pointer w-full sm:w-auto"
+            
+            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+              {/* Selector de Motorizado */}
+              <div className="flex items-center gap-2">
+                <Filter size={16} className="text-slate-400 shrink-0" />
+                <select
+                  value={selectedDriverFilter}
+                  onChange={(e) => setSelectedDriverFilter(e.target.value)}
+                  className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 cursor-pointer"
+                >
+                  <option value="todos">Todos los Motorizados</option>
+                  {uniqueDrivers.map((d) => (
+                    <option key={d.id} value={d.id.toString()}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Rango de Fechas */}
+              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
+                <Calendar size={13} className="text-violet-400" />
+                <span className="text-slate-400 text-[11px] font-semibold">Desde:</span>
+                <input
+                  type="date"
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                  className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
+                <Calendar size={13} className="text-violet-400" />
+                <span className="text-slate-400 text-[11px] font-semibold">Hasta:</span>
+                <input
+                  type="date"
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  const today = getTodayFormatted();
+                  setFechaInicio(today);
+                  setFechaFin(today);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl font-semibold transition-colors cursor-pointer text-xs ${
+                  fechaInicio === getTodayFormatted() && fechaFin === getTodayFormatted()
+                    ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
+                }`}
+                title="Filtrar envíos del día de hoy"
               >
-                <option value="todos">Todos los Motorizados</option>
-                {uniqueDrivers.map((d) => (
-                  <option key={d.id} value={d.id.toString()}>{d.name}</option>
-                ))}
-              </select>
+                Hoy
+              </button>
             </div>
           </div>
 

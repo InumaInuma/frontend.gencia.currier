@@ -23,11 +23,11 @@ export interface IPedidosRepository {
   registrarPedido(params: IRegisterPedidoParams): Promise<IPedidoResultado>;
   getMisPedidos(params?: { fechaInicio?: string; fechaFin?: string; pageNumber?: number; pageSize?: number }): Promise<IPedido[]>;
   getMisCompras(): Promise<IPedido[]>;
-  getTodosLosPedidosAdmin(): Promise<IPedido[]>;
+  getTodosLosPedidosAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IPedido[]>;
   getConductoresDisponibles(): Promise<IConductor[]>;
   getPedidosPendientesRecojo(): Promise<IPedido[]>;
   asignarRecojo(params: IAsignarRecojoParams): Promise<boolean>;
-  getMonitoreoRecojosAdmin(): Promise<IMonitoreoRecojo[]>;
+  getMonitoreoRecojosAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IMonitoreoRecojo[]>;
   getMisRecojosMotorizado(): Promise<IMonitoreoRecojo[]>;
   actualizarEstadoComercioRecojo(params: { idAsignacionRecojo: number; idComercio: number; idEstado: number }): Promise<boolean>;
   actualizarEstadoAlmacenRecojo(params: { idAsignacionRecojo: number; idEstado: number }): Promise<boolean>;

@@ -76,9 +76,14 @@ export class PedidosRepository implements IPedidosRepository {
     }
   }
 
-  async getTodosLosPedidosAdmin(): Promise<IPedido[]> {
+  async getTodosLosPedidosAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IPedido[]> {
     try {
-      const response = await apiClient.get<BaseResponse<IPedido[]>>('/api/pedidos/admin-todos');
+      const queryParams = new URLSearchParams();
+      if (params?.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params?.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+
+      const url = `/api/pedidos/admin-todos${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await apiClient.get<BaseResponse<IPedido[]>>(url);
       const body = response.data;
       if (!body.isSuccess || !body.data) {
         throw new Error(body.message || 'Error al obtener los pedidos para el panel admin.');
@@ -132,9 +137,14 @@ export class PedidosRepository implements IPedidosRepository {
     }
   }
 
-  async getMonitoreoRecojosAdmin(): Promise<IMonitoreoRecojo[]> {
+  async getMonitoreoRecojosAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IMonitoreoRecojo[]> {
     try {
-      const response = await apiClient.get<BaseResponse<IMonitoreoRecojo[]>>('/api/pedidos/monitoreo-recojos');
+      const queryParams = new URLSearchParams();
+      if (params?.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params?.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+
+      const url = `/api/pedidos/monitoreo-recojos${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await apiClient.get<BaseResponse<IMonitoreoRecojo[]>>(url);
       const body = response.data;
       if (!body.isSuccess || !body.data) {
         throw new Error(body.message || 'Error al obtener el monitoreo de recojos.');

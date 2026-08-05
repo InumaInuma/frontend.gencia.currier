@@ -19,8 +19,17 @@ import {
   ChevronUp,
   RefreshCw,
   LogOut,
-  Navigation
+  Navigation,
+  Calendar
 } from 'lucide-react';
+
+const getTodayFormatted = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 interface ComercioGroup {
   idComercio: number;
@@ -45,7 +54,14 @@ export const AdminDashboard: React.FC = () => {
   const [openCommerceIds, setOpenCommerceIds] = useState<number[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  const { data: pedidos, isLoading, refetch, isRefetching } = useAdminPedidos();
+  // Filtro de Rango de Fechas por defecto en HOY
+  const [fechaInicio, setFechaInicio] = useState<string>(getTodayFormatted());
+  const [fechaFin, setFechaFin] = useState<string>(getTodayFormatted());
+
+  const { data: pedidos, isLoading, refetch, isRefetching } = useAdminPedidos({
+    fechaInicio: fechaInicio || undefined,
+    fechaFin: fechaFin || undefined,
+  });
 
   const handleLogout = async () => {
     await logout();
@@ -223,21 +239,58 @@ export const AdminDashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-2xl border border-slate-900">
-            <div className="relative w-full sm:w-96">
+          {/* Search & Date Filter Bar */}
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-2xl border border-slate-900">
+            <div className="relative w-full md:w-80">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
               <input
                 type="text"
                 placeholder="Buscar por comercio, RUC, código o cliente..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
               />
             </div>
 
-            <div className="text-xs text-slate-400 font-medium self-end sm:self-center">
-              Mostrando <span className="text-white font-bold">{comercioGroups.length}</span> comercios con pedidos.
+            {/* Controles de Rango de Fechas */}
+            <div className="flex flex-wrap items-center gap-2 text-xs w-full md:w-auto justify-between md:justify-end">
+              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
+                <Calendar size={13} className="text-violet-400" />
+                <span className="text-slate-400 text-[11px] font-semibold">Desde:</span>
+                <input
+                  type="date"
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                  className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
+                <Calendar size={13} className="text-violet-400" />
+                <span className="text-slate-400 text-[11px] font-semibold">Hasta:</span>
+                <input
+                  type="date"
+                  value={fechaFin}
+                  onChange={(e) => setFechaFin(e.target.value)}
+                  className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  const today = getTodayFormatted();
+                  setFechaInicio(today);
+                  setFechaFin(today);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl font-semibold transition-colors cursor-pointer text-xs ${
+                  fechaInicio === getTodayFormatted() && fechaFin === getTodayFormatted()
+                    ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
+                }`}
+                title="Filtrar envíos del día de hoy"
+              >
+                Hoy
+              </button>
             </div>
           </div>
 

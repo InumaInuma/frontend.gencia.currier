@@ -22,10 +22,10 @@ export const useMisCompras = () => {
   });
 };
 
-export const useAdminPedidos = () => {
+export const useAdminPedidos = (params?: { fechaInicio?: string; fechaFin?: string }) => {
   return useQuery({
-    queryKey: ['admin-pedidos-todos'],
-    queryFn: () => pedidosRepository.getTodosLosPedidosAdmin(),
+    queryKey: ['admin-pedidos-todos', params?.fechaInicio, params?.fechaFin],
+    queryFn: () => pedidosRepository.getTodosLosPedidosAdmin(params),
     refetchOnWindowFocus: false,
   });
 };
@@ -46,10 +46,10 @@ export const usePedidosPendientesRecojo = () => {
   });
 };
 
-export const useMonitoreoRecojosAdmin = () => {
+export const useMonitoreoRecojosAdmin = (params?: { fechaInicio?: string; fechaFin?: string }) => {
   return useQuery({
-    queryKey: ['monitoreo-recojos-admin'],
-    queryFn: () => pedidosRepository.getMonitoreoRecojosAdmin(),
+    queryKey: ['monitoreo-recojos-admin', params?.fechaInicio, params?.fechaFin],
+    queryFn: () => pedidosRepository.getMonitoreoRecojosAdmin(params),
     refetchOnWindowFocus: false,
   });
 };
