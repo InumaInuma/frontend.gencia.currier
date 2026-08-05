@@ -204,19 +204,6 @@ export const ComercioDashboard: React.FC = () => {
                 >
                   Hoy
                 </button>
-
-                {(fechaInicio || fechaFin) && (
-                  <button
-                    onClick={() => {
-                      setFechaInicio('');
-                      setFechaFin('');
-                    }}
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white font-semibold transition-colors cursor-pointer text-xs"
-                    title="Ver historial completo sin filtro de fechas"
-                  >
-                    Ver Todos
-                  </button>
-                )}
               </div>
             </div>
 
