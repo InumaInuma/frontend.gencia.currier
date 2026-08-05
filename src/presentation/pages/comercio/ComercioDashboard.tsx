@@ -8,6 +8,14 @@ import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
 import { LogOut, ShoppingBag, Plus, ShoppingCart, Clock, Truck, CheckCircle2, Calendar } from 'lucide-react';
 
+const getTodayFormatted = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const ComercioDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -16,9 +24,9 @@ export const ComercioDashboard: React.FC = () => {
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
 
-  // Filtros por Rango de Fechas
-  const [fechaInicio, setFechaInicio] = useState<string>('');
-  const [fechaFin, setFechaFin] = useState<string>('');
+  // Filtros por Rango de Fechas - Inicializado por defecto con la fecha de HOY
+  const [fechaInicio, setFechaInicio] = useState<string>(getTodayFormatted());
+  const [fechaFin, setFechaFin] = useState<string>(getTodayFormatted());
 
   const { data: pedidos, isLoading: loadingPedidos } = useMisPedidos({
     fechaInicio: fechaInicio || undefined,
@@ -166,7 +174,7 @@ export const ComercioDashboard: React.FC = () => {
                     type="date"
                     value={fechaInicio}
                     onChange={(e) => setFechaInicio(e.target.value)}
-                    className="bg-transparent text-white text-xs outline-none cursor-pointer"
+                    className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
                   />
                 </div>
 
@@ -177,9 +185,25 @@ export const ComercioDashboard: React.FC = () => {
                     type="date"
                     value={fechaFin}
                     onChange={(e) => setFechaFin(e.target.value)}
-                    className="bg-transparent text-white text-xs outline-none cursor-pointer"
+                    className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
                   />
                 </div>
+
+                <button
+                  onClick={() => {
+                    const today = getTodayFormatted();
+                    setFechaInicio(today);
+                    setFechaFin(today);
+                  }}
+                  className={`px-2.5 py-1.5 rounded-xl font-semibold transition-colors cursor-pointer text-xs ${
+                    fechaInicio === getTodayFormatted() && fechaFin === getTodayFormatted()
+                      ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40'
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
+                  }`}
+                  title="Filtrar envíos del día de hoy"
+                >
+                  Hoy
+                </button>
 
                 {(fechaInicio || fechaFin) && (
                   <button
@@ -187,10 +211,10 @@ export const ComercioDashboard: React.FC = () => {
                       setFechaInicio('');
                       setFechaFin('');
                     }}
-                    className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold transition-colors cursor-pointer text-xs"
-                    title="Limpiar filtro de fechas"
+                    className="px-2.5 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white font-semibold transition-colors cursor-pointer text-xs"
+                    title="Ver historial completo sin filtro de fechas"
                   >
-                    Limpiar
+                    Ver Todos
                   </button>
                 )}
               </div>
