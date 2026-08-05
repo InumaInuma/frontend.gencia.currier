@@ -18,8 +18,21 @@ function getEstadoBadgeClass(estado: string): string {
 }
 
 export const TablaMonitoreoRecojo: React.FC<Props> = ({ pedidos }) => {
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Reset page when pedidos change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [pedidos]);
+
+  const totalPages = Math.ceil(pedidos.length / ITEMS_PER_PAGE) || 1;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, pedidos.length);
+  const currentPedidos = pedidos.slice(startIndex, endIndex);
+
   return (
-    <div>
+    <div className="space-y-4">
       {/* ── DESKTOP: HTML TABLE ── */}
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-left text-sm border-collapse">
@@ -34,7 +47,7 @@ export const TablaMonitoreoRecojo: React.FC<Props> = ({ pedidos }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-800/60 text-slate-300">
-            {pedidos.map((p) => (
+            {currentPedidos.map((p) => (
               <tr key={p.idPedido} className="hover:bg-slate-900/50 transition-colors">
 
                 {/* 1. Código de Seguimiento */}
@@ -114,7 +127,7 @@ export const TablaMonitoreoRecojo: React.FC<Props> = ({ pedidos }) => {
 
       {/* ── MOBILE: CARDS ── */}
       <div className="block md:hidden space-y-4 p-4">
-        {pedidos.map((p) => (
+        {currentPedidos.map((p) => (
           <div key={p.idPedido} className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-md">
 
             {/* Header: Código + Estado */}
@@ -166,6 +179,53 @@ export const TablaMonitoreoRecojo: React.FC<Props> = ({ pedidos }) => {
           </div>
         ))}
       </div>
+
+      {/* ── PAGINACIÓN ── */}
+      {pedidos.length > 0 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-900 px-3 text-xs">
+          <div className="text-slate-400">
+            Mostrando <span className="font-semibold text-white">{startIndex + 1}</span> a{' '}
+            <span className="font-semibold text-white">{endIndex}</span> de{' '}
+            <span className="font-semibold text-white">{pedidos.length}</span> envíos
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
+              >
+                &lt; Anterior
+              </button>
+
+              <div className="flex items-center gap-1 px-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                      currentPage === pageNum
+                        ? 'bg-violet-600 text-white shadow-md shadow-violet-600/30'
+                        : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:bg-slate-800'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium cursor-pointer"
+              >
+                Siguiente &gt;
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
