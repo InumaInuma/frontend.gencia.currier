@@ -6,7 +6,7 @@ import { CrearPedidoModal } from '../../components/CrearPedidoModal';
 import { TablaPedidos } from '../../components/TablaPedidos';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
-import { LogOut, ShoppingBag, Plus, ShoppingCart, Clock, Truck, CheckCircle2 } from 'lucide-react';
+import { LogOut, ShoppingBag, Plus, ShoppingCart, Clock, Truck, CheckCircle2, Calendar } from 'lucide-react';
 
 export const ComercioDashboard: React.FC = () => {
   const { user, logout } = useAuth();
@@ -16,7 +16,14 @@ export const ComercioDashboard: React.FC = () => {
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
 
-  const { data: pedidos, isLoading: loadingPedidos } = useMisPedidos();
+  // Filtros por Rango de Fechas
+  const [fechaInicio, setFechaInicio] = useState<string>('');
+  const [fechaFin, setFechaFin] = useState<string>('');
+
+  const { data: pedidos, isLoading: loadingPedidos } = useMisPedidos({
+    fechaInicio: fechaInicio || undefined,
+    fechaFin: fechaFin || undefined,
+  });
 
   const handleLogout = async () => {
     await logout();
@@ -144,10 +151,48 @@ export const ComercioDashboard: React.FC = () => {
 
           {/* Live Orders Container */}
           <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-5 sm:p-6">
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800/80">
               <div>
                 <h2 className="text-lg font-bold text-white">Historial de Envíos Agendados</h2>
                 <p className="text-xs text-slate-400 mt-0.5">Monitorea y comparte los códigos de seguimiento con tus clientes.</p>
+              </div>
+
+              {/* Controles de Filtro por Rango de Fechas */}
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
+                  <Calendar size={13} className="text-violet-400" />
+                  <span className="text-slate-400 text-[11px] font-semibold">Desde:</span>
+                  <input
+                    type="date"
+                    value={fechaInicio}
+                    onChange={(e) => setFechaInicio(e.target.value)}
+                    className="bg-transparent text-white text-xs outline-none cursor-pointer"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
+                  <Calendar size={13} className="text-violet-400" />
+                  <span className="text-slate-400 text-[11px] font-semibold">Hasta:</span>
+                  <input
+                    type="date"
+                    value={fechaFin}
+                    onChange={(e) => setFechaFin(e.target.value)}
+                    className="bg-transparent text-white text-xs outline-none cursor-pointer"
+                  />
+                </div>
+
+                {(fechaInicio || fechaFin) && (
+                  <button
+                    onClick={() => {
+                      setFechaInicio('');
+                      setFechaFin('');
+                    }}
+                    className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold transition-colors cursor-pointer text-xs"
+                    title="Limpiar filtro de fechas"
+                  >
+                    Limpiar
+                  </button>
+                )}
               </div>
             </div>
 

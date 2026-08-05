@@ -6,10 +6,10 @@ import type { IConfirmarEntregaParams } from '../../domain/repositories/IPedidos
 
 const pedidosRepository = new PedidosRepository();
 
-export const useMisPedidos = () => {
+export const useMisPedidos = (params?: { fechaInicio?: string; fechaFin?: string; pageNumber?: number; pageSize?: number }) => {
   return useQuery({
-    queryKey: ['mis-pedidos'],
-    queryFn: () => pedidosRepository.getMisPedidos(),
+    queryKey: ['mis-pedidos', params?.fechaInicio, params?.fechaFin, params?.pageNumber, params?.pageSize],
+    queryFn: () => pedidosRepository.getMisPedidos(params),
     refetchOnWindowFocus: false,
   });
 };

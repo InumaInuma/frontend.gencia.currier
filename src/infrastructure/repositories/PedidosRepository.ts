@@ -41,9 +41,16 @@ export class PedidosRepository implements IPedidosRepository {
     }
   }
 
-  async getMisPedidos(): Promise<IPedido[]> {
+  async getMisPedidos(params?: { fechaInicio?: string; fechaFin?: string; pageNumber?: number; pageSize?: number }): Promise<IPedido[]> {
     try {
-      const response = await apiClient.get<BaseResponse<IPedido[]>>('/api/pedidos/mis-pedidos');
+      const queryParams = new URLSearchParams();
+      if (params?.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params?.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+      if (params?.pageNumber) queryParams.append('pageNumber', params.pageNumber.toString());
+      if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
+
+      const url = `/api/pedidos/mis-pedidos${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await apiClient.get<BaseResponse<IPedido[]>>(url);
       const body = response.data;
       if (!body.isSuccess || !body.data) {
         throw new Error(body.message || 'Error al obtener el historial de pedidos.');

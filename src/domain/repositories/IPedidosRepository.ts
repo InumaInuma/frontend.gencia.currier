@@ -21,7 +21,7 @@ export interface IConfirmarEntregaParams {
 export interface IPedidosRepository {
   getDistritos(): Promise<IDistrito[]>;
   registrarPedido(params: IRegisterPedidoParams): Promise<IPedidoResultado>;
-  getMisPedidos(): Promise<IPedido[]>;
+  getMisPedidos(params?: { fechaInicio?: string; fechaFin?: string; pageNumber?: number; pageSize?: number }): Promise<IPedido[]>;
   getMisCompras(): Promise<IPedido[]>;
   getTodosLosPedidosAdmin(): Promise<IPedido[]>;
   getConductoresDisponibles(): Promise<IConductor[]>;
