@@ -183,7 +183,7 @@ export const ComercioDashboard: React.FC = () => {
 
           {/* Live Orders Container */}
           <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-5 sm:p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-900">
               <div>
                 <h2 className="text-lg font-bold text-white">Historial de Envíos Agendados</h2>
                 <p className="text-xs text-slate-400 mt-0.5">Monitorea y comparte los códigos de seguimiento con tus clientes.</p>

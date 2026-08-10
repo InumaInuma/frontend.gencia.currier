@@ -201,7 +201,7 @@ export const ClienteDashboard: React.FC = () => {
               
               {/* Package Summary Card */}
               <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-2xl">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-900 pb-4">
                   <div>
                     <span className="text-[11px] text-violet-400 font-bold uppercase tracking-wider block">
                       Código de Seguimiento

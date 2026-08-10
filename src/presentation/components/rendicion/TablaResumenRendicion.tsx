@@ -145,7 +145,7 @@ export const TablaResumenRendicion: React.FC<Props> = ({
         <div className="bg-slate-900/40 border border-slate-900 rounded-2xl overflow-hidden shadow-xl overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-300 border-collapse min-w-[950px]">
             <thead>
-              <tr className="border-b border-slate-800 text-slate-400 uppercase font-semibold text-[11px] bg-slate-950/80">
+              <tr className="border-b border-slate-900 text-slate-400 uppercase font-semibold text-[11px] bg-slate-950/80">
                 <th className="p-3.5">Motorizado / Repartidor</th>
                 <th className="p-3.5 text-center">Rendimiento Entregas</th>
                 <th className="p-3.5 text-right text-amber-400">Efectivo Pendiente</th>

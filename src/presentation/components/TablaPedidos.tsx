@@ -44,7 +44,7 @@ export const TablaPedidos: React.FC<Props> = ({ pedidos, onCopyCode, onShareWhat
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full text-left text-sm border-collapse">
           <thead>
-            <tr className="border-b border-slate-800 text-slate-400 font-semibold text-xs uppercase tracking-wider">
+            <tr className="border-b border-slate-900 text-slate-400 font-semibold text-xs uppercase tracking-wider bg-slate-950/80">
               <th className="pb-3 px-3">Código Envío</th>
               <th className="pb-3 px-3">Fecha Registro</th>
               <th className="pb-3 px-3">Cliente / Celular</th>
@@ -55,7 +55,7 @@ export const TablaPedidos: React.FC<Props> = ({ pedidos, onCopyCode, onShareWhat
               <th className="pb-3 px-3 text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 text-slate-300">
+          <tbody className="divide-y divide-slate-900 text-slate-300">
             {currentPedidos.map((pedido) => {
               const dateObj = formatDate(pedido.fechaRegistro);
               return (
@@ -303,7 +303,7 @@ export const TablaPedidos: React.FC<Props> = ({ pedidos, onCopyCode, onShareWhat
 
       {/* PAGINATION CONTROLS BAR (10 items per page) */}
       {pedidos.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-800/80 text-xs text-slate-400">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-900 text-xs text-slate-400">
           <div>
             Mostrando <span className="font-semibold text-white">{startIndex + 1}</span> a{' '}
             <span className="font-semibold text-white">

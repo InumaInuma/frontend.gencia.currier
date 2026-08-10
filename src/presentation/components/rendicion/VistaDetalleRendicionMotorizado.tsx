@@ -144,7 +144,7 @@ export const VistaDetalleRendicionMotorizado: React.FC<Props> = ({
 
       {/* Granular Table of All Packages Assigned in Selected Date Range */}
       <div className="bg-slate-900/40 border border-slate-900 rounded-3xl p-5 sm:p-6 space-y-4 shadow-2xl">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pb-3 border-b border-slate-900">
           <div>
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <Receipt size={18} className="text-violet-400" />
@@ -155,7 +155,7 @@ export const VistaDetalleRendicionMotorizado: React.FC<Props> = ({
             </p>
           </div>
 
-          <span className="text-xs text-slate-400 font-semibold bg-slate-950 px-3 py-1 rounded-xl border border-slate-800">
+          <span className="text-xs text-slate-400 font-semibold bg-slate-950 px-3 py-1 rounded-xl border border-slate-900">
             Mostrando <strong className="text-white">{detalleList?.length || 0}</strong> pedidos
           </span>
         </div>
@@ -178,7 +178,7 @@ export const VistaDetalleRendicionMotorizado: React.FC<Props> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs text-slate-300 border-collapse min-w-[900px]">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 uppercase font-semibold text-[10px] bg-slate-950/80">
+                <tr className="border-b border-slate-900 text-slate-400 uppercase font-semibold text-[10px] bg-slate-950/80">
                   <th className="p-3">Código Tracking</th>
                   <th className="p-3">Comercio Remitente</th>
                   <th className="p-3">Cliente Destinatario</th>

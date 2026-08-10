@@ -327,7 +327,7 @@ export const AdminDashboard: React.FC = () => {
                 {/* Commerce Header Accordion Bar */}
                 <div
                   onClick={() => toggleAccordion(group.idComercio)}
-                  className="p-5 bg-slate-900/80 hover:bg-slate-900 border-b border-slate-800 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors"
+                  className="p-5 bg-slate-900/80 hover:bg-slate-900 border-b border-slate-900 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-violet-600/20 text-violet-400 border border-violet-500/30 flex items-center justify-center font-extrabold text-base shrink-0">
@@ -373,7 +373,7 @@ export const AdminDashboard: React.FC = () => {
 
                 {/* Highlighted Commerce Pickup Location Box */}
                 {isOpen && (
-                  <div className="bg-gradient-to-r from-violet-950/30 via-slate-900/60 to-slate-950/30 p-5 border-b border-slate-800 space-y-4">
+                  <div className="bg-gradient-to-r from-violet-950/30 via-slate-900/60 to-slate-950/30 p-5 border-b border-slate-900 space-y-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-2 text-violet-400 font-bold text-xs uppercase tracking-wider">
                         <Navigation size={16} className="text-violet-400 shrink-0" />

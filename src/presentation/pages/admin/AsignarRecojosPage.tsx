@@ -497,7 +497,7 @@ export const AsignarRecojosPage: React.FC = () => {
                       <div className="bg-slate-950/60 border border-slate-800 rounded-2xl overflow-hidden overflow-x-auto">
                         <table className="w-full text-left text-xs text-slate-300 border-collapse min-w-[700px]">
                           <thead>
-                            <tr className="border-b border-slate-800 text-slate-400 uppercase font-semibold text-[11px] bg-slate-950/40">
+                            <tr className="border-b border-slate-900 text-slate-400 uppercase font-semibold text-[11px] bg-slate-950/40">
                               <th className="p-3 w-10 text-center">Sel.</th>
                               <th className="p-3">Código Envío</th>
                               <th className="p-3">Destinatario / Celular</th>
