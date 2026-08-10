@@ -268,9 +268,14 @@ export class PedidosRepository implements IPedidosRepository {
     }
   }
 
-  async getLiquidacionesResumenAdmin(): Promise<import('../../domain/models/ILiquidacionResumen').ILiquidacionResumen[]> {
+  async getLiquidacionesResumenAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<import('../../domain/models/ILiquidacionResumen').ILiquidacionResumen[]> {
     try {
-      const response = await apiClient.get<BaseResponse<import('../../domain/models/ILiquidacionResumen').ILiquidacionResumen[]>>('/api/pedidos/admin/liquidaciones');
+      const queryParams = new URLSearchParams();
+      if (params?.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params?.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+
+      const url = `/api/pedidos/admin/liquidaciones${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await apiClient.get<BaseResponse<import('../../domain/models/ILiquidacionResumen').ILiquidacionResumen[]>>(url);
       const body = response.data;
       if (!body.isSuccess || !body.data) {
         throw new Error(body.message || 'Error al obtener resumen de liquidaciones.');
@@ -282,9 +287,14 @@ export class PedidosRepository implements IPedidosRepository {
     }
   }
 
-  async getLiquidacionDetalleMotorizado(idConductor: number): Promise<import('../../domain/models/ILiquidacionDetalle').ILiquidacionDetalle[]> {
+  async getLiquidacionDetalleMotorizado(idConductor: number, params?: { fechaInicio?: string; fechaFin?: string }): Promise<import('../../domain/models/ILiquidacionDetalle').ILiquidacionDetalle[]> {
     try {
-      const response = await apiClient.get<BaseResponse<import('../../domain/models/ILiquidacionDetalle').ILiquidacionDetalle[]>>(`/api/pedidos/admin/liquidaciones/${idConductor}`);
+      const queryParams = new URLSearchParams();
+      if (params?.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params?.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+
+      const url = `/api/pedidos/admin/liquidaciones/${idConductor}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await apiClient.get<BaseResponse<import('../../domain/models/ILiquidacionDetalle').ILiquidacionDetalle[]>>(url);
       const body = response.data;
       if (!body.isSuccess || !body.data) {
         throw new Error(body.message || 'Error al obtener detalle de liquidación del motorizado.');

@@ -36,8 +36,8 @@ export interface IPedidosRepository {
   getMisEntregasMotorizado(): Promise<IMonitoreoEntrega[]>;
   iniciarRutaEntrega(idAsignacionEntrega: number): Promise<boolean>;
   actualizarEstadoEntregaPedido(params: IConfirmarEntregaParams): Promise<boolean>;
-  getLiquidacionesResumenAdmin(): Promise<ILiquidacionResumen[]>;
-  getLiquidacionDetalleMotorizado(idConductor: number): Promise<ILiquidacionDetalle[]>;
+  getLiquidacionesResumenAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<ILiquidacionResumen[]>;
+  getLiquidacionDetalleMotorizado(idConductor: number, params?: { fechaInicio?: string; fechaFin?: string }): Promise<ILiquidacionDetalle[]>;
   confirmarRendicionDinero(idConductor: number): Promise<boolean>;
   rastrearPedidoPorCodigo(codigo: string): Promise<IRastreoPedido | null>;
 }

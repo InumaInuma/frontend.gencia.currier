@@ -97,7 +97,7 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
       <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl my-8">
-        
+
         {/* Close Button */}
         <button
           onClick={handleResetAndClose}
@@ -133,7 +133,7 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
               <div className="bg-slate-950/80 border border-amber-500/30 rounded-2xl p-4 text-left space-y-2 max-w-md mx-auto shadow-lg">
                 <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
                   <Clock size={16} className="shrink-0" />
-                  <span>Programación de Entrega (Agendado &gt; 09:30 AM Hora Perú)</span>
+                  <span>Programación de Entrega (Tu pedido fue agendado mas de las 09:30 AM Hora Perú)</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">
                   Tu pedido fue agendado después del horario límite de las <strong>09:30 AM</strong>.
@@ -208,7 +208,7 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              
+
               {/* 1. Remitente / Tienda */}
               <div>
                 <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block mb-1">
@@ -337,9 +337,8 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
                   <button
                     type="button"
                     onClick={() => setEsContraEntrega(!esContraEntrega)}
-                    className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ${
-                      esContraEntrega ? 'bg-violet-600 justify-end' : 'bg-slate-800 justify-start'
-                    }`}
+                    className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ${esContraEntrega ? 'bg-violet-600 justify-end' : 'bg-slate-800 justify-start'
+                      }`}
                   >
                     <div className="w-4 h-4 rounded-full bg-white shadow-md" />
                   </button>

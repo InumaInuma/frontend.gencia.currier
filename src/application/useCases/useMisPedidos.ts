@@ -171,18 +171,18 @@ export const useRegistrarPedido = () => {
   });
 };
 
-export const useLiquidacionesResumenAdmin = () => {
+export const useLiquidacionesResumenAdmin = (params?: { fechaInicio?: string; fechaFin?: string }) => {
   return useQuery({
-    queryKey: ['liquidaciones-resumen-admin'],
-    queryFn: () => pedidosRepository.getLiquidacionesResumenAdmin(),
+    queryKey: ['liquidaciones-resumen-admin', params?.fechaInicio, params?.fechaFin],
+    queryFn: () => pedidosRepository.getLiquidacionesResumenAdmin(params),
     refetchOnWindowFocus: false,
   });
 };
 
-export const useLiquidacionDetalleMotorizado = (idConductor: number | null) => {
+export const useLiquidacionDetalleMotorizado = (idConductor: number | null, params?: { fechaInicio?: string; fechaFin?: string }) => {
   return useQuery({
-    queryKey: ['liquidacion-detalle-motorizado', idConductor],
-    queryFn: () => (idConductor ? pedidosRepository.getLiquidacionDetalleMotorizado(idConductor) : Promise.resolve([])),
+    queryKey: ['liquidacion-detalle-motorizado', idConductor, params?.fechaInicio, params?.fechaFin],
+    queryFn: () => (idConductor ? pedidosRepository.getLiquidacionDetalleMotorizado(idConductor, params) : Promise.resolve([])),
     enabled: !!idConductor,
     refetchOnWindowFocus: false,
   });
