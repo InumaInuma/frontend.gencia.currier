@@ -20,6 +20,8 @@ export interface IPedido {
   montoCobrar: number;
   idEstadosPedido?: number;
   estadoNombre: string;
+  nombreConductor?: string;
+  telefonoConductor?: string;
   fechaRegistro: string;
 }
 
