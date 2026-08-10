@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
 @layer base {
+  *, ::before, ::after {
+    border-color: #1e293b;
+  }
+
   body {
     @apply bg-slate-950 text-slate-100 font-sans antialiased;
+  }
+
+  table, th, td {
+    border-color: #0f172a;
   }
 }

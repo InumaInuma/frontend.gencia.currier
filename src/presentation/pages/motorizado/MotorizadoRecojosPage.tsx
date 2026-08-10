@@ -403,7 +403,7 @@ export const MotorizadoRecojosPage: React.FC = () => {
                   {isOpen && (
                     <div className="p-4 sm:p-6 space-y-4">
                       {/* Driver Status Progression Buttons */}
-                      <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="bg-slate-950/80 p-4 rounded-2xl border border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="text-xs text-slate-300 space-y-1 w-full sm:w-auto">
                           <div className="flex items-center gap-2 font-bold text-white">
                             <Navigation size={14} className="text-violet-400" />
@@ -460,7 +460,7 @@ export const MotorizadoRecojosPage: React.FC = () => {
                       </div>
 
                       {/* Package Table Component */}
-                      <div className="bg-slate-950/60 border border-slate-800 rounded-2xl overflow-hidden">
+                      <div className="bg-slate-950/60 border border-slate-900 rounded-2xl overflow-hidden p-3">
                         <TablaMonitoreoRecojo pedidos={comercio.pedidos} />
                       </div>
                     </div>

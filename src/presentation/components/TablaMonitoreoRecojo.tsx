@@ -35,18 +35,18 @@ export const TablaMonitoreoRecojo: React.FC<Props> = ({ pedidos }) => {
     <div className="space-y-4">
       {/* ── DESKTOP: HTML TABLE ── */}
       <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-left text-sm border-collapse">
+        <table className="w-full text-left text-xs border-collapse border-spacing-0">
           <thead>
-            <tr className="border-b border-slate-800 text-slate-400 font-semibold text-xs uppercase tracking-wider">
-              <th className="pb-3 px-3">Código Envío</th>
-              <th className="pb-3 px-3">Destinatario / Celular</th>
-              <th className="pb-3 px-3">Distrito &amp; Dirección</th>
-              <th className="pb-3 px-3">Notas / Ref.</th>
-              <th className="pb-3 px-3">Cobro</th>
-              <th className="pb-3 px-3">Estado</th>
+            <tr className="border-b border-slate-900 text-slate-400 font-semibold text-[11px] uppercase tracking-wider bg-slate-950/80">
+              <th className="py-3 px-3">Código Envío</th>
+              <th className="py-3 px-3">Destinatario / Celular</th>
+              <th className="py-3 px-3">Distrito &amp; Dirección</th>
+              <th className="py-3 px-3">Notas / Ref.</th>
+              <th className="py-3 px-3">Cobro</th>
+              <th className="py-3 px-3">Estado</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 text-slate-300">
+          <tbody className="divide-y divide-slate-900 text-slate-300">
             {currentPedidos.map((p) => (
               <tr key={p.idPedido} className="hover:bg-slate-900/50 transition-colors">
 
@@ -128,7 +128,7 @@ export const TablaMonitoreoRecojo: React.FC<Props> = ({ pedidos }) => {
       {/* ── MOBILE: CARDS ── */}
       <div className="block md:hidden space-y-4 p-4">
         {currentPedidos.map((p) => (
-          <div key={p.idPedido} className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-md">
+          <div key={p.idPedido} className="bg-slate-950 border border-slate-900 rounded-2xl p-4 space-y-3 shadow-md">
 
             {/* Header: Código + Estado */}
             <div className="flex items-center justify-between border-b border-slate-900 pb-3">
