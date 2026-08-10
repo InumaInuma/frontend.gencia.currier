@@ -195,7 +195,7 @@ export const MonitoreoRecojosPage: React.FC = () => {
             <Navigation className="text-violet-400 shrink-0" size={24} />
             <div>
               <h1 className="font-bold text-white text-base sm:text-lg leading-tight">
-                Monitoreo de Recojos Asignados
+                Monitoreo de Pedidos
               </h1>
               <p className="text-[11px] text-slate-400 hidden sm:block">
                 Seguimiento de comercios y paquetes asignados a cada motorizado.

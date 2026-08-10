@@ -11,8 +11,6 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
   variant = 'full',
 }) => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isInstallable, setIsInstallable] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
 
@@ -23,7 +21,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
       (window.navigator as any).standalone === true;
 
     if (isStandalone) {
-      setIsInstalled(true);
+      // Standalone app mode
     }
 
     // Detectar si el usuario está en iOS (Safari/Chrome en iPhone o iPad)
@@ -37,13 +35,10 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault(); // Prevenir el prompt automático por defecto
       setDeferredPrompt(e); // Guardar el evento en estado
-      setIsInstallable(true); // Mostrar el botón
     };
 
     // Escuchar cuando el usuario completa la instalación
     const handleAppInstalled = () => {
-      setIsInstalled(true);
-      setIsInstallable(false);
       setDeferredPrompt(null);
     };
 
@@ -60,11 +55,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
     if (deferredPrompt) {
       // Disparar el diálogo nativo de instalación del navegador
       deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        setIsInstalled(true);
-        setIsInstallable(false);
-      }
+      await deferredPrompt.userChoice;
       setDeferredPrompt(null);
     } else if (isIOS) {
       // Mostrar modal instructivo para usuarios de iPhone/iPad
@@ -77,42 +68,33 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
     }
   };
 
-  // Si ya está instalada en el dispositivo, no mostrar el botón
-  if (isInstalled) {
-    return null;
-  }
-
-  // En navegadores que no capturaron beforeinstallprompt y tampoco es iOS, ocultar salvo en pruebas
-  if (!isInstallable && !isIOS) {
-    return null;
-  }
-
+  // Render button across all devices / browsers
   return (
     <>
       {variant === 'compact' ? (
         <button
           onClick={handleInstallClick}
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-medium text-xs shadow-lg shadow-violet-500/20 transition-all duration-200 cursor-pointer active:scale-95 ${className}`}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-violet-500/20 transition-all duration-200 cursor-pointer active:scale-95 ${className}`}
           title="Descargar App ALMAIN CURRIER"
         >
-          <Download className="w-3.5 h-3.5 animate-bounce" />
-          <span>Descargar App</span>
+          <Download className="w-4 h-4 text-violet-200 animate-bounce shrink-0" />
         </button>
       ) : variant === 'pill' ? (
         <button
           onClick={handleInstallClick}
           className={`flex items-center gap-2 px-4 py-2 rounded-full bg-violet-600/90 hover:bg-violet-500 text-white text-xs font-semibold border border-violet-400/30 shadow-md shadow-violet-900/30 transition-all duration-200 cursor-pointer active:scale-95 ${className}`}
         >
-          <Smartphone className="w-4 h-4 text-violet-200" />
+          <Smartphone className="w-4 h-4 text-violet-200 shrink-0" />
           <span>Instalar App</span>
         </button>
       ) : (
         <button
           onClick={handleInstallClick}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-semibold text-sm shadow-xl shadow-violet-600/25 border border-violet-400/30 transition-all duration-200 cursor-pointer active:scale-[0.98] ${className}`}
+          className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-xl shadow-violet-600/20 border border-violet-400/30 transition-all duration-200 cursor-pointer active:scale-[0.98] ${className}`}
+          title="Descargar e Instalar App ALMAIN CURRIER"
         >
-          <Download className="w-4 h-4 text-violet-200 animate-bounce" />
-          <span>Descargar App en Celular / PC</span>
+          <Download className="w-4 h-4 text-violet-200 animate-bounce shrink-0" />
+          <span className="truncate">Descargar App</span>
         </button>
       )}
 
