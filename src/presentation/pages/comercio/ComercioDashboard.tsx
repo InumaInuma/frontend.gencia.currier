@@ -6,7 +6,8 @@ import { CrearPedidoModal } from '../../components/CrearPedidoModal';
 import { TablaPedidos } from '../../components/TablaPedidos';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
-import { LogOut, ShoppingBag, Plus, ShoppingCart, Clock, Truck, CheckCircle2, Calendar } from 'lucide-react';
+import { isAfterCutoffTimePeru, getPeruTimeString } from '../../../infrastructure/utils/peruTime';
+import { LogOut, ShoppingBag, Plus, ShoppingCart, Clock, Truck, CheckCircle2, Calendar, AlertTriangle } from 'lucide-react';
 
 const getTodayFormatted = () => {
   const today = new Date();
@@ -117,6 +118,29 @@ export const ComercioDashboard: React.FC = () => {
               Agendar Nuevo Envío
             </button>
           </div>
+
+          {/* Banner de Aviso de Horario de Despacho (> 09:30 AM Hora Perú) */}
+          {isAfterCutoffTimePeru() && (
+            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={20} className="text-amber-400 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold text-amber-200 text-xs flex items-center gap-2">
+                    <span>Aviso de Horario de Despacho — Hora Perú: {getPeruTimeString()}</span>
+                  </div>
+                  <p className="text-amber-300/90 text-[11px] mt-0.5 leading-relaxed">
+                    Los envíos agendados después de las <strong>09:30 AM</strong> se programan para entrega el siguiente día hábil. Si el motorizado aún no ha pasado a recoger a tu comercio hoy, el administrador podrá asignarlo a la ruta de hoy. Si ya pasó, se recogerá mañana y entregará el mismo día.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="shrink-0 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 px-3 py-1.5 rounded-xl font-semibold text-xs transition-colors cursor-pointer"
+              >
+                Agendar ahora
+              </button>
+            </div>
+          )}
 
           {/* Dashboard Metrics */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">

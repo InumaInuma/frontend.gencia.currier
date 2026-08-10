@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useDistritos } from '../../application/useCases/useDistritos';
 import { useRegistrarPedido } from '../../application/useCases/useMisPedidos';
-import { X, Package, User, Phone, MapPin, Navigation, FileText, CheckCircle2, Copy, Share2, Loader2 } from 'lucide-react';
+import { isAfterCutoffTimePeru, getPeruTimeString } from '../../infrastructure/utils/peruTime';
+import { X, Package, User, Phone, MapPin, Navigation, FileText, CheckCircle2, Copy, Share2, Loader2, AlertTriangle, Clock } from 'lucide-react';
 
 interface Props {
   isOpen: boolean;
@@ -127,6 +128,23 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
               </div>
             </div>
 
+            {/* Banner de Horario Límite (> 9:30 AM Hora Perú) en Confirmación Exitosa */}
+            {isAfterCutoffTimePeru() && (
+              <div className="bg-slate-950/80 border border-amber-500/30 rounded-2xl p-4 text-left space-y-2 max-w-md mx-auto shadow-lg">
+                <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
+                  <Clock size={16} className="shrink-0" />
+                  <span>Programación de Entrega (Agendado &gt; 09:30 AM Hora Perú)</span>
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Tu pedido fue agendado después del horario límite de las <strong>09:30 AM</strong>.
+                </p>
+                <div className="text-[11px] text-slate-400 space-y-1.5 pl-2.5 border-l-2 border-amber-500/40">
+                  <p>• <strong>Si el motorizado aún no recoge en tu comercio hoy:</strong> El administrador podrá incluirlo en el recojo de la ruta de hoy.</p>
+                  <p>• <strong>Si el motorizado ya recogió hoy en tu comercio:</strong> Tu pedido será <strong>recogido el día de mañana y entregado ese mismo día</strong>.</p>
+                </div>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 max-w-md mx-auto">
               <button
@@ -165,6 +183,23 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
                 <p className="text-xs text-slate-400">Ingresa los 9 datos operativos para programar el despacho.</p>
               </div>
             </div>
+
+            {/* Banner de Advertencia de Horario Límite (> 09:30 AM Hora Perú) en el Formulario */}
+            {isAfterCutoffTimePeru() && (
+              <div className="mb-5 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-2 shadow-inner">
+                <div className="flex items-center gap-2 font-bold text-amber-200 text-xs">
+                  <AlertTriangle size={17} className="text-amber-400 shrink-0" />
+                  <span>Aviso de Horario de Despacho (Hora Perú: {getPeruTimeString()})</span>
+                </div>
+                <p className="text-amber-200/90 leading-relaxed pl-6 text-[12px]">
+                  Estás agendando un envío después de las <strong>09:30 AM</strong>.
+                </p>
+                <ul className="list-disc list-inside text-[11px] text-amber-300/80 pl-6 space-y-1">
+                  <li><strong>Si el motorizado aún no recoge hoy en tu comercio:</strong> El administrador podrá asignar este pedido para que sea recogido hoy.</li>
+                  <li><strong>Si el motorizado ya recogió hoy en tu comercio:</strong> Tu pedido será recogido el día de mañana y entregado ese mismo día.</li>
+                </ul>
+              </div>
+            )}
 
             {errorMsg && (
               <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
