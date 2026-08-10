@@ -62,7 +62,7 @@ export const ClienteDashboard: React.FC = () => {
         return 3;
       case 9: // En Ruta
         return 4;
-      case 10: // A 5 Minutos
+      case 10: // A 20 Minutos
         return 5;
       case 11: // Entregado
         return 6;
@@ -304,7 +304,7 @@ export const ClienteDashboard: React.FC = () => {
                       <span className="text-[9px] block text-slate-400">En camino</span>
                     </div>
 
-                    {/* Step 5: A 5 Minutos */}
+                    {/* Step 5: A 20 Minutos */}
                     <div
                       className={`p-3 rounded-2xl border text-center transition-all ${
                         currentStep >= 5
@@ -320,7 +320,7 @@ export const ClienteDashboard: React.FC = () => {
                         5
                       </span>
                       <Navigation className="mx-auto mb-1" size={18} />
-                      <span className="text-[11px] font-bold block">5. A 5 Min</span>
+                      <span className="text-[11px] font-bold block">5. A 20 Min</span>
                       <span className="text-[9px] block text-slate-400">Cerca al punto</span>
                     </div>
 

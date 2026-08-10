@@ -123,9 +123,9 @@ export const MotorizadoEntregasPage: React.FC = () => {
     }
   };
 
-  const handleSetA5MinutosCliente = async (item: IMonitoreoEntrega) => {
+  const handleSetA20MinutosCliente = async (item: IMonitoreoEntrega) => {
     if (!esRutaIniciada) {
-      setFeedbackMsg({ type: 'error', text: 'Debes presionar "Comenzar Ruta de Reparto" antes de notificar los 5 minutos.' });
+      setFeedbackMsg({ type: 'error', text: 'Debes presionar "Comenzar Ruta de Reparto" antes de notificar los 20 minutos.' });
       return;
     }
     setFeedbackMsg(null);
@@ -137,7 +137,7 @@ export const MotorizadoEntregasPage: React.FC = () => {
       });
       setFeedbackMsg({
         type: 'success',
-        text: `Se notificó a ${item.nombreDestinatario} que estás a 5 minutos de llegar.`
+        text: `Se notificó a ${item.nombreDestinatario} que estás a 20 minutos de llegar.`
       });
       refetch();
     } catch (err: any) {
@@ -501,7 +501,7 @@ export const MotorizadoEntregasPage: React.FC = () => {
                             )}
                             {isA5Min && (
                               <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-extrabold inline-flex items-center gap-1 animate-pulse">
-                                <Clock size={13} /> A 5 Minutos
+                                <Clock size={13} /> A 20 Minutos
                               </span>
                             )}
                             {isEnRuta && (
@@ -535,16 +535,16 @@ export const MotorizadoEntregasPage: React.FC = () => {
                                   </button>
                                 )}
 
-                                {/* Button 2: A 5 minutos */}
+                                {/* Button 2: A 20 minutos */}
                                 {isEnRuta && (
                                   <button
-                                    onClick={() => handleSetA5MinutosCliente(item)}
+                                    onClick={() => handleSetA20MinutosCliente(item)}
                                     disabled={!esRutaIniciada || actualizarEstadoMutation.isPending}
-                                    title="Notificar cliente a 5 minutos"
+                                    title="Notificar cliente a 20 minutos"
                                     className="p-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold transition-all cursor-pointer shadow-md shadow-amber-500/20 flex items-center gap-1 text-[11px]"
                                   >
                                     <Clock size={14} />
-                                    <span className="hidden xl:inline">A 5 Min</span>
+                                    <span className="hidden xl:inline">A 20 Min</span>
                                   </button>
                                 )}
 
