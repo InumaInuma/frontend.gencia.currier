@@ -231,10 +231,11 @@ export const MotorizadoEntregasPage: React.FC = () => {
     }
   };
 
-  const handleOpenWhatsApp = (telefono: string, cliente: string) => {
+  const handleOpenWhatsApp = (telefono: string, cliente: string, codigoSeguimiento: string) => {
     const num = telefono.replace(/\D/g, '');
-    const msg = `¡Hola ${cliente}! Le saluda su repartidor de ALMAIN CURRIER 🏍️. Llevo su paquete en camino.`;
-    window.open(`https://wa.me/51${num}?text=${encodeURIComponent(msg)}`, '_blank');
+    const cleanNum = num.startsWith('51') ? num : `51${num}`;
+    const msg = `¡Hola ${cliente}! Le saluda su repartidor de ALMAIN CURRIER 🏍️.\nLe informamos que su paquete está en camino a su ubicación.\n\n📦 *Código de envío:* ${codigoSeguimiento}\n🌐 Puedes hacerle seguimiento en tiempo real con este código ingresando a nuestra web:\nhttps://currier-almain.vercel.app/`;
+    window.open(`https://wa.me/${cleanNum}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const handleOpenCall = (telefono: string) => {
@@ -445,7 +446,7 @@ export const MotorizadoEntregasPage: React.FC = () => {
                             <span className="font-bold text-white block text-sm">{item.nombreDestinatario}</span>
                             <div className="flex items-center gap-1.5 mt-1">
                               <button
-                                onClick={() => handleOpenWhatsApp(item.telefonoDestinatario, item.nombreDestinatario)}
+                                onClick={() => handleOpenWhatsApp(item.telefonoDestinatario, item.nombreDestinatario, item.codigoSeguimiento)}
                                 className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-all"
                                 title="Enviar WhatsApp"
                               >
