@@ -18,6 +18,7 @@ export interface IPedido {
   observaciones?: string;
   googleMapsUrl?: string;
   montoCobrar: number;
+  idEstadosPedido?: number;
   estadoNombre: string;
   fechaRegistro: string;
 }

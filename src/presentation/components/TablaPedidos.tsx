@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { IPedido } from '../../domain/models/IPedido';
 import { Copy, Phone, MapPin, ExternalLink, Share2, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getEstadoBadgeConfig } from '../../infrastructure/utils/estadoStyles';
 
 interface Props {
   pedidos: IPedido[];
@@ -153,17 +154,14 @@ export const TablaPedidos: React.FC<Props> = ({ pedidos, onCopyCode, onShareWhat
 
                   {/* 7. Estado Badge */}
                   <td className="py-3.5 px-3">
-                    <span
-                      className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                        pedido.estadoNombre === 'Registrado'
-                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                          : pedido.estadoNombre === 'En Camino'
-                          ? 'bg-violet-500/10 text-violet-400 border-violet-500/20'
-                          : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                      }`}
-                    >
-                      {pedido.estadoNombre}
-                    </span>
+                    {(() => {
+                      const badge = getEstadoBadgeConfig(pedido.idEstadosPedido || pedido.estadoNombre, pedido.estadoNombre);
+                      return (
+                        <span className={`text-[11px] px-2.5 py-0.5 rounded-full inline-block ${badge.className}`}>
+                          {badge.label}
+                        </span>
+                      );
+                    })()}
                   </td>
 
                   {/* 8. Acciones */}
@@ -226,17 +224,14 @@ export const TablaPedidos: React.FC<Props> = ({ pedidos, onCopyCode, onShareWhat
                   </div>
                 </div>
 
-                <span
-                  className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                    pedido.estadoNombre === 'Registrado'
-                      ? 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                      : pedido.estadoNombre === 'En Camino'
-                      ? 'bg-violet-500/10 text-violet-400 border-violet-500/20'
-                      : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                  }`}
-                >
-                  {pedido.estadoNombre}
-                </span>
+                {(() => {
+                  const badge = getEstadoBadgeConfig(pedido.idEstadosPedido || pedido.estadoNombre, pedido.estadoNombre);
+                  return (
+                    <span className={`text-[11px] px-2.5 py-0.5 rounded-full inline-block ${badge.className}`}>
+                      {badge.label}
+                    </span>
+                  );
+                })()}
               </div>
 
               {/* Content Details */}

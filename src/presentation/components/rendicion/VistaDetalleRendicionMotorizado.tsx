@@ -1,10 +1,10 @@
 import React from 'react';
 import type { ILiquidacionResumen } from '../../../domain/models/ILiquidacionResumen';
 import type { ILiquidacionDetalle } from '../../../domain/models/ILiquidacionDetalle';
+import { getEstadoBadgeConfig } from '../../../infrastructure/utils/estadoStyles';
 import {
   DollarSign,
   CheckCircle2,
-  AlertCircle,
   Bike,
   Receipt,
   XCircle,
@@ -192,8 +192,6 @@ export const VistaDetalleRendicionMotorizado: React.FC<Props> = ({
               </thead>
               <tbody className="divide-y divide-slate-900">
                 {detalleList.map((det) => {
-                  const esEntregado = det.idEstadosPedido === 11;
-
                   return (
                     <tr key={`det_full_row_${det.idPedido}`} className="hover:bg-slate-950/60 transition-colors">
                       {/* Tracking Code */}
@@ -219,15 +217,14 @@ export const VistaDetalleRendicionMotorizado: React.FC<Props> = ({
 
                       {/* Final Status */}
                       <td className="p-3 text-center">
-                        {esEntregado ? (
-                          <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-extrabold inline-flex items-center gap-1">
-                            <CheckCircle2 size={12} /> Entregado
-                          </span>
-                        ) : (
-                          <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-bold inline-flex items-center gap-1">
-                            <AlertCircle size={12} /> {det.estadoPedido || 'No Entregado'}
-                          </span>
-                        )}
+                        {(() => {
+                          const badge = getEstadoBadgeConfig(det.idEstadosPedido, det.estadoPedido);
+                          return (
+                            <span className={`px-2.5 py-1 rounded-full text-[11px] inline-flex items-center gap-1 ${badge.className}`}>
+                              {badge.label}
+                            </span>
+                          );
+                        })()}
                       </td>
 
                       {/* Total Amount to Collect */}

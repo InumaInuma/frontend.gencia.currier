@@ -6,15 +6,10 @@ interface Props {
   pedidos: IMonitoreoRecojo[];
 }
 
+import { getEstadoBadgeConfig } from '../../infrastructure/utils/estadoStyles';
+
 function getEstadoBadgeClass(estado: string): string {
-  const e = estado.toLowerCase();
-  if (e.includes('recogido') || e.includes('completado')) {
-    return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
-  }
-  if (e.includes('camino') || e.includes('transito')) {
-    return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30';
-  }
-  return 'bg-amber-500/10 text-amber-300 border-amber-500/30';
+  return getEstadoBadgeConfig(estado).className;
 }
 
 export const TablaMonitoreoRecojo: React.FC<Props> = ({ pedidos }) => {
