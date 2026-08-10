@@ -89,6 +89,11 @@ export function getEstadoBadgeConfig(idEstadoOrName: number | string, customLabe
         label: customLabel || 'Cancelado',
         className: 'bg-slate-800/60 text-slate-400 border border-slate-700/60 font-medium',
       };
+    case 14: // Reprogramado
+      return {
+        label: customLabel || 'Reprogramado',
+        className: 'bg-purple-500/20 text-purple-300 border border-purple-500/40 font-bold',
+      };
     default:
       return {
         label: customLabel || (typeof idEstadoOrName === 'string' ? idEstadoOrName : 'Procesando'),

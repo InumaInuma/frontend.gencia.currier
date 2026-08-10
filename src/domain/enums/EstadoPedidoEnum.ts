@@ -12,6 +12,7 @@ export const EstadoPedidoEnum = {
   Entregado: 11,
   NoEntregado: 12,
   Cancelado: 13,
+  Reprogramado: 14,
 } as const;
 
 export type EstadoPedidoEnum = (typeof EstadoPedidoEnum)[keyof typeof EstadoPedidoEnum];

@@ -25,7 +25,8 @@ import {
   QrCode,
   XCircle,
   X,
-  Search
+  Search,
+  CalendarClock
 } from 'lucide-react';
 
 export const MotorizadoEntregasPage: React.FC = () => {
@@ -228,6 +229,41 @@ export const MotorizadoEntregasPage: React.FC = () => {
       refetch();
     } catch (err: any) {
       setFeedbackMsg({ type: 'error', text: err.message || 'Error al marcar no entregado.' });
+    }
+  };
+
+  const [rescheduleModalItem, setRescheduleModalItem] = useState<IMonitoreoEntrega | null>(null);
+  const [motivoReprogramacion, setMotivoReprogramacion] = useState('Cliente solicitó reprogramar entrega para el día de mañana');
+
+  const openRescheduleModal = (item: IMonitoreoEntrega) => {
+    if (!esRutaIniciada) {
+      setFeedbackMsg({ type: 'error', text: 'Debes presionar "Comenzar Ruta de Reparto" primero.' });
+      return;
+    }
+    setRescheduleModalItem(item);
+    setMotivoReprogramacion('Cliente solicitó reprogramar entrega para el día de mañana');
+  };
+
+  const handleConfirmarReprogramacion = async () => {
+    if (!rescheduleModalItem) return;
+    setFeedbackMsg(null);
+
+    try {
+      await actualizarEstadoMutation.mutateAsync({
+        idAsignacionEntrega: rescheduleModalItem.idAsignacionEntrega || rescheduleModalItem.idPedido,
+        idPedido: rescheduleModalItem.idPedido,
+        idEstado: EstadoPedidoEnum.Reprogramado, // 14
+        observacion: motivoReprogramacion
+      });
+
+      setFeedbackMsg({
+        type: 'success',
+        text: `Paquete registrado como REPROGRAMADO (${rescheduleModalItem.nombreDestinatario}).`
+      });
+      setRescheduleModalItem(null);
+      refetch();
+    } catch (err: any) {
+      setFeedbackMsg({ type: 'error', text: err.message || 'Error al reprogramar pedido.' });
     }
   };
 
@@ -560,7 +596,18 @@ export const MotorizadoEntregasPage: React.FC = () => {
                                   <span className="hidden xl:inline">Entregar</span>
                                 </button>
 
-                                {/* Button 4: No Entregado */}
+                                {/* Button 4: Reprogramar Entrega */}
+                                <button
+                                  onClick={() => openRescheduleModal(item)}
+                                  disabled={!esRutaIniciada}
+                                  title="Reprogramar entrega por solicitud del cliente"
+                                  className="p-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 disabled:opacity-40 disabled:cursor-not-allowed text-purple-300 border border-purple-500/40 font-bold transition-all cursor-pointer flex items-center gap-1 text-[11px]"
+                                >
+                                  <CalendarClock size={14} />
+                                  <span className="hidden xl:inline">Reprogramar</span>
+                                </button>
+
+                                {/* Button 5: No Entregado */}
                                 <button
                                   onClick={() => openFailedModal(item)}
                                   disabled={!esRutaIniciada}
@@ -763,23 +810,22 @@ export const MotorizadoEntregasPage: React.FC = () => {
                   Intento Fallido de Entrega
                 </span>
                 <h3 className="text-base font-bold text-white mt-1">
-                  {failedModalItem.nombreDestinatario}
+                  Cliente: {failedModalItem.nombreDestinatario}
                 </h3>
+                <p className="text-xs text-slate-400">
+                  Registra el motivo por el cual no se logró concretar la entrega del paquete.
+                </p>
               </div>
 
-              <div>
-                <label className="text-xs text-slate-300 font-bold block mb-1">Motivo por el cual no se entregó:</label>
-                <select
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-300 block">Motivo o Incidencia:</label>
+                <textarea
                   value={motivoFallo}
                   onChange={(e) => setMotivoFallo(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-red-500"
-                >
-                  <option value="Cliente ausente / No responde llamadas">Cliente ausente / No responde llamadas</option>
-                  <option value="Dirección o ubicación incorrecta">Dirección o ubicación incorrecta</option>
-                  <option value="Cliente rechazó el paquete">Cliente rechazó el paquete</option>
-                  <option value="No contaba con el dinero para el pago">No contaba con el dinero para el pago</option>
-                  <option value="Otro motivo">Otro motivo</option>
-                </select>
+                  rows={3}
+                  placeholder="Ej: Cliente no responde llamadas, dirección vacía, rechazado..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200"
+                />
               </div>
 
               <button
@@ -789,6 +835,52 @@ export const MotorizadoEntregasPage: React.FC = () => {
               >
                 <XCircle size={16} />
                 Registrar Intento Fallido
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Reprogramar Entrega */}
+        {rescheduleModalItem && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+            <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-2xl">
+              <button
+                onClick={() => setRescheduleModalItem(null)}
+                className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/50"
+              >
+                <X size={18} />
+              </button>
+
+              <div>
+                <span className="text-xs text-purple-400 font-bold uppercase tracking-wider block flex items-center gap-1.5">
+                  <CalendarClock size={14} /> Reprogramación de Entrega
+                </span>
+                <h3 className="text-base font-bold text-white mt-1">
+                  Cliente: {rescheduleModalItem.nombreDestinatario}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Código de Envío: <strong className="text-purple-300 font-mono">{rescheduleModalItem.codigoSeguimiento}</strong>
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-300 block">Observación / Solicitud del Cliente:</label>
+                <textarea
+                  value={motivoReprogramacion}
+                  onChange={(e) => setMotivoReprogramacion(e.target.value)}
+                  rows={3}
+                  placeholder="Ej: Cliente solicitó entregar el día de mañana por estar ausente hoy..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:border-purple-500 outline-none"
+                />
+              </div>
+
+              <button
+                onClick={handleConfirmarReprogramacion}
+                disabled={actualizarEstadoMutation.isPending}
+                className="w-full py-3 rounded-xl font-bold text-xs bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-purple-600/20 active:scale-95 transition-all"
+              >
+                <CalendarClock size={16} />
+                Guardar Reprogramación
               </button>
             </div>
           </div>

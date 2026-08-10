@@ -16,7 +16,8 @@ import {
   Navigation,
   X,
   Repeat,
-  Receipt
+  Receipt,
+  CalendarClock
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -107,6 +108,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
         { path: '/admin/dashboard', label: 'Panel Principal', icon: <LayoutDashboard size={20} /> },
         { path: '/admin/asignar-recojos', label: 'Asignar Recojos', icon: <Bike size={20} /> },
         { path: '/admin/asignar-entregas', label: 'Asignar Entregas', icon: <Truck size={20} /> },
+        { path: '/admin/reprogramaciones', label: 'Reprogramaciones', icon: <CalendarClock size={20} /> },
         { path: '/admin/monitoreo-recojos', label: 'Monitoreo Recojos', icon: <Navigation size={20} /> },
         { path: '/admin/rendicion-cuentas', label: 'Rendición & Caja', icon: <Receipt size={20} /> },
       ];
