@@ -8,7 +8,8 @@ export interface IZonaCoberturaInfo {
   tarifaDespacho: number;
 }
 
-export const LIMA_DISTRITOS_COBERTURA: IZonaCoberturaInfo[] = [
+export const LIMA_DISTRITOS_DEFAULT: IZonaCoberturaInfo[] = [
+  // Distritos en Cobertura Directa (Lima Centro, Sur, Este, Norte principal y Callao)
   { id: 1, nombre: 'Miraflores', zonaNombre: 'Lima Centro / Sur', coberturaActiva: true, lat: -12.1221, lng: -77.0312, tarifaDespacho: 10.00 },
   { id: 2, nombre: 'San Isidro', zonaNombre: 'Lima Centro / Financiera', coberturaActiva: true, lat: -12.0975, lng: -77.0361, tarifaDespacho: 10.00 },
   { id: 3, nombre: 'Santiago de Surco', zonaNombre: 'Lima Sur', coberturaActiva: true, lat: -12.1465, lng: -76.9911, tarifaDespacho: 12.00 },
@@ -38,8 +39,42 @@ export const LIMA_DISTRITOS_COBERTURA: IZonaCoberturaInfo[] = [
   { id: 27, nombre: 'Independencia', zonaNombre: 'Lima Norte', coberturaActiva: true, lat: -11.9944, lng: -77.0528, tarifaDespacho: 14.00 },
   { id: 28, nombre: 'Rímac', zonaNombre: 'Lima Centro', coberturaActiva: true, lat: -12.0306, lng: -77.0306, tarifaDespacho: 11.00 },
   { id: 29, nombre: 'Breña', zonaNombre: 'Lima Centro', coberturaActiva: true, lat: -12.0569, lng: -77.0489, tarifaDespacho: 9.00 },
-  { id: 30, nombre: 'El Agustino', zonaNombre: 'Lima Centro / Este', coberturaActiva: true, lat: -12.0478, lng: -76.9972, tarifaDespacho: 12.00 }
+  { id: 30, nombre: 'El Agustino', zonaNombre: 'Lima Centro / Este', coberturaActiva: true, lat: -12.0478, lng: -76.9972, tarifaDespacho: 12.00 },
+
+  // Distritos en Zona Restringida / SIN COBERTURA (Periféricos)
+  { id: 31, nombre: 'Ancón', zonaNombre: 'Lima Norte Periférica', coberturaActiva: false, lat: -11.7733, lng: -77.1764, tarifaDespacho: 0.00 },
+  { id: 32, nombre: 'Ventanilla (Callao)', zonaNombre: 'Callao Norte', coberturaActiva: false, lat: -11.8783, lng: -77.1264, tarifaDespacho: 0.00 },
+  { id: 33, nombre: 'Puente Piedra', zonaNombre: 'Lima Norte Periférica', coberturaActiva: false, lat: -11.8667, lng: -77.0833, tarifaDespacho: 0.00 },
+  { id: 34, nombre: 'Carabayllo', zonaNombre: 'Lima Norte Periférica', coberturaActiva: false, lat: -11.8483, lng: -77.0264, tarifaDespacho: 0.00 },
+  { id: 35, nombre: 'Chaclacayo', zonaNombre: 'Lima Este Periférica', coberturaActiva: false, lat: -11.9733, lng: -76.7667, tarifaDespacho: 0.00 },
+  { id: 36, nombre: 'Lurigancho - Chosica', zonaNombre: 'Lima Este Periférica', coberturaActiva: false, lat: -11.9389, lng: -76.7028, tarifaDespacho: 0.00 },
+  { id: 37, nombre: 'Cieneguilla', zonaNombre: 'Lima Este Periférica', coberturaActiva: false, lat: -12.0917, lng: -76.7722, tarifaDespacho: 0.00 },
+  { id: 38, nombre: 'Lurín', zonaNombre: 'Lima Sur Periférica', coberturaActiva: false, lat: -12.2750, lng: -76.8694, tarifaDespacho: 0.00 },
+  { id: 39, nombre: 'Pachacámac', zonaNombre: 'Lima Sur Periférica', coberturaActiva: false, lat: -12.2306, lng: -76.8583, tarifaDespacho: 0.00 },
+  { id: 40, nombre: 'Punta Hermosa / San Bartolo', zonaNombre: 'Balnearios del Sur', coberturaActiva: false, lat: -12.3389, lng: -76.8250, tarifaDespacho: 0.00 }
 ];
+
+const STORAGE_KEY = 'almain_cobertura_distritos_v2';
+
+export function obtenerDistritosCobertura(): IZonaCoberturaInfo[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Error reading localStorage coverage:', e);
+  }
+  return LIMA_DISTRITOS_DEFAULT;
+}
+
+export function guardarDistritosCobertura(list: IZonaCoberturaInfo[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch (e) {
+    console.error('Error saving localStorage coverage:', e);
+  }
+}
 
 function calcularDistanciaKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
@@ -56,10 +91,11 @@ function calcularDistanciaKm(lat1: number, lon1: number, lat2: number, lon2: num
 }
 
 export function detectarDistritoCercano(lat: number, lng: number): IZonaCoberturaInfo {
+  const currentList = obtenerDistritosCobertura();
   let minDistance = Infinity;
-  let closest = LIMA_DISTRITOS_COBERTURA[0];
+  let closest = currentList[0];
 
-  for (const d of LIMA_DISTRITOS_COBERTURA) {
+  for (const d of currentList) {
     const dist = calcularDistanciaKm(lat, lng, d.lat, d.lng);
     if (dist < minDistance) {
       minDistance = dist;

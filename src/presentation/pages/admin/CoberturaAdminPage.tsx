@@ -3,7 +3,7 @@ import { useAuth } from '../../../application/context/AuthContext';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
 import type { IZonaCoberturaInfo } from '../../../infrastructure/utils/coberturaData';
-import { LIMA_DISTRITOS_COBERTURA } from '../../../infrastructure/utils/coberturaData';
+import { obtenerDistritosCobertura, guardarDistritosCobertura } from '../../../infrastructure/utils/coberturaData';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -48,30 +48,33 @@ export const CoberturaAdminPage: React.FC = () => {
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
 
-  // Local state for districts coverage
-  const [distritosList, setDistritosList] = useState<IZonaCoberturaInfo[]>(LIMA_DISTRITOS_COBERTURA);
+  // Local state initialized with saved coverage settings
+  const [distritosList, setDistritosList] = useState<IZonaCoberturaInfo[]>(() => obtenerDistritosCobertura());
   const [searchTerm, setSearchTerm] = useState('');
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   if (!user) return null;
 
   const handleToggleCobertura = (idDistrito: number) => {
-    setDistritosList((prev) =>
-      prev.map((item) =>
-        item.id === idDistrito ? { ...item, coberturaActiva: !item.coberturaActiva } : item
-      )
+    const updated = distritosList.map((item) =>
+      item.id === idDistrito ? { ...item, coberturaActiva: !item.coberturaActiva } : item
     );
-    const updated = distritosList.find((d) => d.id === idDistrito);
+    setDistritosList(updated);
+    guardarDistritosCobertura(updated);
+
+    const target = updated.find((d) => d.id === idDistrito);
     setFeedbackMsg({
       type: 'success',
-      text: `Estado de cobertura actualizado para ${updated?.nombre}.`
+      text: `Estado de cobertura actualizado para ${target?.nombre}: ${target?.coberturaActiva ? '🟢 HABILITADO' : '🔴 DESHABILITADO'}.`
     });
   };
 
   const handleUpdateTarifa = (idDistrito: number, nuevaTarifa: number) => {
-    setDistritosList((prev) =>
-      prev.map((item) => (item.id === idDistrito ? { ...item, tarifaDespacho: nuevaTarifa } : item))
+    const updated = distritosList.map((item) =>
+      item.id === idDistrito ? { ...item, tarifaDespacho: nuevaTarifa } : item
     );
+    setDistritosList(updated);
+    guardarDistritosCobertura(updated);
   };
 
   const distritosFiltrados = distritosList.filter(

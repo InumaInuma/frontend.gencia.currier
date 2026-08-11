@@ -3,8 +3,8 @@ import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaf
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { IZonaCoberturaInfo } from '../../infrastructure/utils/coberturaData';
-import { LIMA_DISTRITOS_COBERTURA, detectarDistritoCercano } from '../../infrastructure/utils/coberturaData';
-import { MapPin, X, Check, Navigation, Search } from 'lucide-react';
+import { obtenerDistritosCobertura, detectarDistritoCercano } from '../../infrastructure/utils/coberturaData';
+import { MapPin, X, Check, Navigation, Search, AlertTriangle } from 'lucide-react';
 
 // Fix Leaflet default marker icon paths in React / Vite
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -93,7 +93,9 @@ export const MapaLocationPickerModal: React.FC<MapaLocationPickerModalProps> = (
     onClose();
   };
 
-  const distritosFiltrados = LIMA_DISTRITOS_COBERTURA.filter((d) =>
+  const distritosList = obtenerDistritosCobertura();
+
+  const distritosFiltrados = distritosList.filter((d) =>
     d.nombre.toLowerCase().includes(searchDistrict.toLowerCase())
   );
 
@@ -167,7 +169,7 @@ export const MapaLocationPickerModal: React.FC<MapaLocationPickerModalProps> = (
                       </span>
                     ) : (
                       <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
-                        Restringido
+                        Sin Cobertura
                       </span>
                     )}
                   </button>
@@ -196,21 +198,38 @@ export const MapaLocationPickerModal: React.FC<MapaLocationPickerModalProps> = (
                     📍 Ubicación de Entrega Marcada
                     <br />
                     Distrito: {distritoInfo.nombre}
+                    <br />
+                    Estado: {distritoInfo.coberturaActiva ? '🟢 En Cobertura' : '🔴 Sin Cobertura (Restringido)'}
                   </div>
                 </Popup>
               </Marker>
             </MapContainer>
 
             {/* Bottom floating info badge */}
-            <div className="absolute bottom-4 left-4 right-4 z-20 bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center shrink-0">
-                  <Navigation size={16} />
+            <div className="absolute bottom-4 left-4 right-4 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <div
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border font-bold ${
+                    distritoInfo.coberturaActiva
+                      ? 'bg-purple-500/20 text-purple-300 border-purple-500/30'
+                      : 'bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse'
+                  }`}
+                >
+                  {distritoInfo.coberturaActiva ? <Navigation size={18} /> : <AlertTriangle size={18} />}
                 </div>
                 <div>
                   <div className="font-bold text-white flex items-center gap-1.5">
-                    <span>Distrito Detectado:</span>
+                    <span>Distrito:</span>
                     <span className="text-purple-300 font-mono">{distritoInfo.nombre}</span>
+                    {distritoInfo.coberturaActiva ? (
+                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                        🟢 En Cobertura
+                      </span>
+                    ) : (
+                      <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">
+                        ⚠️ Sin Cobertura Directa
+                      </span>
+                    )}
                   </div>
                   <div className="text-[11px] text-slate-400 font-mono">
                     GPS: {selectedCoords.lat.toFixed(6)}, {selectedCoords.lng.toFixed(6)}
@@ -220,10 +239,14 @@ export const MapaLocationPickerModal: React.FC<MapaLocationPickerModalProps> = (
 
               <button
                 onClick={handleConfirmarUbicacion}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer active:scale-95"
+                className={`w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all cursor-pointer active:scale-95 ${
+                  distritoInfo.coberturaActiva
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-purple-600/30'
+                    : 'bg-amber-600 hover:bg-amber-500 text-white shadow-amber-600/30'
+                }`}
               >
                 <Check size={16} />
-                <span>Usar Esta Ubicación GPS</span>
+                <span>{distritoInfo.coberturaActiva ? 'Usar Esta Ubicación GPS' : 'Usar GPS (Zona Restringida)'}</span>
               </button>
             </div>
           </div>
