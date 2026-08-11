@@ -6,7 +6,7 @@ import type { IZonaCoberturaInfo } from '../../infrastructure/utils/coberturaDat
 import {
   obtenerDistritosCobertura,
   detectarDistritoCercano,
-  LIMA_COVERAGE_MAIN_POLYGON
+  obtenerPoligonoCobertura,
 } from '../../infrastructure/utils/coberturaData';
 import { MapPin, X, Check, Navigation, Search, AlertTriangle } from 'lucide-react';
 
@@ -196,9 +196,9 @@ export const MapaLocationPickerModal: React.FC<MapaLocationPickerModalProps> = (
               />
               <MapClickListener onMapClick={handleMapClick} />
 
-              {/* 1. Main Continuous Green Polygon Mesh (Zona de Cobertura Activa Lima) */}
+              {/* 1. Main Continuous Green Polygon Mesh (configured by Admin) */}
               <Polygon
-                positions={LIMA_COVERAGE_MAIN_POLYGON}
+                positions={obtenerPoligonoCobertura()}
                 pathOptions={{
                   fillColor: '#10b981',
                   color: '#34d399',

@@ -26,6 +26,34 @@ export const LIMA_COVERAGE_MAIN_POLYGON: [number, number][] = [
   [-11.9200, -77.0800]  // Closing loop
 ];
 
+const POLYGON_STORAGE_KEY = 'almain_cobertura_polygon_v1';
+
+export function obtenerPoligonoCobertura(): [number, number][] {
+  try {
+    const saved = localStorage.getItem(POLYGON_STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {
+    console.error('Error reading polygon from localStorage:', e);
+  }
+  return LIMA_COVERAGE_MAIN_POLYGON;
+}
+
+export function guardarPoligonoCobertura(coords: [number, number][]): void {
+  try {
+    localStorage.setItem(POLYGON_STORAGE_KEY, JSON.stringify(coords));
+  } catch (e) {
+    console.error('Error saving polygon to localStorage:', e);
+  }
+}
+
+export function resetPoligonoCobertura(): void {
+  try {
+    localStorage.removeItem(POLYGON_STORAGE_KEY);
+  } catch (e) {
+    console.error('Error resetting polygon from localStorage:', e);
+  }
+}
+
 // Uncovered Outer Region Polygons (Red transparent areas)
 export const UNCOVERED_POLYGONS: { id: number; nombre: string; coords: [number, number][] }[] = [
   {
