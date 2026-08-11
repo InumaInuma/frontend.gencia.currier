@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polygon, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { IZonaCoberturaInfo } from '../../infrastructure/utils/coberturaData';
-import { obtenerDistritosCobertura, detectarDistritoCercano } from '../../infrastructure/utils/coberturaData';
+import {
+  obtenerDistritosCobertura,
+  detectarDistritoCercano,
+  LIMA_COVERAGE_MAIN_POLYGON,
+  UNCOVERED_POLYGONS
+} from '../../infrastructure/utils/coberturaData';
 import { MapPin, X, Check, Navigation, Search, AlertTriangle } from 'lucide-react';
 
 // Fix Leaflet default marker icon paths in React / Vite
@@ -192,27 +197,42 @@ export const MapaLocationPickerModal: React.FC<MapaLocationPickerModalProps> = (
               />
               <MapClickListener onMapClick={handleMapClick} />
 
-              {/* Render transparent green (covered) and red (uncovered) zone shapes */}
-              {distritosList.map((d) => (
-                <Circle
-                  key={`map_circle_${d.id}`}
-                  center={[d.lat, d.lng]}
-                  radius={2300}
+              {/* 1. Main Continuous Green Polygon Mesh (Zona de Cobertura Activa Lima) */}
+              <Polygon
+                positions={LIMA_COVERAGE_MAIN_POLYGON}
+                pathOptions={{
+                  fillColor: '#10b981',
+                  color: '#34d399',
+                  fillOpacity: 0.38,
+                  weight: 2.5,
+                }}
+              >
+                <Popup>
+                  <div className="text-slate-900 font-bold text-xs">
+                    🟢 Zona Metropolitana de Cobertura Directa ALMAIN CURRIER
+                  </div>
+                </Popup>
+              </Polygon>
+
+              {/* 2. Red Polygons for Uncovered Outer Areas */}
+              {UNCOVERED_POLYGONS.map((area) => (
+                <Polygon
+                  key={`uncovered_poly_${area.id}`}
+                  positions={area.coords}
                   pathOptions={{
-                    fillColor: d.coberturaActiva ? '#10b981' : '#ef4444',
-                    color: d.coberturaActiva ? '#059669' : '#dc2626',
-                    fillOpacity: d.coberturaActiva ? 0.35 : 0.38,
-                    weight: 2.5,
+                    fillColor: '#ef4444',
+                    color: '#f87171',
+                    fillOpacity: 0.38,
+                    weight: 2,
+                    dashArray: '5, 5'
                   }}
                 >
                   <Popup>
                     <div className="text-slate-900 font-bold text-xs">
-                      {d.nombre} ({d.zonaNombre})
-                      <br />
-                      Estado: {d.coberturaActiva ? '🟢 Cobertura Directa' : '🔴 Sin Cobertura (Restringido)'}
+                      🔴 {area.nombre}
                     </div>
                   </Popup>
-                </Circle>
+                </Polygon>
               ))}
 
               <Marker position={[selectedCoords.lat, selectedCoords.lng]} icon={selectedPinIcon}>
