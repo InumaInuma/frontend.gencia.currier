@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDistritos } from '../../application/useCases/useDistritos';
 import { useRegistrarPedido } from '../../application/useCases/useMisPedidos';
 import { isAfterCutoffTimePeru, getPeruTimeString } from '../../infrastructure/utils/peruTime';
+import { MapaLocationPickerModal } from './MapaLocationPickerModal';
 import { X, Package, User, Phone, MapPin, Navigation, FileText, CheckCircle2, Copy, Share2, Loader2, AlertTriangle, Clock } from 'lucide-react';
 
 interface Props {
@@ -27,6 +28,7 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
   const [googleMapsUrl, setGoogleMapsUrl] = useState('');
   const [esContraEntrega, setEsContraEntrega] = useState(false);
   const [montoCobrar, setMontoCobrar] = useState<number | ''>('');
+  const [isMapPickerOpen, setIsMapPickerOpen] = useState(false);
 
   const [createdTrackingCode, setCreatedTrackingCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -387,9 +389,19 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
 
                 {/* 9. GPS Link */}
                 <div>
-                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block mb-1">
-                    9. Link / GPS Mapa de Entrega
-                  </label>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                      9. Link / GPS Mapa de Entrega
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsMapPickerOpen(true)}
+                      className="text-[11px] font-bold text-purple-300 hover:text-purple-200 bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+                    >
+                      <MapPin size={12} className="text-purple-400" />
+                      <span>🗺️ Marcar Ubicación en Mapa</span>
+                    </button>
+                  </div>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
                       <Navigation size={16} />
@@ -404,6 +416,23 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
                   </div>
                 </div>
               </div>
+
+              {/* Modal Map Picker Component */}
+              <MapaLocationPickerModal
+                isOpen={isMapPickerOpen}
+                onClose={() => setIsMapPickerOpen(false)}
+                onSelectLocation={(data) => {
+                  setGoogleMapsUrl(data.googleMapsUrl);
+                  if (distritos && data.distrito) {
+                    const match = distritos.find(
+                      (d) => d.nombre.toLowerCase() === data.distrito.nombre.toLowerCase()
+                    );
+                    if (match) {
+                      setIdDistritoDestinatario(match.id);
+                    }
+                  }
+                }}
+              />
 
               {/* Submit */}
               <div className="pt-2">

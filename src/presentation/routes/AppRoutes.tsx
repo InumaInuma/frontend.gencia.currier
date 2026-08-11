@@ -9,6 +9,7 @@ import AsignarEntregasPage from '../pages/admin/AsignarEntregasPage';
 import MonitoreoRecojosPage from '../pages/admin/MonitoreoRecojosPage';
 import RendicionCuentasAdminPage from '../pages/admin/RendicionCuentasAdminPage';
 import { ReprogramacionesAdminPage } from '../pages/admin/ReprogramacionesAdminPage';
+import { CoberturaAdminPage } from '../pages/admin/CoberturaAdminPage';
 import ComercioDashboard from '../pages/comercio/ComercioDashboard';
 import MotorizadoRecojosPage from '../pages/motorizado/MotorizadoRecojosPage';
 import MotorizadoEntregasPage from '../pages/motorizado/MotorizadoEntregasPage';
@@ -186,6 +187,15 @@ export const AppRoutes: React.FC = () => {
           element={
             <RoleProtectedRoute allowedRoles={['Administrador']}>
               <ReprogramacionesAdminPage />
+            </RoleProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/cobertura"
+          element={
+            <RoleProtectedRoute allowedRoles={['Administrador']}>
+              <CoberturaAdminPage />
             </RoleProtectedRoute>
           }
         />
