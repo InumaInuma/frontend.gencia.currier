@@ -358,8 +358,38 @@ export const AgendarEnvioPage: React.FC = () => {
                       <select value={idDistritoDestinatario} onChange={(e) => setIdDistritoDestinatario(e.target.value ? Number(e.target.value) : '')}
                         className="w-full bg-slate-950 border border-slate-800 text-white text-sm rounded-xl px-3 py-3 outline-none focus:border-violet-500 transition-colors">
                         <option value="">Seleccionar Distrito</option>
-                        {loadingDistritos ? <option disabled>Cargando...</option> : distritos?.map((d) => <option key={d.id} value={d.id}>{d.nombre}</option>)}
+                        {loadingDistritos ? <option disabled>Cargando...</option> : distritos?.map((d) => {
+                          const info = distritosList.find((c) => c.nombre.toLowerCase() === d.nombre.toLowerCase());
+                          const tarifa = info ? info.tarifaDespacho : (d.tarifaDespacho || 10);
+                          return (
+                            <option key={d.id} value={d.id}>
+                              {d.nombre} — S/ {tarifa.toFixed(2)}
+                            </option>
+                          );
+                        })}
                       </select>
+
+                      {/* Display delivery fee badge for selected district */}
+                      {idDistritoDestinatario && (() => {
+                        const apiMatch = distritos?.find((ap) => ap.id === idDistritoDestinatario);
+                        const info = apiMatch ? distritosList.find((c) => c.nombre.toLowerCase() === apiMatch.nombre.toLowerCase()) : null;
+                        if (!info) return null;
+                        return (
+                          <div className="mt-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs">
+                                💰
+                              </div>
+                              <span className="text-slate-300 font-medium text-[11px]">
+                                Precio de Envío Estimado:
+                              </span>
+                            </div>
+                            <span className="font-extrabold text-emerald-400 font-mono text-sm">
+                              {info.coberturaActiva ? `S/ ${info.tarifaDespacho.toFixed(2)}` : 'Sin Cobertura Directa'}
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div>
                       <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">3. Dirección Exacta *</label>
@@ -486,7 +516,7 @@ export const AgendarEnvioPage: React.FC = () => {
                         >
                           {distritosList.map((d) => (
                             <option key={d.id} value={d.nombre}>
-                              {d.nombre} ({d.zonaNombre}) {d.coberturaActiva ? '🟢' : '🔴'}
+                              {d.nombre} ({d.zonaNombre}) — S/ {d.tarifaDespacho.toFixed(2)} {d.coberturaActiva ? '🟢' : '🔴'}
                             </option>
                           ))}
                         </select>
@@ -521,14 +551,14 @@ export const AgendarEnvioPage: React.FC = () => {
                             <div className="text-slate-900 font-bold text-xs">
                               📍 Ubicación de Entrega<br />
                               Distrito: {distritoInfo.nombre}<br />
-                              {distritoInfo.coberturaActiva ? '🟢 En Cobertura' : '🔴 Sin Cobertura'}
+                              {distritoInfo.coberturaActiva ? `🟢 En Cobertura (S/ ${distritoInfo.tarifaDespacho.toFixed(2)})` : '🔴 Sin Cobertura'}
                             </div>
                           </Popup>
                         </Marker>
                       </MapContainer>
 
                       {/* Floating bottom info badge */}
-                      <div className="absolute bottom-3 left-3 right-3 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3 text-xs">
+                      <div className="absolute bottom-3 left-3 right-3 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                         <div className="flex items-center gap-2.5">
                           <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border font-bold ${distritoInfo.coberturaActiva ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse'}`}>
                             {distritoInfo.coberturaActiva ? <Navigation size={16} /> : <AlertTriangle size={16} />}
@@ -543,6 +573,14 @@ export const AgendarEnvioPage: React.FC = () => {
                             </div>
                             <div className="text-[10px] text-slate-400 font-mono">GPS: {selectedCoords.lat.toFixed(5)}, {selectedCoords.lng.toFixed(5)}</div>
                           </div>
+                        </div>
+
+                        {/* Delivery fee display */}
+                        <div className="flex items-center gap-2 bg-slate-950/80 px-3.5 py-1.5 rounded-xl border border-slate-800 self-end sm:self-auto shadow-inner">
+                          <span className="text-slate-400 text-[11px] font-medium">Costo de Envío:</span>
+                          <span className="font-extrabold text-emerald-400 font-mono text-sm">
+                            {distritoInfo.coberturaActiva ? `S/ ${distritoInfo.tarifaDespacho.toFixed(2)}` : 'Sin Cobertura'}
+                          </span>
                         </div>
                       </div>
                     </div>
