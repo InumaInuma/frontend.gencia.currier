@@ -54,6 +54,49 @@ export function resetPoligonoCobertura(): void {
   }
 }
 
+// ---- Restricted Zones (Zonas No Cubiertas configurables por el Admin) ----
+export interface IZonaRestringida {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  vertices: [number, number][];
+}
+
+const RESTRICTED_ZONES_KEY = 'almain_zonas_restringidas_v1';
+
+// Default example restricted zones (admin can modify/delete these)
+export const DEFAULT_ZONAS_RESTRINGIDAS: IZonaRestringida[] = [
+  {
+    id: 1,
+    nombre: 'El Agustino - Zona de Riesgo',
+    descripcion: 'Zona peligrosa - No se realizan entregas',
+    vertices: [
+      [-12.0330, -77.0050],
+      [-12.0280, -76.9880],
+      [-12.0480, -76.9860],
+      [-12.0520, -77.0020],
+    ],
+  },
+];
+
+export function obtenerZonasRestringidas(): IZonaRestringida[] {
+  try {
+    const saved = localStorage.getItem(RESTRICTED_ZONES_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {
+    console.error('Error reading restricted zones from localStorage:', e);
+  }
+  return DEFAULT_ZONAS_RESTRINGIDAS;
+}
+
+export function guardarZonasRestringidas(zones: IZonaRestringida[]): void {
+  try {
+    localStorage.setItem(RESTRICTED_ZONES_KEY, JSON.stringify(zones));
+  } catch (e) {
+    console.error('Error saving restricted zones to localStorage:', e);
+  }
+}
+
 // Uncovered Outer Region Polygons (Red transparent areas)
 export const UNCOVERED_POLYGONS: { id: number; nombre: string; coords: [number, number][] }[] = [
   {

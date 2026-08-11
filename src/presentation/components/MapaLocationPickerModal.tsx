@@ -7,6 +7,7 @@ import {
   obtenerDistritosCobertura,
   detectarDistritoCercano,
   obtenerPoligonoCobertura,
+  obtenerZonasRestringidas,
 } from '../../infrastructure/utils/coberturaData';
 import { MapPin, X, Check, Navigation, Search, AlertTriangle } from 'lucide-react';
 
@@ -196,19 +197,32 @@ export const MapaLocationPickerModal: React.FC<MapaLocationPickerModalProps> = (
               />
               <MapClickListener onMapClick={handleMapClick} />
 
-              {/* 1. Main Continuous Green Polygon Mesh (configured by Admin) */}
+              {/* 1. Main Continuous Green Polygon (configured by Admin) */}
               <Polygon
                 positions={obtenerPoligonoCobertura()}
-                pathOptions={{
-                  fillColor: '#10b981',
-                  color: '#34d399',
-                  fillOpacity: 0.35,
-                  weight: 2.5,
-                }}
-                eventHandlers={{
-                  click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng),
-                }}
+                pathOptions={{ fillColor: '#10b981', color: '#34d399', fillOpacity: 0.35, weight: 2.5 }}
+                eventHandlers={{ click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng) }}
               />
+
+              {/* 2. Red Restricted Zones (configured by Admin) */}
+              {obtenerZonasRestringidas().map((zona) =>
+                zona.vertices.length >= 3 ? (
+                  <Polygon
+                    key={`restricted_${zona.id}`}
+                    positions={[...zona.vertices, zona.vertices[0]]}
+                    pathOptions={{ fillColor: '#ef4444', color: '#f87171', fillOpacity: 0.45, weight: 2.5, dashArray: '5, 4' }}
+                    eventHandlers={{ click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng) }}
+                  >
+                    <Popup>
+                      <div className="text-slate-900 font-bold text-xs">
+                        🔴 {zona.nombre}
+                        <br />
+                        <span className="text-red-600 font-normal">{zona.descripcion}</span>
+                      </div>
+                    </Popup>
+                  </Polygon>
+                ) : null
+              )}
 
               {/* Marker on Clicked Location */}
               <Marker position={[selectedCoords.lat, selectedCoords.lng]} icon={selectedPinIcon}>
