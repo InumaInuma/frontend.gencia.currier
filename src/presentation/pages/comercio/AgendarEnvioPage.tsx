@@ -5,7 +5,7 @@ import { useDistritos } from '../../../application/useCases/useDistritos';
 import { useRegistrarPedido } from '../../../application/useCases/useMisPedidos';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
-import { MapContainer, TileLayer, Marker, Popup, Polygon, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polygon, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -19,7 +19,7 @@ import { isAfterCutoffTimePeru, getPeruTimeString } from '../../../infrastructur
 import {
   Package, User, Phone, MapPin, Navigation, FileText,
   CheckCircle2, Copy, Share2, Loader2, AlertTriangle,
-  Clock, ArrowLeft, Plus, ChevronRight, Search, Check, AlertCircle,
+  Clock, ArrowLeft, Plus, ChevronRight, Check, AlertCircle,
 } from 'lucide-react';
 
 // ---- Leaflet icon fixes ----
@@ -39,6 +39,15 @@ const selectedPinIcon = new L.Icon({
 // Map click listener sub-component
 const MapClickListener: React.FC<{ onMapClick: (lat: number, lng: number) => void }> = ({ onMapClick }) => {
   useMapEvents({ click: (e) => onMapClick(e.latlng.lat, e.latlng.lng) });
+  return null;
+};
+
+// Map recenter controller on district change
+const MapController: React.FC<{ center: { lat: number; lng: number } }> = ({ center }) => {
+  const map = useMap();
+  useEffect(() => {
+    map.flyTo([center.lat, center.lng], 14, { duration: 1 });
+  }, [center, map]);
   return null;
 };
 
@@ -71,7 +80,6 @@ export const AgendarEnvioPage: React.FC = () => {
   const [distritoInfo, setDistritoInfo] = useState<IZonaCoberturaInfo>(() =>
     detectarDistritoCercano(-12.1221, -77.0312)
   );
-  const [searchDistrict, setSearchDistrict] = useState('');
   const [googleMapsUrl, setGoogleMapsUrl] = useState('');
 
   // ---- Submit state ----
@@ -84,9 +92,6 @@ export const AgendarEnvioPage: React.FC = () => {
   const registrarMutation = useRegistrarPedido();
 
   const distritosList = obtenerDistritosCobertura();
-  const distritosFiltrados = distritosList.filter((d) =>
-    d.nombre.toLowerCase().includes(searchDistrict.toLowerCase())
-  );
 
   useEffect(() => {
     if (user?.nombreComercial || user?.nombreCompleto) {
@@ -454,101 +459,89 @@ export const AgendarEnvioPage: React.FC = () => {
                   {/* Map section header */}
                   <div className="bg-slate-900/50 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
 
-                    {/* Header */}
-                    <div className="px-5 py-4 bg-slate-950/60 border-b border-slate-800 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
-                        <MapPin size={18} />
+                    {/* Header with District Select Combo */}
+                    <div className="px-5 py-4 bg-slate-950/60 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center shrink-0">
+                          <MapPin size={18} />
+                        </div>
+                        <div>
+                          <h2 className="text-sm font-bold text-white leading-tight">9. Ubicación de Entrega en Mapa</h2>
+                          <p className="text-[11px] text-slate-400">Haz clic en el mapa sobre la ubicación exacta o selecciona el distrito para enfocar.</p>
+                        </div>
                       </div>
-                      <div>
-                        <h2 className="text-sm font-bold text-white leading-tight">9. Ubicación de Entrega en Mapa</h2>
-                        <p className="text-[11px] text-slate-400">Haz clic en el mapa sobre la ubicación exacta del destinatario, o elige un distrito de la lista.</p>
+
+                      {/* District Select Combo */}
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-slate-400 font-medium shrink-0">Distrito:</label>
+                        <select
+                          value={distritoInfo.nombre}
+                          onChange={(e) => {
+                            const target = distritosList.find((d) => d.nombre === e.target.value);
+                            if (target) {
+                              handleSelectDistrictPreset(target);
+                            }
+                          }}
+                          className="bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-xl px-3 py-2 outline-none focus:border-purple-500 transition-colors cursor-pointer"
+                        >
+                          {distritosList.map((d) => (
+                            <option key={d.id} value={d.nombre}>
+                              {d.nombre} ({d.zonaNombre}) {d.coberturaActiva ? '🟢' : '🔴'}
+                            </option>
+                          ))}
+                        </select>
                       </div>
                     </div>
 
-                    {/* Map grid: sidebar + map */}
-                    <div className="grid grid-cols-1 md:grid-cols-3" style={{ minHeight: '520px' }}>
+                    {/* Map Full Width */}
+                    <div className="relative min-h-[480px]">
+                      <MapContainer center={[selectedCoords.lat, selectedCoords.lng]} zoom={14} style={{ width: '100%', height: '100%', minHeight: '480px' }} className="z-10">
+                        <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                        <MapClickListener onMapClick={handleMapClick} />
+                        <MapController center={selectedCoords} />
 
-                      {/* Left: district list */}
-                      <div className="p-4 bg-slate-950/50 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col gap-3 overflow-y-auto max-h-64 md:max-h-none">
-                        <div>
-                          <label className="text-[11px] font-bold uppercase text-slate-400 tracking-wider block mb-1.5">
-                            Seleccionar Distrito
-                          </label>
-                          <div className="relative">
-                            <Search size={13} className="absolute left-3 top-2.5 text-slate-500" />
-                            <input type="text" value={searchDistrict} onChange={(e) => setSearchDistrict(e.target.value)} placeholder="Filtrar distrito..."
-                              className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500" />
+                        {/* Green coverage polygon */}
+                        <Polygon positions={obtenerPoligonoCobertura()} pathOptions={{ fillColor: '#10b981', color: '#34d399', fillOpacity: 0.33, weight: 2.5 }}
+                          eventHandlers={{ click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng) }} />
+
+                        {/* Red restricted zones */}
+                        {obtenerZonasRestringidas().map((zona) =>
+                          zona.vertices.length >= 3 ? (
+                            <Polygon key={`rz_${zona.id}`} positions={[...zona.vertices, zona.vertices[0]]}
+                              pathOptions={{ fillColor: '#ef4444', color: '#f87171', fillOpacity: 0.45, weight: 2.5, dashArray: '5,4' }}
+                              eventHandlers={{ click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng) }}>
+                              <Popup><div className="text-slate-900 font-bold text-xs">🔴 {zona.nombre}<br /><span className="text-red-600 font-normal">{zona.descripcion}</span></div></Popup>
+                            </Polygon>
+                          ) : null
+                        )}
+
+                        {/* Selected location marker */}
+                        <Marker position={[selectedCoords.lat, selectedCoords.lng]} icon={selectedPinIcon}>
+                          <Popup>
+                            <div className="text-slate-900 font-bold text-xs">
+                              📍 Ubicación de Entrega<br />
+                              Distrito: {distritoInfo.nombre}<br />
+                              {distritoInfo.coberturaActiva ? '🟢 En Cobertura' : '🔴 Sin Cobertura'}
+                            </div>
+                          </Popup>
+                        </Marker>
+                      </MapContainer>
+
+                      {/* Floating bottom info badge */}
+                      <div className="absolute bottom-3 left-3 right-3 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3 text-xs">
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border font-bold ${distritoInfo.coberturaActiva ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse'}`}>
+                            {distritoInfo.coberturaActiva ? <Navigation size={16} /> : <AlertTriangle size={16} />}
                           </div>
-                        </div>
-
-                        <div className="flex-1 space-y-1.5 overflow-y-auto pr-0.5">
-                          {distritosFiltrados.map((d) => {
-                            const isSelected = d.id === distritoInfo.id;
-                            return (
-                              <button key={d.id} onClick={() => handleSelectDistrictPreset(d)}
-                                className={`w-full text-left p-2.5 rounded-xl border text-xs flex items-center justify-between transition-all cursor-pointer ${isSelected ? 'bg-purple-600/20 border-purple-500 text-white font-bold' : 'bg-slate-900/40 border-slate-800 text-slate-300 hover:bg-slate-900'}`}>
-                                <div>
-                                  <span className="block leading-tight">{d.nombre}</span>
-                                  <span className="text-[10px] text-slate-400 font-mono">{d.zonaNombre}</span>
-                                </div>
-                                {d.coberturaActiva
-                                  ? <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded-full font-bold shrink-0">✓</span>
-                                  : <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded-full font-bold shrink-0">!</span>}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Right: Map */}
-                      <div className="md:col-span-2 relative" style={{ minHeight: '420px' }}>
-                        <MapContainer center={[selectedCoords.lat, selectedCoords.lng]} zoom={14} style={{ width: '100%', height: '100%', minHeight: '420px' }} className="z-10">
-                          <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                          <MapClickListener onMapClick={handleMapClick} />
-
-                          {/* Green coverage polygon */}
-                          <Polygon positions={obtenerPoligonoCobertura()} pathOptions={{ fillColor: '#10b981', color: '#34d399', fillOpacity: 0.33, weight: 2.5 }}
-                            eventHandlers={{ click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng) }} />
-
-                          {/* Red restricted zones */}
-                          {obtenerZonasRestringidas().map((zona) =>
-                            zona.vertices.length >= 3 ? (
-                              <Polygon key={`rz_${zona.id}`} positions={[...zona.vertices, zona.vertices[0]]}
-                                pathOptions={{ fillColor: '#ef4444', color: '#f87171', fillOpacity: 0.45, weight: 2.5, dashArray: '5,4' }}
-                                eventHandlers={{ click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng) }}>
-                                <Popup><div className="text-slate-900 font-bold text-xs">🔴 {zona.nombre}<br /><span className="text-red-600 font-normal">{zona.descripcion}</span></div></Popup>
-                              </Polygon>
-                            ) : null
-                          )}
-
-                          {/* Selected location marker */}
-                          <Marker position={[selectedCoords.lat, selectedCoords.lng]} icon={selectedPinIcon}>
-                            <Popup>
-                              <div className="text-slate-900 font-bold text-xs">
-                                📍 Ubicación de Entrega<br />
-                                Distrito: {distritoInfo.nombre}<br />
-                                {distritoInfo.coberturaActiva ? '🟢 En Cobertura' : '🔴 Sin Cobertura'}
-                              </div>
-                            </Popup>
-                          </Marker>
-                        </MapContainer>
-
-                        {/* Floating bottom info badge */}
-                        <div className="absolute bottom-3 left-3 right-3 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3 shadow-2xl flex items-center justify-between gap-3 text-xs">
-                          <div className="flex items-center gap-2.5">
-                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border font-bold ${distritoInfo.coberturaActiva ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse'}`}>
-                              {distritoInfo.coberturaActiva ? <Navigation size={16} /> : <AlertTriangle size={16} />}
+                          <div>
+                            <div className="font-bold text-white flex items-center gap-1.5 flex-wrap">
+                              <span>Distrito:</span>
+                              <span className="text-purple-300 font-mono">{distritoInfo.nombre}</span>
+                              {distritoInfo.coberturaActiva
+                                ? <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">🟢 En Cobertura</span>
+                                : <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">⚠️ Sin Cobertura</span>}
                             </div>
-                            <div>
-                              <div className="font-bold text-white flex items-center gap-1.5 flex-wrap">
-                                <span>Distrito:</span>
-                                <span className="text-purple-300 font-mono">{distritoInfo.nombre}</span>
-                                {distritoInfo.coberturaActiva
-                                  ? <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">🟢 En Cobertura</span>
-                                  : <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded-full font-bold">⚠️ Sin Cobertura</span>}
-                              </div>
-                              <div className="text-[10px] text-slate-400 font-mono">GPS: {selectedCoords.lat.toFixed(5)}, {selectedCoords.lng.toFixed(5)}</div>
-                            </div>
+                            <div className="text-[10px] text-slate-400 font-mono">GPS: {selectedCoords.lat.toFixed(5)}, {selectedCoords.lng.toFixed(5)}</div>
                           </div>
                         </div>
                       </div>
