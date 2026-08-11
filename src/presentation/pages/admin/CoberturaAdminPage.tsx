@@ -4,7 +4,7 @@ import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
 import type { IZonaCoberturaInfo } from '../../../infrastructure/utils/coberturaData';
 import { obtenerDistritosCobertura, guardarDistritosCobertura } from '../../../infrastructure/utils/coberturaData';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import {
@@ -198,21 +198,32 @@ export const CoberturaAdminPage: React.FC = () => {
                 />
 
                 {distritosList.map((d) => (
-                  <Marker
-                    key={`map_pin_${d.id}`}
-                    position={[d.lat, d.lng]}
-                    icon={d.coberturaActiva ? greenPinIcon : redPinIcon}
-                  >
-                    <Popup>
-                      <div className="text-slate-900 font-bold text-xs">
-                        {d.nombre} ({d.zonaNombre})
-                        <br />
-                        Estado: {d.coberturaActiva ? '🟢 Cobertura Activa' : '🔴 Sin Cobertura'}
-                        <br />
-                        Tarifa: S/ {d.tarifaDespacho.toFixed(2)}
-                      </div>
-                    </Popup>
-                  </Marker>
+                  <React.Fragment key={`admin_map_fragment_${d.id}`}>
+                    <Circle
+                      center={[d.lat, d.lng]}
+                      radius={2300}
+                      pathOptions={{
+                        fillColor: d.coberturaActiva ? '#10b981' : '#ef4444',
+                        color: d.coberturaActiva ? '#059669' : '#dc2626',
+                        fillOpacity: d.coberturaActiva ? 0.35 : 0.38,
+                        weight: 2.5,
+                      }}
+                    />
+                    <Marker
+                      position={[d.lat, d.lng]}
+                      icon={d.coberturaActiva ? greenPinIcon : redPinIcon}
+                    >
+                      <Popup>
+                        <div className="text-slate-900 font-bold text-xs">
+                          {d.nombre} ({d.zonaNombre})
+                          <br />
+                          Estado: {d.coberturaActiva ? '🟢 Cobertura Activa' : '🔴 Sin Cobertura'}
+                          <br />
+                          Tarifa: S/ {d.tarifaDespacho.toFixed(2)}
+                        </div>
+                      </Popup>
+                    </Marker>
+                  </React.Fragment>
                 ))}
               </MapContainer>
             </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { IZonaCoberturaInfo } from '../../infrastructure/utils/coberturaData';
@@ -191,6 +191,29 @@ export const MapaLocationPickerModal: React.FC<MapaLocationPickerModalProps> = (
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
               <MapClickListener onMapClick={handleMapClick} />
+
+              {/* Render transparent green (covered) and red (uncovered) zone shapes */}
+              {distritosList.map((d) => (
+                <Circle
+                  key={`map_circle_${d.id}`}
+                  center={[d.lat, d.lng]}
+                  radius={2300}
+                  pathOptions={{
+                    fillColor: d.coberturaActiva ? '#10b981' : '#ef4444',
+                    color: d.coberturaActiva ? '#059669' : '#dc2626',
+                    fillOpacity: d.coberturaActiva ? 0.35 : 0.38,
+                    weight: 2.5,
+                  }}
+                >
+                  <Popup>
+                    <div className="text-slate-900 font-bold text-xs">
+                      {d.nombre} ({d.zonaNombre})
+                      <br />
+                      Estado: {d.coberturaActiva ? '🟢 Cobertura Directa' : '🔴 Sin Cobertura (Restringido)'}
+                    </div>
+                  </Popup>
+                </Circle>
+              ))}
 
               <Marker position={[selectedCoords.lat, selectedCoords.lng]} icon={selectedPinIcon}>
                 <Popup>
