@@ -6,8 +6,7 @@ import type { IZonaCoberturaInfo } from '../../../infrastructure/utils/cobertura
 import {
   obtenerDistritosCobertura,
   guardarDistritosCobertura,
-  LIMA_COVERAGE_MAIN_POLYGON,
-  UNCOVERED_POLYGONS
+  LIMA_COVERAGE_MAIN_POLYGON
 } from '../../../infrastructure/utils/coberturaData';
 import { MapContainer, TileLayer, Marker, Popup, Polygon } from 'react-leaflet';
 import L from 'leaflet';
@@ -208,37 +207,10 @@ export const CoberturaAdminPage: React.FC = () => {
                   pathOptions={{
                     fillColor: '#10b981',
                     color: '#34d399',
-                    fillOpacity: 0.38,
+                    fillOpacity: 0.35,
                     weight: 2.5,
                   }}
-                >
-                  <Popup>
-                    <div className="text-slate-900 font-bold text-xs">
-                      🟢 Zona Metropolitana de Cobertura Directa
-                    </div>
-                  </Popup>
-                </Polygon>
-
-                {/* Red uncovered outer areas */}
-                {UNCOVERED_POLYGONS.map((area) => (
-                  <Polygon
-                    key={`admin_uncovered_poly_${area.id}`}
-                    positions={area.coords}
-                    pathOptions={{
-                      fillColor: '#ef4444',
-                      color: '#f87171',
-                      fillOpacity: 0.38,
-                      weight: 2,
-                      dashArray: '5, 5'
-                    }}
-                  >
-                    <Popup>
-                      <div className="text-slate-900 font-bold text-xs">
-                        🔴 {area.nombre}
-                      </div>
-                    </Popup>
-                  </Polygon>
-                ))}
+                />
 
                 {/* District markers */}
                 {distritosList.map((d) => (
