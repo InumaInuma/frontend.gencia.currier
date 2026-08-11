@@ -18,7 +18,8 @@ import {
   Repeat,
   Receipt,
   CalendarClock,
-  MapPin
+  MapPin,
+  Plus,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -94,6 +95,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
     if (role === 'comercio' && !isCurrentlyInClientView) {
       return [
         { path: '/comercio/dashboard', label: 'Gestión de Envíos', icon: <ShoppingBag size={20} /> },
+        { path: '/comercio/agendar-envio', label: 'Agendar Nuevo Envío', icon: <Plus size={20} /> },
       ];
     }
 

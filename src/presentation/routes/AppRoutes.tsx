@@ -11,6 +11,7 @@ import RendicionCuentasAdminPage from '../pages/admin/RendicionCuentasAdminPage'
 import { ReprogramacionesAdminPage } from '../pages/admin/ReprogramacionesAdminPage';
 import { CoberturaAdminPage } from '../pages/admin/CoberturaAdminPage';
 import ComercioDashboard from '../pages/comercio/ComercioDashboard';
+import AgendarEnvioPage from '../pages/comercio/AgendarEnvioPage';
 import MotorizadoRecojosPage from '../pages/motorizado/MotorizadoRecojosPage';
 import MotorizadoEntregasPage from '../pages/motorizado/MotorizadoEntregasPage';
 import ClienteDashboard from '../pages/cliente/ClienteDashboard';
@@ -205,6 +206,15 @@ export const AppRoutes: React.FC = () => {
           element={
             <RoleProtectedRoute allowedRoles={['Comercio']}>
               <ComercioDashboard />
+            </RoleProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/comercio/agendar-envio"
+          element={
+            <RoleProtectedRoute allowedRoles={['Comercio']}>
+              <AgendarEnvioPage />
             </RoleProtectedRoute>
           }
         />
