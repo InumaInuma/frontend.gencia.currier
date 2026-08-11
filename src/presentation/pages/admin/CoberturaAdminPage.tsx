@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useAuth } from '../../../application/context/AuthContext';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
@@ -20,6 +20,7 @@ import {
   Popup,
   Polygon,
   useMapEvents,
+  useMap,
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -90,6 +91,17 @@ const MapClickAdder: React.FC<{
   return null;
 };
 
+// ---- Map recenter controller ----
+const MapController: React.FC<{ center: [number, number] | null }> = ({ center }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.flyTo(center, 14, { duration: 1 });
+    }
+  }, [center, map]);
+  return null;
+};
+
 // ---- Helpers ----
 function stripClosingVertex(coords: [number, number][]): [number, number][] {
   const pts = [...coords];
@@ -122,6 +134,9 @@ export const CoberturaAdminPage: React.FC = () => {
   const [zonas, setZonas] = useState<IZonaRestringida[]>(() => obtenerZonasRestringidas());
   const [editingZonaId, setEditingZonaId] = useState<number | null>(null);
   const [expandedZonaId, setExpandedZonaId] = useState<number | null>(null);
+
+  // ---- Map focus center override ----
+  const [mapFocusCenter, setMapFocusCenter] = useState<[number, number] | null>(null);
 
   if (!user) return null;
 
@@ -372,10 +387,33 @@ export const CoberturaAdminPage: React.FC = () => {
                 </div>
               )}
 
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-950/60 p-3 rounded-2xl border border-slate-800 text-xs">
+                <div className="flex items-center gap-2 text-slate-300 font-bold">
+                  <MapPin size={15} className="text-emerald-400" />
+                  <span>Ubicar / Enfocar Distrito en Mapa:</span>
+                </div>
+                <select
+                  onChange={(e) => {
+                    const target = distritosList.find((d) => d.nombre === e.target.value);
+                    if (target) setMapFocusCenter([target.lat, target.lng]);
+                  }}
+                  defaultValue=""
+                  className="bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-xl px-3 py-1.5 outline-none focus:border-emerald-400 cursor-pointer w-full sm:w-auto"
+                >
+                  <option value="" disabled>-- Selecciona un distrito para centrar --</option>
+                  {distritosList.map((d) => (
+                    <option key={d.id} value={d.nombre}>
+                      {d.nombre} ({d.zonaNombre}) {d.coberturaActiva ? '🟢' : '🔴'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className={`rounded-2xl overflow-hidden border transition-all ${editGreen ? 'border-orange-500/50 h-[520px]' : 'border-slate-800 h-[380px]'}`}>
                 <MapContainer center={[-12.085, -77.035]} zoom={11} style={{ width: '100%', height: '100%' }} doubleClickZoom={!editGreen}>
                   <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <MapClickAdder active={editGreen} onAdd={handleAddGreenVertex} />
+                  <MapController center={mapFocusCenter} />
 
                   {/* Green polygon */}
                   {greenDisplay.length >= 3 && (
@@ -508,11 +546,35 @@ export const CoberturaAdminPage: React.FC = () => {
                           </div>
                         )}
 
+                        {/* District focus combo */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 bg-slate-950/80 p-3 rounded-2xl border border-slate-800 text-xs">
+                          <div className="flex items-center gap-2 text-slate-300 font-bold">
+                            <MapPin size={15} className="text-red-400" />
+                            <span>Ubicar / Enfocar Distrito en Mapa:</span>
+                          </div>
+                          <select
+                            onChange={(e) => {
+                              const target = distritosList.find((d) => d.nombre === e.target.value);
+                              if (target) setMapFocusCenter([target.lat, target.lng]);
+                            }}
+                            defaultValue=""
+                            className="bg-slate-900 border border-slate-700 text-white text-xs font-bold rounded-xl px-3 py-1.5 outline-none focus:border-red-400 cursor-pointer w-full sm:w-auto"
+                          >
+                            <option value="" disabled>-- Selecciona un distrito para centrar el mapa --</option>
+                            {distritosList.map((d) => (
+                              <option key={d.id} value={d.nombre}>
+                                {d.nombre} ({d.zonaNombre}) {d.coberturaActiva ? '🟢' : '🔴'}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
                         {/* Map */}
                         <div className={`rounded-2xl overflow-hidden border ${isEditing ? 'border-red-500/50 h-[460px]' : 'border-slate-800 h-[300px]'}`}>
                           <MapContainer center={[-12.085, -77.035]} zoom={12} style={{ width: '100%', height: '100%' }} doubleClickZoom={!isEditing}>
                             <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                             <MapClickAdder active={isEditing} onAdd={handleAddRedVertex} />
+                            <MapController center={mapFocusCenter} />
 
                             {/* Green main coverage as context */}
                             {greenDisplay.length >= 3 && (
