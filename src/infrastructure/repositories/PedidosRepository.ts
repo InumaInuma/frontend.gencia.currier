@@ -109,9 +109,14 @@ export class PedidosRepository implements IPedidosRepository {
     }
   }
 
-  async getPedidosPendientesRecojo(): Promise<IPedido[]> {
+  async getPedidosPendientesRecojo(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IPedido[]> {
     try {
-      const response = await apiClient.get<BaseResponse<IPedido[]>>('/api/pedidos/pendientes-recojo');
+      const queryParams = new URLSearchParams();
+      if (params?.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params?.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+
+      const url = `/api/pedidos/pendientes-recojo${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await apiClient.get<BaseResponse<IPedido[]>>(url);
       const body = response.data;
       if (!body.isSuccess || !body.data) {
         throw new Error(body.message || 'Error al obtener los pedidos pendientes de recojo.');
@@ -198,9 +203,14 @@ export class PedidosRepository implements IPedidosRepository {
     }
   }
 
-  async getPedidosPendientesEntregaPorDistrito(): Promise<IMonitoreoRecojo[]> {
+  async getPedidosPendientesEntregaPorDistrito(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IMonitoreoRecojo[]> {
     try {
-      const response = await apiClient.get<BaseResponse<IMonitoreoRecojo[]>>('/api/pedidos/pendientes-entrega-distritos');
+      const queryParams = new URLSearchParams();
+      if (params?.fechaInicio) queryParams.append('fechaInicio', params.fechaInicio);
+      if (params?.fechaFin) queryParams.append('fechaFin', params.fechaFin);
+
+      const url = `/api/pedidos/pendientes-entrega-distritos${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const response = await apiClient.get<BaseResponse<IMonitoreoRecojo[]>>(url);
       const body = response.data;
       if (!body.isSuccess || !body.data) {
         throw new Error(body.message || 'Error al obtener los envíos en almacén para entrega.');

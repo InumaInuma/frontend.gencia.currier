@@ -59,6 +59,8 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
         observaciones: observaciones.trim(),
         googleMapsUrl: googleMapsUrl.trim(),
         montoCobrar: esContraEntrega ? Number(montoCobrar) || 0 : 0,
+        tarifaEnvio: 0,
+        destinatarioPagaEnvio: false,
       });
 
       setCreatedTrackingCode(res.codigoSeguimiento);

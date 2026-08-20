@@ -29,6 +29,8 @@ export interface IMonitoreoEntrega {
   observaciones?: string;
   googleMapsUrl?: string;
   montoCobrar: number;
+  tarifaEnvio?: number;
+  destinatarioPagaEnvio?: boolean;
   idEstadosPedido: number;
   estadoPedido: string;
   fechaRegistro: string;

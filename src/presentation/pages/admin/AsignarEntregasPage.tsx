@@ -21,8 +21,19 @@ import {
   CheckCircle2,
   AlertCircle,
   Phone,
-  Search
+  Search,
+  Calendar,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
+
+const getTodayFormatted = (): string => {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 interface DistrictPendingGroup {
   idDistrito: number;
@@ -42,9 +53,13 @@ export const AsignarEntregasPage: React.FC = () => {
   const [selectedDriverId, setSelectedDriverId] = useState<number | null>(null);
   const [selectedPedidoIds, setSelectedPedidoIds] = useState<number[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [fechaInicio, setFechaInicio] = useState<string>(getTodayFormatted());
+  const [fechaFin, setFechaFin] = useState<string>(getTodayFormatted());
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 5;
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const { data: pendientesEntrega, isLoading: loadingPendientes, refetch: refetchPendientes } = usePedidosPendientesEntregaPorDistrito();
+  const { data: pendientesEntrega, isLoading: loadingPendientes, refetch: refetchPendientes } = usePedidosPendientesEntregaPorDistrito({ fechaInicio, fechaFin });
   const { data: conductores, isLoading: loadingConductores, refetch: refetchConductores } = useConductoresDisponibles();
 
   const asignarEntregaMutation = useAsignarEntrega();
@@ -54,13 +69,21 @@ export const AsignarEntregasPage: React.FC = () => {
     navigate('/login');
   };
 
-  // Group warehouse pending packages by District
+  // Group warehouse pending packages by District (filtered by Date and Search)
   const districtGroups = useMemo<DistrictPendingGroup[]>(() => {
     if (!pendientesEntrega || pendientesEntrega.length === 0) return [];
 
+    const dateFiltered = pendientesEntrega.filter((p) => {
+      if (!p.fechaRegistro) return true;
+      const pDateStr = p.fechaRegistro.split('T')[0];
+      if (fechaInicio && pDateStr < fechaInicio) return false;
+      if (fechaFin && pDateStr > fechaFin) return false;
+      return true;
+    });
+
     const groupMap: { [key: number]: DistrictPendingGroup } = {};
 
-    pendientesEntrega.forEach((p) => {
+    dateFiltered.forEach((p) => {
       const idDist = p.idDistritoDestinatario || 0;
       if (!groupMap[idDist]) {
         groupMap[idDist] = {
@@ -94,7 +117,14 @@ export const AsignarEntregasPage: React.FC = () => {
         )
       );
     });
-  }, [pendientesEntrega, searchTerm]);
+  }, [pendientesEntrega, fechaInicio, fechaFin, searchTerm]);
+
+  // Pagination logic
+  const totalPages = Math.max(1, Math.ceil(districtGroups.length / pageSize));
+  const paginatedDistrictGroups = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return districtGroups.slice(start, start + pageSize);
+  }, [districtGroups, currentPage, pageSize]);
 
   // Open all district accordions by default
   React.useEffect(() => {
@@ -345,24 +375,91 @@ export const AsignarEntregasPage: React.FC = () => {
             )}
           </div>
 
-          {/* Search Bar */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="relative w-full sm:w-80">
+          {/* Controls Bar: Search & Date Filters */}
+          <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 bg-slate-900/40 p-4 rounded-2xl border border-slate-900">
+            {/* Search Input */}
+            <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 placeholder="Buscar por distrito, comercio o cliente..."
-                className="w-full bg-slate-900/60 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all"
               />
             </div>
 
-            {selectedPedidoIds.length > 0 && (
-              <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl">
-                {selectedPedidoIds.length} paquetes seleccionados
-              </span>
-            )}
+            {/* Date Filters */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
+                <Calendar size={13} className="text-violet-400" />
+                <span className="text-slate-400 text-[11px] font-semibold">Desde:</span>
+                <input
+                  type="date"
+                  value={fechaInicio}
+                  onChange={(e) => {
+                    setFechaInicio(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
+                />
+              </div>
+
+              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
+                <Calendar size={13} className="text-violet-400" />
+                <span className="text-slate-400 text-[11px] font-semibold">Hasta:</span>
+                <input
+                  type="date"
+                  value={fechaFin}
+                  onChange={(e) => {
+                    setFechaFin(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const today = getTodayFormatted();
+                  setFechaInicio(today);
+                  setFechaFin(today);
+                  setCurrentPage(1);
+                }}
+                className={`px-2.5 py-1.5 rounded-xl font-semibold transition-colors cursor-pointer text-xs ${
+                  fechaInicio === getTodayFormatted() && fechaFin === getTodayFormatted()
+                    ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40'
+                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
+                }`}
+                title="Filtrar entregas del día de hoy"
+              >
+                Hoy
+              </button>
+
+              {(fechaInicio || fechaFin) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFechaInicio('');
+                    setFechaFin('');
+                    setCurrentPage(1);
+                  }}
+                  className="px-2.5 py-1.5 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs cursor-pointer"
+                >
+                  Ver Todos
+                </button>
+              )}
+
+              {selectedPedidoIds.length > 0 && (
+                <span className="text-xs text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-xl ml-auto md:ml-0">
+                  {selectedPedidoIds.length} seleccionados
+                </span>
+              )}
+            </div>
           </div>
 
           {/* District Accordions List */}
@@ -381,7 +478,7 @@ export const AsignarEntregasPage: React.FC = () => {
           )}
 
           {!loadingPendientes &&
-            districtGroups.map((group) => {
+            paginatedDistrictGroups.map((group) => {
               const isOpen = openDistrictIds.includes(group.idDistrito);
               const groupPedidoIds = group.pedidos.map((p) => p.idPedido);
               const isDistrictFullySelected =
@@ -520,6 +617,43 @@ export const AsignarEntregasPage: React.FC = () => {
                 </div>
               );
             })}
+
+          {/* Pagination Controls */}
+          {!loadingPendientes && districtGroups.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-900 text-xs">
+              <span className="text-slate-400 font-medium">
+                Mostrando {Math.min((currentPage - 1) * pageSize + 1, districtGroups.length)} a{' '}
+                {Math.min(currentPage * pageSize, districtGroups.length)} de{' '}
+                <strong className="text-white">{districtGroups.length}</strong> distritos con entregas pendientes
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                  title="Página anterior"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+
+                <span className="px-3 py-1 bg-slate-950 border border-slate-800 rounded-xl font-mono text-violet-300 font-bold">
+                  {currentPage} / {totalPages}
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-all"
+                  title="Página siguiente"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+          )}
         </main>
 
         {/* Bottom Floating Action Bar */}

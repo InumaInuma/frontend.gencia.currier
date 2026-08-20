@@ -10,6 +10,10 @@ export interface ILiquidacionDetalle {
   idEstadosPedido: number;
   estadoPedido: string;
   montoCobrar: number;
+  tarifaEnvio?: number;
+  destinatarioPagaEnvio?: boolean;
+  costoEnvioComercio?: number;
+  costoEnvioCliente?: number;
   montoEfectivo: number;
   montoYape: number;
   montoTransferencia: number;

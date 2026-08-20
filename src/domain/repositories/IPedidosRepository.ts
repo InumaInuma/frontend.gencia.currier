@@ -25,13 +25,13 @@ export interface IPedidosRepository {
   getMisCompras(): Promise<IPedido[]>;
   getTodosLosPedidosAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IPedido[]>;
   getConductoresDisponibles(): Promise<IConductor[]>;
-  getPedidosPendientesRecojo(): Promise<IPedido[]>;
+  getPedidosPendientesRecojo(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IPedido[]>;
   asignarRecojo(params: IAsignarRecojoParams): Promise<boolean>;
   getMonitoreoRecojosAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IMonitoreoRecojo[]>;
   getMisRecojosMotorizado(): Promise<IMonitoreoRecojo[]>;
   actualizarEstadoComercioRecojo(params: { idAsignacionRecojo: number; idComercio: number; idEstado: number }): Promise<boolean>;
   actualizarEstadoAlmacenRecojo(params: { idAsignacionRecojo: number; idEstado: number }): Promise<boolean>;
-  getPedidosPendientesEntregaPorDistrito(): Promise<IMonitoreoRecojo[]>;
+  getPedidosPendientesEntregaPorDistrito(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IMonitoreoRecojo[]>;
   asignarEntrega(params: { idConductor: number; pedidoIds: number[] }): Promise<boolean>;
   getMisEntregasMotorizado(): Promise<IMonitoreoEntrega[]>;
   iniciarRutaEntrega(idAsignacionEntrega: number): Promise<boolean>;

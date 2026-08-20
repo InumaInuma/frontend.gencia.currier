@@ -18,6 +18,8 @@ export interface IPedido {
   observaciones?: string;
   googleMapsUrl?: string;
   montoCobrar: number;
+  tarifaEnvio?: number;
+  destinatarioPagaEnvio?: boolean;
   idEstadosPedido?: number;
   estadoNombre: string;
   nombreConductor?: string;
@@ -35,6 +37,8 @@ export interface IRegisterPedidoParams {
   observaciones?: string;
   googleMapsUrl?: string;
   montoCobrar: number;
+  tarifaEnvio: number;
+  destinatarioPagaEnvio: boolean;
 }
 
 export interface IPedidoResultado {

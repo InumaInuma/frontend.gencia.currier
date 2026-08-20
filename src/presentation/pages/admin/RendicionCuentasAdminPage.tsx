@@ -224,19 +224,21 @@ export const RendicionCuentasAdminPage: React.FC = () => {
             </div>
           )}
 
-          {/* Barra de Controles de Rango de Fechas */}
-          <FiltroRangoFechasRendicion
-            fechaInicio={fechaInicio}
-            fechaFin={fechaFin}
-            onChangeFechaInicio={setFechaInicio}
-            onChangeFechaFin={setFechaFin}
-            onSetHoy={() => {
-              const today = getTodayFormatted();
-              setFechaInicio(today);
-              setFechaFin(today);
-            }}
-            isToday={fechaInicio === getTodayFormatted() && fechaFin === getTodayFormatted()}
-          />
+          {/* Barra de Controles de Rango de Fechas (Solo en Vista Resumen General) */}
+          {!selectedConductor && (
+            <FiltroRangoFechasRendicion
+              fechaInicio={fechaInicio}
+              fechaFin={fechaFin}
+              onChangeFechaInicio={setFechaInicio}
+              onChangeFechaFin={setFechaFin}
+              onSetHoy={() => {
+                const today = getTodayFormatted();
+                setFechaInicio(today);
+                setFechaFin(today);
+              }}
+              isToday={fechaInicio === getTodayFormatted() && fechaFin === getTodayFormatted()}
+            />
+          )}
 
           {/* VISTA 1: Resumen General vs VISTA 2: Vista Detalle del Motorizado */}
           {!selectedConductor ? (

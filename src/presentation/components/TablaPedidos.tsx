@@ -145,11 +145,21 @@ export const TablaPedidos: React.FC<Props> = ({ pedidos, onCopyCode, onShareWhat
                     )}
                   </td>
 
-                  {/* 6. Monto a Cobrar */}
-                  <td className="py-3.5 px-3 font-semibold">
-                    <span className={pedido.montoCobrar > 0 ? 'text-emerald-400' : 'text-slate-400'}>
-                      {pedido.montoCobrar > 0 ? `S/ ${pedido.montoCobrar.toFixed(2)}` : 'S/ 0.00 (Pagado)'}
-                    </span>
+                  {/* 6. Monto & Tarifa Envío */}
+                  <td className="py-3.5 px-3 font-semibold text-xs">
+                    <div className={pedido.montoCobrar > 0 ? 'text-emerald-400 font-bold' : 'text-slate-400'}>
+                      Prod: {pedido.montoCobrar > 0 ? `S/ ${pedido.montoCobrar.toFixed(2)}` : 'S/ 0.00'}
+                    </div>
+                    <div className="text-violet-300 font-medium">
+                      Envío: S/ {(pedido.tarifaEnvio || 0).toFixed(2)}
+                    </div>
+                    <div className="text-[10px] font-bold mt-0.5">
+                      {pedido.destinatarioPagaEnvio ? (
+                        <span className="text-emerald-400">🟢 Cliente paga envío</span>
+                      ) : (
+                        <span className="text-cyan-400">🔵 Comercio asume envío</span>
+                      )}
+                    </div>
                   </td>
 
                   {/* 7. Estado Badge */}
@@ -267,14 +277,12 @@ export const TablaPedidos: React.FC<Props> = ({ pedidos, onCopyCode, onShareWhat
               {/* Footer: Amount & Share Button */}
               <div className="flex items-center justify-between pt-2 border-t border-slate-900 text-xs">
                 <div>
-                  <span className="text-slate-500 block text-[11px]">Cobro Contra Entrega:</span>
-                  <span
-                    className={`font-bold ${
-                      pedido.montoCobrar > 0 ? 'text-emerald-400' : 'text-slate-400'
-                    }`}
-                  >
-                    {pedido.montoCobrar > 0 ? `S/ ${pedido.montoCobrar.toFixed(2)}` : 'S/ 0.00 (Pagado)'}
-                  </span>
+                  <div className="text-[11px] font-bold text-emerald-400">
+                    Producto: {pedido.montoCobrar > 0 ? `S/ ${pedido.montoCobrar.toFixed(2)}` : 'S/ 0.00'}
+                  </div>
+                  <div className="text-[10px] text-violet-300">
+                    Envío: S/ {(pedido.tarifaEnvio || 0).toFixed(2)} ({pedido.destinatarioPagaEnvio ? '🟢 Cliente paga' : '🔵 Comercio asume'})
+                  </div>
                 </div>
 
                 <button

@@ -38,10 +38,10 @@ export const useConductoresDisponibles = () => {
   });
 };
 
-export const usePedidosPendientesRecojo = () => {
+export const usePedidosPendientesRecojo = (params?: { fechaInicio?: string; fechaFin?: string }) => {
   return useQuery({
-    queryKey: ['pedidos-pendientes-recojo'],
-    queryFn: () => pedidosRepository.getPedidosPendientesRecojo(),
+    queryKey: ['pedidos-pendientes-recojo', params?.fechaInicio, params?.fechaFin],
+    queryFn: () => pedidosRepository.getPedidosPendientesRecojo(params),
     refetchOnWindowFocus: false,
   });
 };
@@ -62,10 +62,10 @@ export const useMisRecojosMotorizado = () => {
   });
 };
 
-export const usePedidosPendientesEntregaPorDistrito = () => {
+export const usePedidosPendientesEntregaPorDistrito = (params?: { fechaInicio?: string; fechaFin?: string }) => {
   return useQuery({
-    queryKey: ['pedidos-pendientes-entrega-distritos'],
-    queryFn: () => pedidosRepository.getPedidosPendientesEntregaPorDistrito(),
+    queryKey: ['pedidos-pendientes-entrega-distritos', params?.fechaInicio, params?.fechaFin],
+    queryFn: () => pedidosRepository.getPedidosPendientesEntregaPorDistrito(params),
     refetchOnWindowFocus: false,
   });
 };
