@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, Save, ShieldOff, Coins, Pencil, Trash2, MapPin, X } from 'lucide-react';
-import type { DistritoTarifaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
+import type { DistritoTarifaDto, ZonaAlejadaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
 import { ConfirmModal } from '../common/ConfirmModal';
 
 interface Props {
@@ -11,6 +11,9 @@ interface Props {
   pendingZonaToSave: ZonaRestringidaDto | null;
   setPendingZonaToSave: (zona: ZonaRestringidaDto | null) => void;
   handleSaveZona: (zona: ZonaRestringidaDto) => void;
+  pendingZonaAlejadaToSave: ZonaAlejadaDto | null;
+  setPendingZonaAlejadaToSave: (zona: ZonaAlejadaDto | null) => void;
+  handleSaveZonaAlejada: (zona: ZonaAlejadaDto) => void;
   distritosList: DistritoTarifaDto[];
   // District Edit/Create & Delete Modals
   distritoToEdit: DistritoTarifaDto | null;
@@ -29,6 +32,9 @@ export const ModalesCobertura: React.FC<Props> = ({
   pendingZonaToSave,
   setPendingZonaToSave,
   handleSaveZona,
+  pendingZonaAlejadaToSave,
+  setPendingZonaAlejadaToSave,
+  handleSaveZonaAlejada,
   distritosList,
   distritoToEdit,
   setDistritoToEdit,
@@ -158,6 +164,54 @@ export const ModalesCobertura: React.FC<Props> = ({
               >
                 <Save size={14} />
                 Sí, Guardar Zona Restringida
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmación para Guardar Zona Alejada (Amarilla) */}
+      {pendingZonaAlejadaToSave && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center border border-yellow-500/30 shrink-0">
+                <MapPin size={22} />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">¿Guardar Zona Alejada?</h3>
+                <p className="text-xs text-slate-400">Confirmación de zona de recargo especial (+60%)</p>
+              </div>
+            </div>
+
+            <div className="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 text-xs text-slate-300 space-y-2">
+              <p>
+                Estás a punto de guardar la zona alejada <strong className="text-white">"{pendingZonaAlejadaToSave.nombre || 'Sin nombre'}"</strong> con un recargo del <span className="font-mono text-yellow-400 font-bold">+{pendingZonaAlejadaToSave.porcentajeRecargo}%</span> y <span className="font-mono text-yellow-400 font-bold">{pendingZonaAlejadaToSave.vertices.length} vértices</span>.
+              </p>
+              <p className="text-slate-400 text-[11px]">
+                Al elegir una ubicación dentro de esta área, el sistema recalculará automáticamente la tarifa sumando el recargo especificado.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setPendingZonaAlejadaToSave(null)}
+                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold rounded-xl border border-slate-700 transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const target = pendingZonaAlejadaToSave;
+                  setPendingZonaAlejadaToSave(null);
+                  handleSaveZonaAlejada(target);
+                }}
+                className="px-5 py-2.5 bg-yellow-600 hover:bg-yellow-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-yellow-600/30 transition-all cursor-pointer flex items-center gap-2"
+              >
+                <Save size={14} />
+                Sí, Guardar Zona Alejada
               </button>
             </div>
           </div>

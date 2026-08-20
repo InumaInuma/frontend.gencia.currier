@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polygon } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapPin, Navigation, AlertTriangle, AlertCircle, Loader2 } from 'lucide-react';
 import type { IDistrito } from '../../../domain/models/IDistrito';
-import type { DistritoTarifaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
+import type { DistritoTarifaDto, ZonaAlejadaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
 import type { IZonaCoberturaInfo } from '../../../infrastructure/utils/coberturaData';
 import {
   obtenerPoligonoCobertura,
@@ -14,6 +14,7 @@ import { selectedPinIcon, MapClickListener, MapController } from './agendarEnvio
 interface Props {
   errorMsg: string;
   activeRestrictedZone: { id: number; nombre: string; descripcion: string } | null;
+  activeYellowZone?: ZonaAlejadaDto | null;
   idDistritoDestinatario: number | '';
   setIdDistritoDestinatario: (val: number | '') => void;
   direccionDestinatario: string;
@@ -30,6 +31,7 @@ interface Props {
   distritosList: DistritoTarifaDto[];
   greenPolygon: [number, number][];
   redZones: ZonaRestringidaDto[];
+  yellowZones?: ZonaAlejadaDto[];
   isPending: boolean;
   handleSubmit: () => void;
   onBackToStep1: () => void;
@@ -38,6 +40,7 @@ interface Props {
 export const Paso2UbicacionGPS: React.FC<Props> = ({
   errorMsg,
   activeRestrictedZone,
+  activeYellowZone,
   idDistritoDestinatario,
   setIdDistritoDestinatario,
   direccionDestinatario,
@@ -54,6 +57,7 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
   distritosList,
   greenPolygon,
   redZones,
+  yellowZones,
   isPending,
   handleSubmit,
   onBackToStep1,
@@ -78,6 +82,16 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
           <span>
             🔴 <strong>Ubicación Restringida:</strong> La ubicación marcada en el mapa se encuentra dentro de la "
             <strong>{activeRestrictedZone.nombre}</strong>" ({activeRestrictedZone.descripcion}). Por seguridad, no se aceptan entregas en este punto.
+          </span>
+        </div>
+      )}
+
+      {/* Notice banner for Yellow Remote Zone Surcharge */}
+      {activeYellowZone && !activeRestrictedZone && (
+        <div className="flex items-center gap-2.5 p-3.5 rounded-2xl bg-yellow-500/15 border border-yellow-500/40 text-yellow-300 text-xs font-bold shadow-lg">
+          <MapPin size={18} className="text-yellow-400 shrink-0" />
+          <span>
+            🟡 <strong>Zona Alejada Detectada ({activeYellowZone.nombre}):</strong> Esta ubicación se encuentra en una sub-zona distante. Se aplicará un recargo especial de <strong>+{activeYellowZone.porcentajeRecargo}%</strong> sobre la tarifa base de envío.
           </span>
         </div>
       )}
@@ -132,27 +146,6 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
                 })
               )}
             </select>
-
-            {/* Display delivery fee badge for selected district */}
-            {idDistritoDestinatario &&
-              (() => {
-                const apiMatch = distritos?.find((ap) => ap.id === idDistritoDestinatario);
-                const info = apiMatch ? distritosList.find((c) => c.nombre.toLowerCase() === apiMatch.nombre.toLowerCase()) : null;
-                if (!info) return null;
-                return (
-                  <div className="mt-2 p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold flex items-center justify-center text-xs">
-                        💰
-                      </div>
-                      <span className="text-slate-300 font-medium text-[11px]">Precio de Envío Estimado:</span>
-                    </div>
-                    <span className="font-extrabold text-emerald-400 font-mono text-sm">
-                      {info.coberturaActiva ? `S/ ${info.tarifaDespacho.toFixed(2)}` : 'Sin Cobertura Directa'}
-                    </span>
-                  </div>
-                );
-              })()}
           </div>
 
           <div>
@@ -215,6 +208,27 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
               eventHandlers={{ click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng) }}
             />
 
+            {/* Yellow remote sub-zones */}
+            {(yellowZones || []).map((zona) => {
+              const pts = zona.vertices.map((v) => [v.latitud, v.longitud] as [number, number]);
+              if (pts.length < 3) return null;
+              return (
+                <Polygon
+                  key={`yz_${zona.id}`}
+                  positions={[...pts, pts[0]]}
+                  pathOptions={{ fillColor: '#eab308', color: '#ca8a04', fillOpacity: 0.35, weight: 2.5, dashArray: '4,4' }}
+                  eventHandlers={{ click: (e) => handleMapClick(e.latlng.lat, e.latlng.lng) }}
+                >
+                  <Popup>
+                    <div className="text-slate-900 font-bold text-xs">
+                      🟡 {zona.nombre}<br />
+                      <span className="text-yellow-700 font-bold">Recargo: +{zona.porcentajeRecargo}%</span>
+                    </div>
+                  </Popup>
+                </Polygon>
+              );
+            })}
+
             {/* Red restricted zones */}
             {(redZones.length > 0
               ? redZones.map((z) => ({ id: z.id, nombre: z.nombre, descripcion: z.descripcion, vertices: z.vertices.map((v) => [v.latitud, v.longitud] as [number, number]) }))
@@ -272,13 +286,54 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
             });
             const name = matched ? matched.nombre : distritoInfo.nombre;
             const active = matched ? matched.coberturaActiva : distritoInfo.coberturaActiva;
-            const fee = matched ? matched.tarifaDespacho : distritoInfo.tarifaDespacho;
+            const baseFee = matched ? matched.tarifaDespacho : distritoInfo.tarifaDespacho;
+
+            const finalFee = activeYellowZone
+              ? activeYellowZone.usarPorcentaje
+                ? Math.round(baseFee * (1 + activeYellowZone.porcentajeRecargo / 100) * 100) / 100
+                : baseFee + activeYellowZone.montoFijoRecargo
+              : baseFee;
+
+            if (activeYellowZone && active) {
+              return (
+                <div className="absolute bottom-3 left-3 right-3 z-20 bg-gradient-to-r from-yellow-950/95 via-slate-900/95 to-slate-900/95 backdrop-blur-md border-2 border-yellow-500/60 rounded-2xl p-3.5 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 flex items-center justify-center shrink-0 shadow-lg shadow-yellow-500/20">
+                      <MapPin size={22} className="animate-bounce" />
+                    </div>
+                    <div className="space-y-0.5">
+                      <div className="font-bold text-white flex items-center gap-2 flex-wrap">
+                        <span>Distrito:</span>
+                        <span className="text-yellow-300 font-mono text-sm">{name}</span>
+                        <span className="text-[10px] bg-yellow-500/25 text-yellow-300 border border-yellow-500/40 px-2.5 py-0.5 rounded-full font-bold">
+                          🟡 Zona Alejada ({activeYellowZone.nombre})
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-yellow-200/90 font-medium">
+                        Recargo especial del <strong>+{activeYellowZone.porcentajeRecargo}%</strong> por sub-zona distante
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Big Animated Yellow Delivery Fee Badge */}
+                  <div className="flex flex-col items-end bg-yellow-500/20 border-2 border-yellow-500/60 px-4 py-2 rounded-2xl self-end sm:self-auto shadow-xl shadow-yellow-500/20">
+                    <span className="text-yellow-400 text-[10px] uppercase font-bold tracking-widest">COSTO TOTAL DE ENVÍO</span>
+                    <span className="font-extrabold text-yellow-300 font-mono text-xl sm:text-2xl tracking-tight drop-shadow-md animate-bounce">
+                      S/ {finalFee.toFixed(2)}
+                    </span>
+                    <span className="text-[10px] text-yellow-200/70 font-mono">
+                      (Base S/ {baseFee.toFixed(2)} + {activeYellowZone.porcentajeRecargo}%)
+                    </span>
+                  </div>
+                </div>
+              );
+            }
 
             return (
-              <div className="absolute bottom-3 left-3 right-3 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="absolute bottom-3 left-3 right-3 z-20 bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl p-3.5 shadow-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2.5">
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border font-bold ${active ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse'}`}>
-                    {active ? <Navigation size={16} /> : <AlertTriangle size={16} />}
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border font-bold ${active ? 'bg-purple-500/20 text-purple-300 border-purple-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30 animate-pulse'}`}>
+                    {active ? <Navigation size={18} /> : <AlertTriangle size={18} />}
                   </div>
                   <div>
                     <div className="font-bold text-white flex items-center gap-1.5 flex-wrap">
@@ -297,10 +352,10 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
                 </div>
 
                 {/* Delivery fee display */}
-                <div className="flex items-center gap-2 bg-slate-950/80 px-3.5 py-1.5 rounded-xl border border-slate-800 self-end sm:self-auto shadow-inner">
-                  <span className="text-slate-400 text-[11px] font-medium">Costo de Envío:</span>
-                  <span className="font-extrabold text-emerald-400 font-mono text-sm">
-                    {active ? `S/ ${fee.toFixed(2)}` : 'Sin Cobertura'}
+                <div className="flex items-center gap-2.5 bg-slate-950/80 px-4 py-2 rounded-2xl border border-slate-800 self-end sm:self-auto shadow-inner">
+                  <span className="text-slate-400 text-xs font-medium">Costo de Envío:</span>
+                  <span className="font-extrabold text-emerald-400 font-mono text-base sm:text-lg">
+                    {active ? `S/ ${baseFee.toFixed(2)}` : 'Sin Cobertura'}
                   </span>
                 </div>
               </div>

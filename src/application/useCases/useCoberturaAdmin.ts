@@ -26,6 +26,16 @@ export interface ZonaRestringidaDto {
   vertices: PoligonoVerticeDto[];
 }
 
+export interface ZonaAlejadaDto {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  porcentajeRecargo: number;
+  montoFijoRecargo: number;
+  usarPorcentaje: boolean;
+  vertices: PoligonoVerticeDto[];
+}
+
 export const useCoberturaAdmin = () => {
   const [loading, setLoading] = useState(false);
 
@@ -131,6 +141,39 @@ export const useCoberturaAdmin = () => {
     }
   }, []);
 
+  // 8. Obtener Zonas Alejadas
+  const getZonasAlejadas = useCallback(async (): Promise<ZonaAlejadaDto[]> => {
+    try {
+      const response = await apiClient.get<BaseResponse<ZonaAlejadaDto[]>>('/api/cobertura/zonas-alejadas');
+      return response.data?.data || [];
+    } catch (err: any) {
+      console.error('Error getZonasAlejadas:', err);
+      throw new Error(err.response?.data?.message || err.message || 'Error al obtener zonas alejadas');
+    }
+  }, []);
+
+  // 9. Guardar Zona Alejada
+  const saveZonaAlejada = useCallback(async (zona: ZonaAlejadaDto): Promise<number> => {
+    try {
+      const response = await apiClient.post<BaseResponse<number>>('/api/cobertura/zonas-alejadas', zona);
+      return response.data?.data || 0;
+    } catch (err: any) {
+      console.error('Error saveZonaAlejada:', err);
+      throw new Error(err.response?.data?.message || err.message || 'Error al guardar zona alejada');
+    }
+  }, []);
+
+  // 10. Eliminar Zona Alejada
+  const deleteZonaAlejada = useCallback(async (idZona: number): Promise<boolean> => {
+    try {
+      const response = await apiClient.delete<BaseResponse<boolean>>(`/api/cobertura/zonas-alejadas/${idZona}`);
+      return response.data?.data || false;
+    } catch (err: any) {
+      console.error('Error deleteZonaAlejada:', err);
+      throw new Error(err.response?.data?.message || err.message || 'Error al eliminar zona alejada');
+    }
+  }, []);
+
   return {
     loading,
     getDistritosTarifas,
@@ -141,6 +184,9 @@ export const useCoberturaAdmin = () => {
     savePoligonoVerde,
     getZonasRestringidas,
     saveZonaRestringida,
-    deleteZonaRestringida
+    deleteZonaRestringida,
+    getZonasAlejadas,
+    saveZonaAlejada,
+    deleteZonaAlejada
   };
 };

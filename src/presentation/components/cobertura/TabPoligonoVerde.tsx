@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polygon } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { MapPin, Pencil, Save, Info, PlusCircle, Trash2 } from 'lucide-react';
-import type { DistritoTarifaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
+import type { DistritoTarifaDto, ZonaAlejadaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
 import { greenPinIcon, redPinIcon, vertexIcon } from './coberturaIcons';
 import { MapClickAdder, MapController } from './MapHelpers';
 
@@ -19,6 +19,7 @@ interface Props {
   onRequestSaveConfirm: () => void;
   distritosList: DistritoTarifaDto[];
   zonas: ZonaRestringidaDto[];
+  zonasAlejadas?: ZonaAlejadaDto[];
   mapFocusCenter: [number, number] | null;
   setMapFocusCenter: (center: [number, number] | null) => void;
 }
@@ -35,6 +36,7 @@ export const TabPoligonoVerde: React.FC<Props> = ({
   onRequestSaveConfirm,
   distritosList,
   zonas,
+  zonasAlejadas = [],
   mapFocusCenter,
   setMapFocusCenter,
 }) => {
@@ -173,6 +175,19 @@ export const TabPoligonoVerde: React.FC<Props> = ({
               />
             ) : null
           )}
+
+          {/* Context yellow remote zones */}
+          {zonasAlejadas.map((za) => {
+            const aList: [number, number][] = za.vertices.map((v) => [v.latitud, v.longitud]);
+            if (aList.length < 3) return null;
+            return (
+              <Polygon
+                key={`ctx_yellow_${za.id}`}
+                positions={[...aList, aList[0]]}
+                pathOptions={{ fillColor: '#eab308', color: '#ca8a04', fillOpacity: 0.3, weight: 2 }}
+              />
+            );
+          })}
 
           {/* Draggable orange vertices */}
           {editGreen &&

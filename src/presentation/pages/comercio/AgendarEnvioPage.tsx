@@ -4,7 +4,7 @@ import { useAuth } from '../../../application/context/AuthContext';
 import { useDistritos } from '../../../application/useCases/useDistritos';
 import { useRegistrarPedido } from '../../../application/useCases/useMisPedidos';
 import { useCoberturaAdmin } from '../../../application/useCases/useCoberturaAdmin';
-import type { DistritoTarifaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
+import type { DistritoTarifaDto, ZonaAlejadaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
 import {
@@ -65,12 +65,13 @@ export const AgendarEnvioPage: React.FC = () => {
 
   const { data: distritos, isLoading: loadingDistritos } = useDistritos();
   const registrarMutation = useRegistrarPedido();
-  const { getDistritosTarifas, getPoligonoVerde, getZonasRestringidas } = useCoberturaAdmin();
+  const { getDistritosTarifas, getPoligonoVerde, getZonasRestringidas, getZonasAlejadas } = useCoberturaAdmin();
 
   // Backend real coverage state
   const [realDistritos, setRealDistritos] = useState<DistritoTarifaDto[]>([]);
   const [greenPolygon, setGreenPolygon] = useState<[number, number][]>([]);
   const [redZones, setRedZones] = useState<ZonaRestringidaDto[]>([]);
+  const [yellowZones, setYellowZones] = useState<ZonaAlejadaDto[]>([]);
 
   const distritosList =
     realDistritos.length > 0
@@ -88,10 +89,11 @@ export const AgendarEnvioPage: React.FC = () => {
   useEffect(() => {
     const fetchBackendCobertura = async () => {
       try {
-        const [dists, pol, zrs] = await Promise.all([
+        const [dists, pol, zrs, zas] = await Promise.all([
           getDistritosTarifas(),
           getPoligonoVerde(),
           getZonasRestringidas(),
+          getZonasAlejadas(),
         ]);
         if (dists.length > 0) setRealDistritos(dists);
         if (pol.length > 0) {
@@ -99,12 +101,13 @@ export const AgendarEnvioPage: React.FC = () => {
           setGreenPolygon(mapped);
         }
         if (zrs.length > 0) setRedZones(zrs);
+        if (zas.length > 0) setYellowZones(zas);
       } catch (e) {
         console.error('Error al cargar datos de cobertura en AgendarEnvio:', e);
       }
     };
     fetchBackendCobertura();
-  }, [getDistritosTarifas, getPoligonoVerde, getZonasRestringidas]);
+  }, [getDistritosTarifas, getPoligonoVerde, getZonasRestringidas, getZonasAlejadas]);
 
   // Compute active restricted zone if pin falls inside any red zone
   const activeRestrictedZone = (() => {
@@ -124,6 +127,19 @@ export const AgendarEnvioPage: React.FC = () => {
           }));
 
     return list.find((z) => isPointInPolygon(selectedCoords, z.vertices)) || null;
+  })();
+
+  // Compute active yellow remote zone if pin falls inside any yellow polygon
+  const activeYellowZone = (() => {
+    if (yellowZones.length === 0) return null;
+    return (
+      yellowZones.find((z) =>
+        isPointInPolygon(
+          selectedCoords,
+          z.vertices.map((v) => ({ latitud: v.latitud, longitud: v.longitud }))
+        )
+      ) || null
+    );
   })();
 
   useEffect(() => {
@@ -198,7 +214,13 @@ export const AgendarEnvioPage: React.FC = () => {
             const apMatch = distritos?.find((ap) => ap.id === idDistritoDestinatario);
             return (apMatch && d.nombre.toLowerCase() === apMatch.nombre.toLowerCase()) || d.id === idDistritoDestinatario;
           });
-          return matchedDist ? matchedDist.tarifaDespacho : distritoInfo.coberturaActiva ? distritoInfo.tarifaDespacho : 10;
+          const baseTariff = matchedDist ? matchedDist.tarifaDespacho : distritoInfo.coberturaActiva ? distritoInfo.tarifaDespacho : 10;
+          if (activeYellowZone) {
+            return activeYellowZone.usarPorcentaje
+              ? Math.round(baseTariff * (1 + activeYellowZone.porcentajeRecargo / 100) * 100) / 100
+              : baseTariff + activeYellowZone.montoFijoRecargo;
+          }
+          return baseTariff;
         })(),
         destinatarioPagaEnvio: destinatarioPagaEnvio,
       });
@@ -403,6 +425,7 @@ export const AgendarEnvioPage: React.FC = () => {
               <Paso2UbicacionGPS
                 errorMsg={errorMsg}
                 activeRestrictedZone={activeRestrictedZone}
+                activeYellowZone={activeYellowZone}
                 idDistritoDestinatario={idDistritoDestinatario}
                 setIdDistritoDestinatario={setIdDistritoDestinatario}
                 direccionDestinatario={direccionDestinatario}
@@ -419,6 +442,7 @@ export const AgendarEnvioPage: React.FC = () => {
                 distritosList={distritosList}
                 greenPolygon={greenPolygon}
                 redZones={redZones}
+                yellowZones={yellowZones}
                 isPending={registrarMutation.isPending}
                 handleSubmit={handleSubmit}
                 onBackToStep1={() => setStep(1)}

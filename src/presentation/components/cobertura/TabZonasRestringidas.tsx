@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Polygon } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { ShieldOff, Plus, Pencil, Save, ChevronUp, ChevronDown, Trash2, Info, MapPin } from 'lucide-react';
-import type { DistritoTarifaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
+import type { DistritoTarifaDto, ZonaAlejadaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
 import { redVertexIcon } from './coberturaIcons';
 import { MapClickAdder, MapController } from './MapHelpers';
 
@@ -22,6 +22,7 @@ interface Props {
   handleDeleteRedVertex: (zonaId: number, idx: number) => void;
   setPendingZonaToSave: (zona: ZonaRestringidaDto) => void;
   greenDisplay: [number, number][];
+  zonasAlejadas?: ZonaAlejadaDto[];
   distritosList: DistritoTarifaDto[];
   mapFocusCenter: [number, number] | null;
   setMapFocusCenter: (center: [number, number] | null) => void;
@@ -42,6 +43,7 @@ export const TabZonasRestringidas: React.FC<Props> = ({
   handleDeleteRedVertex,
   setPendingZonaToSave,
   greenDisplay,
+  zonasAlejadas = [],
   distritosList,
   mapFocusCenter,
   setMapFocusCenter,
@@ -209,6 +211,19 @@ export const TabZonasRestringidas: React.FC<Props> = ({
                     {greenDisplay.length >= 3 && (
                       <Polygon positions={greenDisplay} pathOptions={{ fillColor: '#10b981', color: '#34d399', fillOpacity: 0.22, weight: 2 }} />
                     )}
+
+                    {/* Yellow remote sub-zones as context */}
+                    {zonasAlejadas.map((za) => {
+                      const aList: [number, number][] = za.vertices.map((v) => [v.latitud, v.longitud]);
+                      if (aList.length < 3) return null;
+                      return (
+                        <Polygon
+                          key={`ctx_yellow_${za.id}`}
+                          positions={[...aList, aList[0]]}
+                          pathOptions={{ fillColor: '#eab308', color: '#ca8a04', fillOpacity: 0.25, weight: 1.5 }}
+                        />
+                      );
+                    })}
 
                     {/* All other red zones as context */}
                     {zonas
