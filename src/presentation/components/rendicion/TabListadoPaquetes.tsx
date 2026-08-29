@@ -18,7 +18,7 @@ export const TabListadoPaquetes: React.FC<Props> = ({ detalleList, isLoadingDeta
             Listado Detallado de Paquetes Asignados
           </h3>
           <p className="text-xs text-slate-400">
-            Muestra todos los paquetes que el repartidor tuvo que entregar, responsabilidad del envío y método de cobro.
+            Muestra todos los paquetes que el repartidor tuvo que entregar, dividiendo la tarifa de envío (70% Chofer / 30% Agencia).
           </p>
         </div>
 
@@ -53,13 +53,20 @@ export const TabListadoPaquetes: React.FC<Props> = ({ detalleList, isLoadingDeta
                   <th className="p-3 text-center">Estado Pedido</th>
                   <th className="p-3 text-center">Pago Delivery</th>
                   <th className="p-3 text-right">Tarifa Delivery</th>
-                  <th className="p-3 text-right">Cobrado a Cliente</th>
+                  <th className="p-3 text-right text-emerald-400">70% Chofer</th>
+                  <th className="p-3 text-right text-cyan-400">30% Agencia</th>
+                  <th className="p-3 text-right">Cobrado Cliente</th>
                   <th className="p-3 text-right text-amber-400">Efectivo</th>
                   <th className="p-3 text-right text-purple-400">Yape/Plin</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-900">
                 {detalleList.map((det) => {
+                  const tarifa = det.tarifaEnvio || 0;
+                  const isEntregado = det.idEstadosPedido === 11;
+                  const pagoChofer = det.pagoMotorizado ?? (isEntregado ? tarifa * 0.70 : 0);
+                  const gananciaAgencia = det.gananciaAgencia ?? (isEntregado ? tarifa * 0.30 : 0);
+
                   return (
                     <tr key={`det_full_row_${det.idPedido}`} className="hover:bg-slate-950/60 transition-colors">
                       {/* Commerce */}
@@ -102,8 +109,18 @@ export const TabListadoPaquetes: React.FC<Props> = ({ detalleList, isLoadingDeta
                       </td>
 
                       {/* Tarifa Delivery */}
-                      <td className="p-3 text-right font-mono text-slate-300">
-                        S/ {(det.tarifaEnvio || 0).toFixed(2)}
+                      <td className="p-3 text-right font-mono text-slate-300 font-semibold">
+                        S/ {tarifa.toFixed(2)}
+                      </td>
+
+                      {/* 70% Chofer */}
+                      <td className="p-3 text-right font-mono font-bold text-emerald-400">
+                        S/ {pagoChofer.toFixed(2)}
+                      </td>
+
+                      {/* 30% Agencia */}
+                      <td className="p-3 text-right font-mono font-bold text-cyan-400">
+                        S/ {gananciaAgencia.toFixed(2)}
                       </td>
 
                       {/* Total Amount Collected from Customer */}
@@ -130,11 +147,10 @@ export const TabListadoPaquetes: React.FC<Props> = ({ detalleList, isLoadingDeta
           {/* MOBILE VIEW: TOUCH CARDS FOR SETTLEMENT DETAIL (visible on mobile, hidden on md+) */}
           <div className="block md:hidden space-y-4">
             {detalleList.map((det) => {
-              const costoComercio = det.costoEnvioComercio ?? (
-                det.destinatarioPagaEnvio === false || det.idEstadosPedido === 14 || det.idEstadosPedido === 13 || det.idEstadosPedido === 12
-                  ? (det.tarifaEnvio || 0)
-                  : 0
-              );
+              const tarifa = det.tarifaEnvio || 0;
+              const isEntregado = det.idEstadosPedido === 11;
+              const pagoChofer = det.pagoMotorizado ?? (isEntregado ? tarifa * 0.70 : 0);
+              const gananciaAgencia = det.gananciaAgencia ?? (isEntregado ? tarifa * 0.30 : 0);
 
               return (
                 <div
@@ -149,79 +165,38 @@ export const TabListadoPaquetes: React.FC<Props> = ({ detalleList, isLoadingDeta
                     {(() => {
                       const badge = getEstadoBadgeConfig(det.idEstadosPedido, det.estadoPedido);
                       return (
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] inline-flex items-center gap-1 ${badge.className}`}>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${badge.className}`}>
                           {badge.label}
                         </span>
                       );
                     })()}
                   </div>
 
-                  {/* Commerce & Customer */}
-                  <div className="space-y-1 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Comercio:</span>
-                      <strong className="text-white">{det.nombreComercial}</strong>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Cliente:</span>
-                      <span className="text-slate-200 font-bold">{det.nombreDestinatario}</span>
-                    </div>
-                    <div className="text-[11px] text-slate-400">
-                      📍 {det.distritoNombre} — {det.direccionDestinatario}
-                    </div>
-                  </div>
+                  {/* Body Info */}
+                  <div className="space-y-1.5 text-xs">
+                    <div className="font-bold text-white text-sm">{det.nombreComercial}</div>
+                    <div className="text-slate-300 font-semibold">{det.nombreDestinatario} ({det.distritoNombre})</div>
+                    <p className="text-slate-500 text-[11px]">{det.direccionDestinatario}</p>
 
-                  {/* Delivery & Payment Responsibility */}
-                  <div className="bg-slate-900/60 p-2.5 rounded-xl border border-slate-900 space-y-1.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Pago Delivery:</span>
-                      {det.destinatarioPagaEnvio === false ? (
-                        <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30 text-[10px] font-bold">
-                          🔵 Comercio Asume
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                          🟢 Cliente Paga
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-400">Tarifa Delivery:</span>
-                      <span className="font-mono text-slate-200">S/ {(det.tarifaEnvio || 0).toFixed(2)}</span>
-                    </div>
-
-                    {costoComercio > 0 && (
-                      <div className="flex items-center justify-between text-amber-400">
-                        <span>Cobro Envío al Comercio:</span>
-                        <strong className="font-mono">S/ {costoComercio.toFixed(2)}</strong>
+                    <div className="pt-2 grid grid-cols-2 gap-2 text-[11px] font-mono">
+                      <div className="bg-slate-900 p-2 rounded-xl border border-slate-800">
+                        <span className="text-slate-400 block text-[10px]">Tarifa Delivery</span>
+                        <span className="font-bold text-white">S/ {tarifa.toFixed(2)}</span>
                       </div>
-                    )}
+                      <div className="bg-emerald-950/20 p-2 rounded-xl border border-emerald-500/30">
+                        <span className="text-emerald-300 block text-[10px]">70% Motorizado</span>
+                        <span className="font-bold text-emerald-400">S/ {pagoChofer.toFixed(2)}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Totals & Cash Liquidation */}
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-900 text-xs">
-                    <div>
-                      <span className="text-[10px] text-slate-400 uppercase block">Total Cobrado</span>
-                      <strong className="font-mono text-emerald-400 font-extrabold text-sm">
-                        S/ {(det.montoTotalPedido || det.montoCobrar || 0).toFixed(2)}
-                      </strong>
+                  {/* Payment Footer */}
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-900 text-xs font-mono">
+                    <div className="text-amber-400 font-bold">
+                      Efectivo: S/ {det.montoEfectivo.toFixed(2)}
                     </div>
-
-                    <div>
-                      {det.montoEfectivo > 0 ? (
-                        det.esRendido === 1 ? (
-                          <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                            Efectivo Liquidado
-                          </span>
-                        ) : (
-                          <span className="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-300/30 text-[10px] font-bold">
-                            Pendiente Rendición S/
-                          </span>
-                        )
-                      ) : (
-                        <span className="text-slate-500 text-[10px]">Sin efectivo</span>
-                      )}
+                    <div className="text-purple-400 font-bold">
+                      Yape: S/ {det.montoYape.toFixed(2)}
                     </div>
                   </div>
                 </div>

@@ -203,6 +203,45 @@ export class PedidosRepository implements IPedidosRepository {
     }
   }
 
+  async cancelarRecojoPedidoIndividual(params: { idPedido: number; motivo: string; observaciones?: string }): Promise<boolean> {
+    try {
+      const response = await apiClient.post<BaseResponse<boolean>>('/api/pedidos/motorizado/cancelar-recojo-pedido', params);
+      const body = response.data;
+      if (!body.isSuccess) {
+        throw new Error(body.message || 'Error al cancelar el pedido individual.');
+      }
+      return true;
+    } catch (err: any) {
+      const errMsg = err.response?.data?.message || err.message || 'Error al cancelar el pedido individual.';
+      throw new Error(errMsg);
+    }
+  }
+
+  async editarPedidoAdmin(params: {
+    idPedido: number;
+    nombreDestinatario: string;
+    telefonoDestinatario: string;
+    direccionDestinatario: string;
+    referenciaDestinatario?: string;
+    observaciones?: string;
+    montoCobrar: number;
+    tarifaEnvio: number;
+    destinatarioPagaEnvio: boolean;
+    idEstadosPedido?: number;
+  }): Promise<boolean> {
+    try {
+      const response = await apiClient.post<BaseResponse<boolean>>('/api/pedidos/admin/editar-pedido', params);
+      const body = response.data;
+      if (!body.isSuccess) {
+        throw new Error(body.message || 'Error al editar el pedido.');
+      }
+      return true;
+    } catch (err: any) {
+      const errMsg = err.response?.data?.message || err.message || 'Error al editar el pedido.';
+      throw new Error(errMsg);
+    }
+  }
+
   async getPedidosPendientesEntregaPorDistrito(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IMonitoreoRecojo[]> {
     try {
       const queryParams = new URLSearchParams();

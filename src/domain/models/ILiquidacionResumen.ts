@@ -12,5 +12,8 @@ export interface ILiquidacionResumen {
   montoYapeDigital: number;
   montoTransferencia: number;
   montoTotalCobrado: number;
+  montoPagoMotorizado: number;
+  montoGananciaAgencia: number;
+  saldoNetoRendir: number;
   estadoLiquidacion: string;
 }

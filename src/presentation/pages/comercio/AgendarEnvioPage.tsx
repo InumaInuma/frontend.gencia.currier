@@ -25,6 +25,7 @@ import {
 
 import { isPointInPolygon } from '../../components/agendarEnvio/agendarEnvioUtils';
 import { ModalExitoEnvio } from '../../components/agendarEnvio/ModalExitoEnvio';
+import { ModalAvisoCondicionesAgendado } from '../../components/agendarEnvio/ModalAvisoCondicionesAgendado';
 import { Paso1DatosEnvio } from '../../components/agendarEnvio/Paso1DatosEnvio';
 import { Paso2UbicacionGPS } from '../../components/agendarEnvio/Paso2UbicacionGPS';
 
@@ -57,7 +58,8 @@ export const AgendarEnvioPage: React.FC = () => {
   );
   const [googleMapsUrl, setGoogleMapsUrl] = useState('');
 
-  // ---- Submit state ----
+  // ---- Submit state & Modal Aviso ----
+  const [mostrarModalAviso, setMostrarModalAviso] = useState(true);
   const [createdTrackingCode, setCreatedTrackingCode] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -264,6 +266,11 @@ export const AgendarEnvioPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex pb-20 md:pb-0">
+      <ModalAvisoCondicionesAgendado
+        isOpen={mostrarModalAviso}
+        onClose={() => setMostrarModalAviso(false)}
+      />
+
       <LeftSidebar
         contraido={contraido}
         setContraido={setContraido}

@@ -4,9 +4,11 @@ import { useAuth } from '../../../application/context/AuthContext';
 import {
   useMisRecojosMotorizado,
   useActualizarEstadoComercioRecojo,
-  useActualizarEstadoAlmacenRecojo
+  useActualizarEstadoAlmacenRecojo,
+  useCancelarRecojoPedidoIndividual
 } from '../../../application/useCases/useMisPedidos';
 import { EstadoPedidoEnum } from '../../../domain/enums/EstadoPedidoEnum';
+import type { IMonitoreoRecojo } from '../../../domain/models/IMonitoreoRecojo';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
 import {
@@ -20,6 +22,7 @@ import {
 import { RecojosKpiHeader } from '../../components/motorizadoRecojos/RecojosKpiHeader';
 import { AcordeonComercioMotorizado, type GroupedByComercio } from '../../components/motorizadoRecojos/AcordeonComercioMotorizado';
 import { TarjetaAlmacenRetorno } from '../../components/motorizadoRecojos/TarjetaAlmacenRetorno';
+import { ModalCancelarRecojoPedido } from '../../components/motorizadoRecojos/ModalCancelarRecojoPedido';
 
 export const MotorizadoRecojosPage: React.FC = () => {
   const { user, logout } = useAuth();
@@ -30,9 +33,13 @@ export const MotorizadoRecojosPage: React.FC = () => {
   const [openComercioIds, setOpenComercioIds] = useState<number[]>([]);
   const [feedbackMsg, setFeedbackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // Modal Cancelación Individual
+  const [pedidoACancelar, setPedidoACancelar] = useState<IMonitoreoRecojo | null>(null);
+
   const { data: misItems, isLoading, refetch } = useMisRecojosMotorizado();
   const actualizarComercioMutation = useActualizarEstadoComercioRecojo();
   const actualizarAlmacenMutation = useActualizarEstadoAlmacenRecojo();
+  const cancelarPedidoMutation = useCancelarRecojoPedidoIndividual();
 
   const handleLogout = async () => {
     await logout();
@@ -40,9 +47,9 @@ export const MotorizadoRecojosPage: React.FC = () => {
   };
 
   // Group items by Comercio and calculate current commerce status
-  const { misRecojosComercios, idAsignacionRecojo, estadoRutaGlobal } = useMemo(() => {
+  const { misRecojosComercios, idAsignacionRecojo, estadoRutaGlobal, totalPaquetes } = useMemo(() => {
     if (!misItems || misItems.length === 0) {
-      return { misRecojosComercios: [], idAsignacionRecojo: 0, estadoRutaGlobal: 'Asignado' };
+      return { misRecojosComercios: [], idAsignacionRecojo: 0, estadoRutaGlobal: 'Asignado', totalPaquetes: 0 };
     }
 
     const firstAsignacionId = misItems[0].idAsignacionRecojo;
@@ -75,7 +82,8 @@ export const MotorizadoRecojosPage: React.FC = () => {
           (id) =>
             id === EstadoPedidoEnum.Recogido ||
             id === EstadoPedidoEnum.EnCaminoAlAlmacen ||
-            id === EstadoPedidoEnum.EnAlmacen
+            id === EstadoPedidoEnum.EnAlmacen ||
+            id === 13 // Cancelado
         )
       ) {
         comercio.estadoComercio = 'Recogido';
@@ -94,6 +102,7 @@ export const MotorizadoRecojosPage: React.FC = () => {
       misRecojosComercios: comercios,
       idAsignacionRecojo: firstAsignacionId,
       estadoRutaGlobal: firstEstadoAsignacion,
+      totalPaquetes: misItems.length
     };
   }, [misItems]);
 
@@ -148,30 +157,58 @@ export const MotorizadoRecojosPage: React.FC = () => {
 
       setFeedbackMsg({
         type: 'success',
-        text: '¡Ruta hacia almacén actualizada correctamente!',
+        text: 'Estado del recojo hacia almacén actualizado.',
       });
       refetch();
     } catch (err: any) {
       setFeedbackMsg({
         type: 'error',
-        text: err.message || 'Error al actualizar el estado del almacén.',
+        text: err.message || 'Error al actualizar el estado hacia el almacén.',
       });
     }
   };
 
+  // Cancel Individual Package during pickup
+  const handleConfirmCancelPedido = async (idPedido: number, motivo: string, observaciones: string) => {
+    setFeedbackMsg(null);
+    try {
+      await cancelarPedidoMutation.mutateAsync({
+        idPedido,
+        motivo,
+        observaciones
+      });
+
+      setFeedbackMsg({
+        type: 'success',
+        text: `El recojo del pedido #${idPedido} fue cancelado individualmente.`,
+      });
+      refetch();
+    } catch (err: any) {
+      setFeedbackMsg({
+        type: 'error',
+        text: err.message || 'Error al cancelar el recojo del pedido.',
+      });
+      throw err;
+    }
+  };
+
+  const todosComerciosRecogidos = misRecojosComercios.length > 0 && misRecojosComercios.every((c) => c.estadoComercio === 'Recogido');
+  const estaEnCaminoAlmacen = misItems?.some((i) => i.idEstadosPedido === EstadoPedidoEnum.EnCaminoAlAlmacen) ?? false;
+  const estaEntregadoAlmacen = misItems?.some((i) => i.idEstadosPedido === EstadoPedidoEnum.EnAlmacen) ?? false;
+
   if (!user) return null;
-
-  const totalPaquetes = misRecojosComercios.reduce((acc, c) => acc + c.pedidos.length, 0);
-  const todosComerciosRecogidos =
-    misRecojosComercios.length > 0 &&
-    misRecojosComercios.every((c) => c.estadoComercio === 'Recogido');
-
-  const estaEnCaminoAlmacen = !!misItems && misItems.some((i) => i.idEstadosPedido === EstadoPedidoEnum.EnCaminoAlAlmacen);
-  const estaEntregadoAlmacen = !!misItems && misItems.every((i) => i.idEstadosPedido === EstadoPedidoEnum.EnAlmacen);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex">
-      {/* Left Sidebar */}
+      {/* Modal Cancelación de Recojo Individual */}
+      <ModalCancelarRecojoPedido
+        pedido={pedidoACancelar}
+        isOpen={!!pedidoACancelar}
+        onClose={() => setPedidoACancelar(null)}
+        onConfirmCancel={handleConfirmCancelPedido}
+        isPending={cancelarPedidoMutation.isPending}
+      />
+
       <LeftSidebar
         contraido={contraido}
         setContraido={setContraido}
@@ -273,6 +310,7 @@ export const MotorizadoRecojosPage: React.FC = () => {
                 isOpen={openComercioIds.includes(comercio.idComercio)}
                 onToggleAccordion={toggleAccordion}
                 onActualizarEstadoComercio={handleActualizarEstadoComercio}
+                onCancelarPedido={(pedido) => setPedidoACancelar(pedido)}
                 isPending={actualizarComercioMutation.isPending}
               />
             ))}

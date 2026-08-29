@@ -209,3 +209,41 @@ export const useRastrearPedidoPorCodigo = (codigo: string) => {
     refetchOnWindowFocus: true,
   });
 };
+
+export const useCancelarRecojoPedidoIndividual = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: { idPedido: number; motivo: string; observaciones?: string }) =>
+      pedidosRepository.cancelarRecojoPedidoIndividual(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mis-recojos-motorizado'] });
+      queryClient.invalidateQueries({ queryKey: ['monitoreo-recojos-admin'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-pedidos-todos'] });
+    },
+  });
+};
+
+export const useEditarPedidoAdmin = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: {
+      idPedido: number;
+      nombreDestinatario: string;
+      telefonoDestinatario: string;
+      direccionDestinatario: string;
+      referenciaDestinatario?: string;
+      observaciones?: string;
+      montoCobrar: number;
+      tarifaEnvio: number;
+      destinatarioPagaEnvio: boolean;
+      idEstadosPedido?: number;
+    }) => pedidosRepository.editarPedidoAdmin(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mis-recojos-motorizado'] });
+      queryClient.invalidateQueries({ queryKey: ['monitoreo-recojos-admin'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-pedidos-todos'] });
+    },
+  });
+};

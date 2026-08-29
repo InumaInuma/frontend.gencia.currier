@@ -16,6 +16,8 @@ export interface IPedido {
   distritoNombre: string;
   referenciaDestinatario?: string;
   observaciones?: string;
+  motivoCancelacion?: string;
+  observacionCancelacion?: string;
   googleMapsUrl?: string;
   montoCobrar: number;
   tarifaEnvio?: number;

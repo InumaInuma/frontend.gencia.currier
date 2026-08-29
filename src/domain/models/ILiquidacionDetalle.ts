@@ -14,6 +14,8 @@ export interface ILiquidacionDetalle {
   destinatarioPagaEnvio?: boolean;
   costoEnvioComercio?: number;
   costoEnvioCliente?: number;
+  pagoMotorizado?: number;
+  gananciaAgencia?: number;
   montoEfectivo: number;
   montoYape: number;
   montoTransferencia: number;

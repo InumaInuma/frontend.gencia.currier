@@ -9,7 +9,9 @@ import {
   Bike,
   Eye,
   Wallet,
-  Building2
+  Building2,
+  Percent,
+  Coins
 } from 'lucide-react';
 
 interface Props {
@@ -41,52 +43,72 @@ export const TablaResumenRendicion: React.FC<Props> = ({
   onConfirmarRendicion,
   isPendingConfirmacion,
 }) => {
+  // Calculamos la suma global de 70% pago a motorizados y 30% comisión agencia
+  const totalPagoMotorizados70 = (filteredResumen || []).reduce((acc, item) => acc + (item.montoPagoMotorizado || 0), 0);
+  const totalGananciaAgencia30 = (filteredResumen || []).reduce((acc, item) => acc + (item.montoGananciaAgencia || 0), 0);
+
   return (
     <div className="space-y-6">
       {/* Metric Cards Summary */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Efectivo Pendiente */}
-        <div className="bg-amber-950/20 border border-amber-500/30 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
-          <div className="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-bold">
-            <DollarSign size={24} />
+        <div className="bg-amber-950/20 border border-amber-500/30 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+          <div className="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-bold shrink-0">
+            <DollarSign size={22} />
           </div>
           <div>
-            <span className="text-[11px] text-amber-300 font-bold uppercase tracking-wider block">
-              Efectivo por Recaudar
+            <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider block">
+              Efectivo en Campo
             </span>
-            <h3 className="text-xl font-mono font-extrabold text-amber-400">
+            <h3 className="text-lg font-mono font-extrabold text-amber-400">
               S/ {totalesGlobales.efectivoPendiente.toFixed(2)}
             </h3>
-            <span className="text-[10px] text-slate-400 block">En bolsillo de motorizados</span>
+            <span className="text-[10px] text-slate-400 block">Cobrado por repartidores</span>
           </div>
         </div>
 
-        {/* Efectivo Ya Rendido */}
-        <div className="bg-emerald-950/20 border border-emerald-500/30 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
-          <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-bold">
-            <Wallet size={24} />
+        {/* Pago a Motorizados (70%) */}
+        <div className="bg-emerald-950/20 border border-emerald-500/30 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+          <div className="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-bold shrink-0">
+            <Coins size={22} />
           </div>
           <div>
-            <span className="text-[11px] text-emerald-300 font-bold uppercase tracking-wider block">
-              Efectivo Liquidado
+            <span className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider block">
+              Pago Motorizados (70%)
             </span>
-            <h3 className="text-xl font-mono font-extrabold text-emerald-400">
-              S/ {totalesGlobales.efectivoRendido.toFixed(2)}
+            <h3 className="text-lg font-mono font-extrabold text-emerald-400">
+              S/ {totalPagoMotorizados70.toFixed(2)}
             </h3>
-            <span className="text-[10px] text-slate-400 block">Entregado en almacén</span>
+            <span className="text-[10px] text-slate-400 block">Suma de 70% por entregas</span>
+          </div>
+        </div>
+
+        {/* Ganancia Agencia (30%) */}
+        <div className="bg-cyan-950/20 border border-cyan-500/30 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+          <div className="w-11 h-11 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 flex items-center justify-center font-bold shrink-0">
+            <Percent size={22} />
+          </div>
+          <div>
+            <span className="text-[10px] text-cyan-300 font-bold uppercase tracking-wider block">
+              Comisión Agencia (30%)
+            </span>
+            <h3 className="text-lg font-mono font-extrabold text-cyan-400">
+              S/ {totalGananciaAgencia30.toFixed(2)}
+            </h3>
+            <span className="text-[10px] text-slate-400 block">Suma de 30% por entregas</span>
           </div>
         </div>
 
         {/* Total Yape Digital */}
-        <div className="bg-purple-950/20 border border-purple-500/30 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
-          <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/40 flex items-center justify-center font-bold">
-            <QrCode size={24} />
+        <div className="bg-purple-950/20 border border-purple-500/30 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+          <div className="w-11 h-11 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-500/40 flex items-center justify-center font-bold shrink-0">
+            <QrCode size={22} />
           </div>
           <div>
-            <span className="text-[11px] text-purple-300 font-bold uppercase tracking-wider block">
-              Cobrado Yape/Plin
+            <span className="text-[10px] text-purple-300 font-bold uppercase tracking-wider block">
+              Cobrado Yape / Plin
             </span>
-            <h3 className="text-xl font-mono font-extrabold text-purple-400">
+            <h3 className="text-lg font-mono font-extrabold text-purple-400">
               S/ {totalesGlobales.yapeDigital.toFixed(2)}
             </h3>
             <span className="text-[10px] text-slate-400 block">Transferencias digitales</span>
@@ -94,18 +116,18 @@ export const TablaResumenRendicion: React.FC<Props> = ({
         </div>
 
         {/* Total General */}
-        <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl flex items-center gap-4 shadow-sm">
-          <div className="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 flex items-center justify-center font-bold">
-            <Building2 size={24} />
+        <div className="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl flex items-center gap-3 shadow-sm">
+          <div className="w-11 h-11 rounded-xl bg-slate-800 text-white border border-slate-700 flex items-center justify-center font-bold shrink-0">
+            <Building2 size={22} />
           </div>
           <div>
-            <span className="text-[11px] text-cyan-300 font-bold uppercase tracking-wider block">
+            <span className="text-[10px] text-slate-300 font-bold uppercase tracking-wider block">
               Total Recaudación
             </span>
-            <h3 className="text-xl font-mono font-extrabold text-white">
+            <h3 className="text-lg font-mono font-extrabold text-white">
               S/ {totalesGlobales.totalGeneral.toFixed(2)}
             </h3>
-            <span className="text-[10px] text-slate-400 block">Efectivo + Yape combinado</span>
+            <span className="text-[10px] text-slate-400 block">Efectivo + Yape recaudados</span>
           </div>
         </div>
       </div>
@@ -119,39 +141,37 @@ export const TablaResumenRendicion: React.FC<Props> = ({
             value={searchTerm}
             onChange={(e) => onChangeSearchTerm(e.target.value)}
             placeholder="Buscar por motorizado o placa..."
-            className="w-full bg-slate-900/60 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all"
+            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-medium transition-all"
           />
         </div>
       </div>
 
-      {/* Loading State */}
+      {/* Loading state */}
       {isLoading && (
         <div className="py-20 text-center text-slate-400 text-xs">Cargando arqueo de liquidaciones...</div>
       )}
 
       {/* Empty State */}
-      {!isLoading && (!resumenList || resumenList.length === 0) && (
-        <div className="py-20 px-4 bg-slate-900/30 border border-slate-900 rounded-3xl text-center space-y-3">
-          <CheckCircle2 className="mx-auto text-emerald-400" size={48} />
-          <h3 className="text-base font-bold text-white">¡No hay entregas registradas en las fechas seleccionadas!</h3>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
-            Prueba cambiando las fechas para inspeccionar la rendición de cuentas de días anteriores.
-          </p>
+      {!isLoading && filteredResumen.length === 0 && (
+        <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-12 text-center text-slate-400 text-xs space-y-2">
+          <Bike className="mx-auto text-slate-600 opacity-60" size={40} />
+          <p className="font-semibold text-white">No se encontraron liquidaciones de motorizados para este filtro.</p>
         </div>
       )}
 
-      {/* Summary Table */}
-      {!isLoading && resumenList && resumenList.length > 0 && (
-        <div className="bg-slate-900/40 border border-slate-900 rounded-2xl overflow-hidden shadow-xl overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300 border-collapse min-w-[950px]">
+      {/* Table */}
+      {!isLoading && filteredResumen.length > 0 && (
+        <div className="overflow-x-auto bg-slate-900/40 border border-slate-900 rounded-3xl shadow-xl">
+          <table className="w-full text-left text-xs text-slate-300 border-collapse min-w-[1100px]">
             <thead>
-              <tr className="border-b border-slate-900 text-slate-400 uppercase font-semibold text-[11px] bg-slate-950/80">
-                <th className="p-3.5">Motorizado / Repartidor</th>
-                <th className="p-3.5 text-center">Rendimiento Entregas</th>
-                <th className="p-3.5 text-right text-amber-400">Efectivo Pendiente</th>
-                <th className="p-3.5 text-right text-emerald-400">Efectivo Liquidado</th>
-                <th className="p-3.5 text-right text-purple-400">Total Yape/Plin</th>
-                <th className="p-3.5 text-right text-white">Total Recaudado</th>
+              <tr className="border-b border-slate-900 text-slate-400 uppercase font-semibold text-[10px] bg-slate-950/80">
+                <th className="p-3.5">Motorizado / Vehículo</th>
+                <th className="p-3.5 text-center">Entregas</th>
+                <th className="p-3.5 text-right text-amber-400">Efectivo Cobrado</th>
+                <th className="p-3.5 text-right text-emerald-400">Pago Motorizado (70%)</th>
+                <th className="p-3.5 text-right text-cyan-400">Comisión Agencia (30%)</th>
+                <th className="p-3.5 text-right text-purple-400">Yape / Plin</th>
+                <th className="p-3.5 text-right text-yellow-300 font-extrabold">Saldo Neto Caja</th>
                 <th className="p-3.5 text-center">Estado Rendición</th>
                 <th className="p-3.5 text-center">Acciones Administrador</th>
               </tr>
@@ -159,6 +179,9 @@ export const TablaResumenRendicion: React.FC<Props> = ({
             <tbody className="divide-y divide-slate-900">
               {filteredResumen.map((item) => {
                 const tienePendiente = item.montoEfectivoPendiente > 0;
+                const pagoMotorizado = item.montoPagoMotorizado || 0;
+                const gananciaAgencia = item.montoGananciaAgencia || 0;
+                const saldoNeto = item.saldoNetoRendir ?? (item.montoEfectivoPendiente - pagoMotorizado);
 
                 return (
                   <tr
@@ -201,9 +224,14 @@ export const TablaResumenRendicion: React.FC<Props> = ({
                       S/ {item.montoEfectivoPendiente.toFixed(2)}
                     </td>
 
-                    {/* Cash Settled */}
+                    {/* Pago al Motorizado (70%) */}
                     <td className="p-3.5 text-right font-mono font-bold text-xs text-emerald-400">
-                      S/ {item.montoEfectivoRendido.toFixed(2)}
+                      S/ {pagoMotorizado.toFixed(2)}
+                    </td>
+
+                    {/* Ganancia Agencia (30%) */}
+                    <td className="p-3.5 text-right font-mono font-bold text-xs text-cyan-400">
+                      S/ {gananciaAgencia.toFixed(2)}
                     </td>
 
                     {/* Yape Digital */}
@@ -211,9 +239,9 @@ export const TablaResumenRendicion: React.FC<Props> = ({
                       S/ {item.montoYapeDigital.toFixed(2)}
                     </td>
 
-                    {/* Total Collected */}
-                    <td className="p-3.5 text-right font-mono font-extrabold text-sm text-white">
-                      S/ {item.montoTotalCobrado.toFixed(2)}
+                    {/* Saldo Neto a Rendir */}
+                    <td className="p-3.5 text-right font-mono font-extrabold text-sm text-yellow-300 bg-yellow-500/5">
+                      S/ {saldoNeto.toFixed(2)}
                     </td>
 
                     {/* Status Badge */}
@@ -239,19 +267,19 @@ export const TablaResumenRendicion: React.FC<Props> = ({
                           title="Ver desglose completo de paquetes en vista dedicada"
                         >
                           <Eye size={14} />
-                          Ver Detalle
+                          <span>Ver Desglose</span>
                         </button>
 
-                        {/* Confirm Cash Receipt Button */}
+                        {/* Confirm Cash Received Button */}
                         {tienePendiente && (
                           <button
                             onClick={() => onConfirmarRendicion(item.idConductor, item.nombreConductor)}
                             disabled={isPendingConfirmacion}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-500/20 transition-all active:scale-95"
-                            title="Confirmar recepción física del dinero en efectivo"
+                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all shadow-md shadow-emerald-600/30 active:scale-95"
+                            title="Confirmar recepción física de dinero en efectivo"
                           >
-                            <DollarSign size={14} />
-                            Liquidar Efectivo
+                            <Wallet size={14} />
+                            <span>Confirmar Rendición</span>
                           </button>
                         )}
                       </div>

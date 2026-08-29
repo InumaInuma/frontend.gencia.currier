@@ -30,6 +30,7 @@ interface Props {
   isOpen: boolean;
   onToggleAccordion: (idComercio: number) => void;
   onActualizarEstadoComercio: (idComercio: number, idEstado: EstadoPedidoEnum) => void;
+  onCancelarPedido?: (pedido: IMonitoreoRecojo) => void;
   isPending: boolean;
 }
 
@@ -39,6 +40,7 @@ export const AcordeonComercioMotorizado: React.FC<Props> = ({
   isOpen,
   onToggleAccordion,
   onActualizarEstadoComercio,
+  onCancelarPedido,
   isPending,
 }) => {
   const isRecogido = comercio.estadoComercio === 'Recogido';
@@ -200,7 +202,7 @@ export const AcordeonComercioMotorizado: React.FC<Props> = ({
 
           {/* Package Table Component */}
           <div className="bg-slate-950/60 border border-slate-900 rounded-2xl overflow-hidden p-3">
-            <TablaMonitoreoRecojo pedidos={comercio.pedidos} />
+            <TablaMonitoreoRecojo pedidos={comercio.pedidos} onCancelarPedido={onCancelarPedido} />
           </div>
         </div>
       )}

@@ -4,23 +4,25 @@ import { useAuth } from '../../../application/context/AuthContext';
 import { useAdminPedidos } from '../../../application/useCases/useMisPedidos';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
-import { TablaPedidos } from '../../components/TablaPedidos';
-import type { IPedido } from '../../../domain/models/IPedido';
 import {
   Shield,
-  Search,
-  Store,
+  BarChart3,
+  PieChart,
+  TrendingUp,
   Package,
   DollarSign,
   MapPin,
-  Phone,
-  ExternalLink,
-  ChevronDown,
-  ChevronUp,
   RefreshCw,
   LogOut,
-  Navigation,
-  Calendar
+  Calendar,
+  Store,
+  CheckCircle2,
+  Clock,
+  Truck,
+  ArrowRight,
+  AlertTriangle,
+  Award,
+  Wallet
 } from 'lucide-react';
 
 const getTodayFormatted = () => {
@@ -31,30 +33,14 @@ const getTodayFormatted = () => {
   return `${year}-${month}-${day}`;
 };
 
-interface ComercioGroup {
-  idComercio: number;
-  nombreComercial: string;
-  razonSocial: string;
-  ruc: string;
-  direccionRecojo: string;
-  referenciaRecojo: string;
-  telefonoComercio: string;
-  googleMapsUrl?: string;
-  pedidos: IPedido[];
-  totalMonto: number;
-}
-
 export const AdminDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [openCommerceIds, setOpenCommerceIds] = useState<number[]>([]);
-  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-  // Filtro de Rango de Fechas por defecto en HOY
+  // Filtro por fecha por defecto HOY
   const [fechaInicio, setFechaInicio] = useState<string>(getTodayFormatted());
   const [fechaFin, setFechaFin] = useState<string>(getTodayFormatted());
 
@@ -68,92 +54,106 @@ export const AdminDashboard: React.FC = () => {
     navigate('/login');
   };
 
-  const handleCopyCode = (codigo: string) => {
-    navigator.clipboard.writeText(codigo);
-    setCopiedCode(codigo);
-    setTimeout(() => setCopiedCode(null), 2000);
-  };
+  // ---- Calculated Metrics & Data Aggregations ----
+  const metrics = useMemo(() => {
+    if (!pedidos || pedidos.length === 0) {
+      return {
+        total: 0,
+        registrados: 0,
+        enRecojo: 0,
+        enRuta: 0,
+        entregados: 0,
+        reprogramados: 0,
+        efectividad: 0,
+        totalContraEntrega: 0,
+        totalFletes: 0,
+        topDistritos: [],
+        topComercios: [],
+        estadoBreakdown: []
+      };
+    }
 
-  const handleShareWhatsApp = (codigo: string, destinatario: string, telefono: string) => {
-    const text = `Hola ${destinatario}, tu envío ha sido agendado con el código de seguimiento *${codigo}*. Rastrealo en nuestra plataforma.`;
-    const cleanPhone = telefono.replace(/\D/g, '');
-    const url = `https://wa.me/51${cleanPhone}?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
-  };
+    const total = pedidos.length;
 
-  // Group and order orders by Comercio
-  const comercioGroups = useMemo(() => {
-    if (!pedidos || pedidos.length === 0) return [];
+    let registrados = 0;
+    let enRecojo = 0;
+    let enRuta = 0;
+    let entregados = 0;
+    let reprogramados = 0;
+    let totalContraEntrega = 0;
+    let totalFletes = 0;
 
-    const groupMap: { [key: string]: ComercioGroup } = {};
+    const distritosMap: Record<string, number> = {};
+    const comerciosMap: Record<string, { count: number; contraEntrega: number; fletes: number; ruc: string }> = {};
 
     pedidos.forEach((p) => {
-      const idCom = p.idComercio || 0;
-      const key = `comercio_${idCom}_${p.nombreComercial || 'SinComercio'}`;
+      const st = (p.estadoNombre || '').toLowerCase();
+      if (st.includes('registrado') || p.idEstadosPedido === 1) registrados++;
+      else if (st.includes('recoj') || p.idEstadosPedido === 2) enRecojo++;
+      else if (st.includes('ruta') || p.idEstadosPedido === 3) enRuta++;
+      else if (st.includes('entregad') || p.idEstadosPedido === 4) entregados++;
+      else if (st.includes('reprogram')) reprogramados++;
+      else registrados++;
 
-      if (!groupMap[key]) {
-        groupMap[key] = {
-          idComercio: idCom,
-          nombreComercial: p.nombreComercial || p.nombreRemitente || 'Comercio Registrado',
-          razonSocial: p.razonSocial || '',
-          ruc: p.ruc || '20000000001',
-          direccionRecojo: p.direccionRecojo || 'Dirección de recojo no especificada',
-          referenciaRecojo: p.referenciaRecojo || 'Sin referencia',
-          telefonoComercio: p.telefonoComercio || '-',
-          googleMapsUrl: p.googleMapsUrlComercio || p.googleMapsUrl,
-          pedidos: [],
-          totalMonto: 0
-        };
+      totalContraEntrega += p.montoCobrar || 0;
+      totalFletes += p.tarifaEnvio || 0;
+
+      // Distritos
+      const dist = p.distritoNombre || 'Sin Distrito';
+      distritosMap[dist] = (distritosMap[dist] || 0) + 1;
+
+      // Comercios
+      const comName = p.nombreComercial || p.nombreRemitente || 'Comercio No Registrado';
+      if (!comerciosMap[comName]) {
+        comerciosMap[comName] = { count: 0, contraEntrega: 0, fletes: 0, ruc: p.ruc || '20000000001' };
       }
-
-      groupMap[key].pedidos.push(p);
-      groupMap[key].totalMonto += (p.montoCobrar || 0);
+      comerciosMap[comName].count++;
+      comerciosMap[comName].contraEntrega += p.montoCobrar || 0;
+      comerciosMap[comName].fletes += p.tarifaEnvio || 0;
     });
 
-    // Filter by search term
-    const result = Object.values(groupMap).filter((group) => {
-      if (!searchTerm.trim()) return true;
-      const term = searchTerm.toLowerCase();
+    const efectividad = total > 0 ? Math.round((entregados / total) * 100) : 0;
 
-      const matchesCommerce =
-        group.nombreComercial.toLowerCase().includes(term) ||
-        group.ruc.toLowerCase().includes(term) ||
-        group.direccionRecojo.toLowerCase().includes(term);
+    // Sort Top Distritos
+    const topDistritos = Object.entries(distritosMap)
+      .map(([name, count]) => ({ name, count, pct: Math.round((count / total) * 100) }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
 
-      const matchesOrders = group.pedidos.some(
-        (p) =>
-          p.codigoSeguimiento.toLowerCase().includes(term) ||
-          p.nombreDestinatario.toLowerCase().includes(term) ||
-          p.distritoNombre.toLowerCase().includes(term)
-      );
+    // Sort Top Comercios
+    const topComercios = Object.entries(comerciosMap)
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
 
-      return matchesCommerce || matchesOrders;
-    });
+    const estadoBreakdown = [
+      { name: 'Registrado', count: registrados, color: '#3b82f6', bg: 'bg-blue-500' },
+      { name: 'En Recojo', count: enRecojo, color: '#a855f7', bg: 'bg-purple-500' },
+      { name: 'En Ruta', count: enRuta, color: '#eab308', bg: 'bg-yellow-500' },
+      { name: 'Entregado', count: entregados, color: '#22c55e', bg: 'bg-emerald-500' },
+      { name: 'Reprogramado', count: reprogramados, color: '#f97316', bg: 'bg-orange-500' },
+    ].filter((e) => e.count > 0);
 
-    return result;
-  }, [pedidos, searchTerm]);
-
-  // Expand all commerce accordions by default once data arrives
-  React.useEffect(() => {
-    if (comercioGroups.length > 0 && openCommerceIds.length === 0) {
-      setOpenCommerceIds(comercioGroups.map((g) => g.idComercio));
-    }
-  }, [comercioGroups]);
-
-  const toggleAccordion = (id: number) => {
-    setOpenCommerceIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
-
-  const totalPedidos = pedidos ? pedidos.length : 0;
-  const totalRecaudar = pedidos ? pedidos.reduce((acc, curr) => acc + (curr.montoCobrar || 0), 0) : 0;
+    return {
+      total,
+      registrados,
+      enRecojo,
+      enRuta,
+      entregados,
+      reprogramados,
+      efectividad,
+      totalContraEntrega,
+      totalFletes,
+      topDistritos,
+      topComercios,
+      estadoBreakdown
+    };
+  }, [pedidos]);
 
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex">
-      {/* Left Sidebar */}
       <LeftSidebar
         contraido={contraido}
         setContraido={setContraido}
@@ -161,22 +161,22 @@ export const AdminDashboard: React.FC = () => {
         setMovilAbierto={setMovilAbierto}
       />
 
-      {/* Main Container */}
       <div
-        className={`flex-1 flex flex-col transition-all duration-300 ${
-          contraido ? 'md:ml-20' : 'md:ml-64'
-        } pb-20 md:pb-0`}
+        className={`flex-1 flex flex-col transition-all duration-300 ${contraido ? 'md:ml-20' : 'md:ml-64'
+          } pb-20 md:pb-8`}
       >
-        {/* Top Header */}
+        {/* Header */}
         <header className="h-16 border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Shield className="text-violet-500 shrink-0" size={24} />
+            <div className="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
+              <BarChart3 size={20} />
+            </div>
             <div>
               <h1 className="font-bold text-white text-base sm:text-lg leading-tight">
-                Panel Admin - Envíos por Comercio
+                Dashboard Ejecutivo & Analíticas
               </h1>
               <p className="text-[11px] text-slate-400 hidden sm:block">
-                Visualización centralizada de paquetes registrados para la recolección logística.
+                Visión estratégica en tiempo real de operaciones, estados y volumen financiero.
               </p>
             </div>
           </div>
@@ -187,7 +187,7 @@ export const AdminDashboard: React.FC = () => {
               className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition-all cursor-pointer flex items-center gap-2 text-xs font-semibold"
               title="Actualizar datos"
             >
-              <RefreshCw size={14} className={isRefetching ? 'animate-spin text-violet-400' : ''} />
+              <RefreshCw size={14} className={isRefetching ? 'animate-spin text-purple-400' : ''} />
               <span className="hidden sm:inline">Actualizar</span>
             </button>
 
@@ -201,252 +201,432 @@ export const AdminDashboard: React.FC = () => {
           </div>
         </header>
 
-        {/* Content Body */}
         <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
-          {/* Summary KPIs */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Comercios Activos</p>
-                <h3 className="text-2xl font-extrabold text-white mt-1">{comercioGroups.length}</h3>
-                <p className="text-[11px] text-violet-400 mt-1">Con envíos agendados</p>
-              </div>
-              <div className="w-12 h-12 rounded-2xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-violet-400">
-                <Store size={24} />
-              </div>
-            </div>
-
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Paquetes</p>
-                <h3 className="text-2xl font-extrabold text-white mt-1">{totalPedidos}</h3>
-                <p className="text-[11px] text-emerald-400 mt-1">Listos para recojo</p>
-              </div>
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <Package size={24} />
-              </div>
-            </div>
-
-            <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Cobranza Contra Entrega</p>
-                <h3 className="text-2xl font-extrabold text-amber-400 mt-1">S/ {totalRecaudar.toFixed(2)}</h3>
-                <p className="text-[11px] text-slate-400 mt-1">Monto total a recolectar</p>
-              </div>
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
-                <DollarSign size={24} />
-              </div>
-            </div>
-          </div>
-
-          {/* Search & Date Filter Bar */}
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-900/40 p-4 rounded-2xl border border-slate-900">
-            <div className="relative w-full md:w-80">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-              <input
-                type="text"
-                placeholder="Buscar por comercio, RUC, código o cliente..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
-              />
-            </div>
-
-            {/* Controles de Rango de Fechas */}
-            <div className="flex flex-wrap items-center gap-2 text-xs w-full md:w-auto justify-between md:justify-end">
-              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
-                <Calendar size={13} className="text-violet-400" />
-                <span className="text-slate-400 text-[11px] font-semibold">Desde:</span>
+          {/* Controls Bar: Date Range Filter & Navigation to Monitoring */}
+          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-center gap-2.5 w-full md:w-auto">
+              <Calendar size={16} className="text-purple-400 shrink-0" />
+              <span className="text-xs font-bold text-slate-300 shrink-0">Filtrar por Rango:</span>
+              <div className="flex items-center gap-2 w-full md:w-auto">
                 <input
                   type="date"
                   value={fechaInicio}
                   onChange={(e) => setFechaInicio(e.target.value)}
-                  className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
+                  className="bg-slate-950 border border-slate-800 text-white text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:border-purple-500 transition-all cursor-pointer"
                 />
-              </div>
-
-              <div className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 shadow-inner">
-                <Calendar size={13} className="text-violet-400" />
-                <span className="text-slate-400 text-[11px] font-semibold">Hasta:</span>
+                <span className="text-slate-500 text-xs font-bold">hasta</span>
                 <input
                   type="date"
                   value={fechaFin}
                   onChange={(e) => setFechaFin(e.target.value)}
-                  className="bg-transparent text-white text-xs outline-none cursor-pointer font-medium"
+                  className="bg-slate-950 border border-slate-800 text-white text-xs font-semibold rounded-xl px-3 py-2 outline-none focus:border-purple-500 transition-all cursor-pointer"
                 />
+                <button
+                  onClick={() => {
+                    setFechaInicio(getTodayFormatted());
+                    setFechaFin(getTodayFormatted());
+                  }}
+                  className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/30 hover:bg-purple-500/20 text-xs font-bold transition-all cursor-pointer"
+                >
+                  Hoy
+                </button>
               </div>
+            </div>
 
-              <button
-                onClick={() => {
-                  const today = getTodayFormatted();
-                  setFechaInicio(today);
-                  setFechaFin(today);
-                }}
-                className={`px-2.5 py-1.5 rounded-xl font-semibold transition-colors cursor-pointer text-xs ${
-                  fechaInicio === getTodayFormatted() && fechaFin === getTodayFormatted()
-                    ? 'bg-violet-600/30 text-violet-300 border border-violet-500/40'
-                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
-                }`}
-                title="Filtrar envíos del día de hoy"
-              >
-                Hoy
-              </button>
+            <button
+              onClick={() => navigate('/admin/monitoreo-recojos')}
+              className="w-full md:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer group"
+            >
+              <span>Ver Monitoreo Operativo de Pedidos</span>
+              <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+
+          {/* KPI Summary Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {/* KPI 1: Total Envíos */}
+            <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-purple-500/50 transition-all">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 rounded-full blur-xl group-hover:bg-purple-500/20 transition-all" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Envíos</span>
+                <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
+                  <Package size={18} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <h3 className="text-3xl font-extrabold text-white font-mono">{metrics.total}</h3>
+                <p className="text-[11px] text-slate-400 mt-1">Paquetes registrados en periodo</p>
+              </div>
+            </div>
+
+            {/* KPI 2: En Ruta */}
+            <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-yellow-500/50 transition-all">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-yellow-500/10 rounded-full blur-xl group-hover:bg-yellow-500/20 transition-all" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">En Ruta</span>
+                <div className="w-9 h-9 rounded-xl bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 flex items-center justify-center">
+                  <Truck size={18} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <h3 className="text-3xl font-extrabold text-yellow-300 font-mono">{metrics.enRuta + metrics.enRecojo}</h3>
+                <p className="text-[11px] text-slate-400 mt-1">Recojos y entregas en tránsito</p>
+              </div>
+            </div>
+
+            {/* KPI 3: Efectividad */}
+            <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Efectividad</span>
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center">
+                  <CheckCircle2 size={18} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <h3 className="text-3xl font-extrabold text-emerald-400 font-mono">{metrics.efectividad}%</h3>
+                <p className="text-[11px] text-slate-400 mt-1">{metrics.entregados} de {metrics.total} entregados</p>
+              </div>
+            </div>
+
+            {/* KPI 4: Total Contra Entrega */}
+            <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-blue-500/50 transition-all">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Contra Entrega</span>
+                <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-500/30 flex items-center justify-center">
+                  <Wallet size={18} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-blue-300 font-mono">S/ {metrics.totalContraEntrega.toFixed(2)}</h3>
+                <p className="text-[11px] text-slate-400 mt-1">Cobro de productos a recaudar</p>
+              </div>
+            </div>
+
+            {/* KPI 5: Total Fletes */}
+            <div className="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col justify-between relative overflow-hidden group hover:border-emerald-500/50 transition-all">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all" />
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Fletes</span>
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center">
+                  <DollarSign size={18} />
+                </div>
+              </div>
+              <div className="mt-3">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono">S/ {metrics.totalFletes.toFixed(2)}</h3>
+                <p className="text-[11px] text-slate-400 mt-1">Ingresos por tarifa delivery</p>
+              </div>
             </div>
           </div>
 
-          {/* Loading State */}
-          {isLoading && (
-            <div className="py-20 text-center text-slate-400 space-y-3">
-              <RefreshCw className="animate-spin mx-auto text-violet-500" size={32} />
-              <p className="text-sm font-medium">Cargando envíos de comercios...</p>
-            </div>
-          )}
+          {/* Charts Row 1: Donut Chart (Estado de Envíos) & Bar Chart (Top Distritos) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Chart 1: Estado de Envíos (Futuristic Animated Glowing SVG Donut + Pipeline Bar) */}
+            <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 shadow-2xl flex flex-col justify-between relative overflow-hidden group">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500/30 to-indigo-500/20 text-purple-300 border border-purple-500/40 flex items-center justify-center shadow-lg shadow-purple-500/10">
+                    <PieChart size={20} className="animate-pulse" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white leading-tight">Distribución por Estado de Envío</h3>
+                    <p className="text-[11px] text-slate-400">Proporción en tiempo real del flujo de paquetes</p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-extrabold bg-purple-500/15 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full animate-pulse flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-ping" />
+                  LIVE METRICS
+                </span>
+              </div>
 
-          {/* Empty State */}
-          {!isLoading && comercioGroups.length === 0 && (
-            <div className="py-16 px-4 bg-slate-900/30 border border-slate-900 rounded-3xl text-center space-y-3">
-              <Package className="mx-auto text-slate-600" size={48} />
-              <h3 className="text-lg font-bold text-white">No hay envíos registrados</h3>
-              <p className="text-sm text-slate-400 max-w-md mx-auto">
-                {searchTerm
-                  ? 'No se encontraron comercios ni pedidos con el criterio de búsqueda ingresado.'
-                  : 'Aún ningún comercio ha registrado sus envíos del día.'}
-              </p>
-            </div>
-          )}
-
-          {/* Grouped Commerce Cards / Accordions Reusing <TablaPedidos> */}
-          {!isLoading && comercioGroups.map((group) => {
-            const isOpen = openCommerceIds.includes(group.idComercio);
-
-            return (
-              <div
-                key={`comercio_group_${group.idComercio}_${group.nombreComercial}`}
-                className="bg-slate-900/40 border border-slate-900 rounded-2xl overflow-hidden shadow-xl transition-all space-y-0"
-              >
-                {/* Commerce Header Accordion Bar */}
-                <div
-                  onClick={() => toggleAccordion(group.idComercio)}
-                  className="p-5 bg-slate-900/80 hover:bg-slate-900 border-b border-slate-900 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-violet-600/20 text-violet-400 border border-violet-500/30 flex items-center justify-center font-extrabold text-base shrink-0">
-                      {group.nombreComercial.charAt(0).toUpperCase()}
+              {isLoading ? (
+                <div className="h-64 flex items-center justify-center text-slate-500 text-xs font-bold animate-pulse">
+                  Cargando analíticas...
+                </div>
+              ) : metrics.total === 0 ? (
+                <div className="h-64 flex flex-col items-center justify-center text-slate-500 text-xs">
+                  <Package size={36} className="mb-2 opacity-40 text-purple-400" />
+                  <span>No hay envíos registrados en la fecha seleccionada.</span>
+                </div>
+              ) : (
+                <div className="space-y-5 my-auto">
+                  {/* Multi-Segment Pipeline Bar */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-400">
+                      <span>FLUJO DE PROCESAMIENTO</span>
+                      <span className="font-mono text-purple-300">{metrics.total} PAQUETES ACTIVOS</span>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-lg font-bold text-white">{group.nombreComercial}</h2>
-                        <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md font-mono border border-slate-700">
-                          RUC: {group.ruc}
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs text-slate-400">
-                        <span className="flex items-center gap-1.5 text-violet-300 font-medium">
-                          <MapPin size={14} className="text-violet-400 shrink-0" />
-                          {group.direccionRecojo}
-                        </span>
-                        {group.telefonoComercio && group.telefonoComercio !== '-' && (
-                          <span className="flex items-center gap-1">
-                            <Phone size={14} className="text-slate-500 shrink-0" />
-                            {group.telefonoComercio}
-                          </span>
-                        )}
-                      </div>
+                    <div className="h-3 w-full bg-slate-950 rounded-full overflow-hidden flex border border-slate-800 p-0.5 shadow-inner">
+                      {metrics.estadoBreakdown.map((item, idx) => {
+                        const pct = (item.count / metrics.total) * 100;
+                        return (
+                          <div
+                            key={idx}
+                            style={{ width: `${pct}%`, backgroundColor: item.color }}
+                            className="h-full first:rounded-l-full last:rounded-r-full transition-all duration-1000 shadow-md hover:brightness-125"
+                            title={`${item.name}: ${item.count} (${Math.round(pct)}%)`}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                    <div className="text-left sm:text-right">
-                      <span className="text-xs bg-violet-500/10 text-violet-300 border border-violet-500/20 px-3 py-1 rounded-full font-bold inline-block">
-                        {group.pedidos.length} {group.pedidos.length === 1 ? 'Pedido' : 'Pedidos'}
-                      </span>
-                      <p className="text-xs text-slate-400 mt-1">
-                        Total: <span className="font-extrabold text-amber-400">S/ {group.totalMonto.toFixed(2)}</span>
-                      </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center pt-2">
+                    {/* Glowing Center SVG Donut */}
+                    <div className="relative flex items-center justify-center py-2">
+                      {/* Ambient Spinning Background Aura */}
+                      <div className="absolute w-40 h-40 rounded-full bg-gradient-to-tr from-purple-600/20 via-indigo-600/10 to-blue-600/20 blur-xl animate-pulse" />
+
+                      <svg className="w-44 h-44 transform -rotate-90 relative z-10" viewBox="0 0 100 100">
+                        {/* Background track circle */}
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="15.91549430918954"
+                          fill="transparent"
+                          stroke="#1e293b"
+                          strokeWidth="7"
+                        />
+
+                        {(() => {
+                          let accumulatedPercent = 0;
+                          return metrics.estadoBreakdown.map((item, idx) => {
+                            const pct = (item.count / metrics.total) * 100;
+                            const strokeDasharray = `${pct} ${100 - pct}`;
+                            const strokeDashoffset = -accumulatedPercent;
+                            accumulatedPercent += pct;
+                            return (
+                              <circle
+                                key={idx}
+                                cx="50"
+                                cy="50"
+                                r="15.91549430918954"
+                                fill="transparent"
+                                stroke={item.color}
+                                strokeWidth="7.5"
+                                strokeDasharray={strokeDasharray}
+                                strokeDashoffset={strokeDashoffset}
+                                strokeLinecap="round"
+                                className="transition-all duration-1000 hover:stroke-[9] cursor-pointer"
+                              />
+                            );
+                          });
+                        })()}
+                      </svg>
+
+                      {/* Inner Animated Badge */}
+                      <div className="absolute z-20 flex flex-col items-center justify-center text-center bg-slate-950/80 backdrop-blur-md rounded-full w-28 h-28 border border-slate-800 shadow-2xl">
+                        <div className="w-7 h-7 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center text-xs mb-0.5 animate-bounce">
+                          📦
+                        </div>
+                        <span className="text-2xl font-extrabold text-white font-mono tracking-tight">{metrics.total}</span>
+                        <span className="text-[9px] text-purple-300 font-extrabold uppercase tracking-widest">EN TOTAL</span>
+                      </div>
                     </div>
 
-                    <div className="p-2 rounded-xl bg-slate-950 text-slate-400 border border-slate-800">
-                      {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    {/* Rich Glassmorphic Cards Grid */}
+                    <div className="space-y-2.5">
+                      {metrics.estadoBreakdown.map((item, idx) => {
+                        const pct = Math.round((item.count / metrics.total) * 100);
+                        return (
+                          <div
+                            key={idx}
+                            className="bg-slate-950/70 border border-slate-800/80 rounded-2xl p-3 flex items-center justify-between hover:border-slate-700 hover:bg-slate-900/60 transition-all shadow-md group/item"
+                          >
+                            <div className="flex items-center gap-3">
+                              <span
+                                className="w-3.5 h-3.5 rounded-lg shrink-0 shadow-md transition-transform group-hover/item:scale-125"
+                                style={{ backgroundColor: item.color }}
+                              />
+                              <div>
+                                <span className="text-xs font-bold text-slate-200 block leading-tight">{item.name}</span>
+                                <span className="text-[10px] text-slate-400 font-mono font-medium">
+                                  {pct}% del total
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className="font-extrabold text-white font-mono text-sm px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800">
+                                {item.count}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
+              )}
+            </div>
 
-                {/* Highlighted Commerce Pickup Location Box */}
-                {isOpen && (
-                  <div className="bg-gradient-to-r from-violet-950/30 via-slate-900/60 to-slate-950/30 p-5 border-b border-slate-900 space-y-4">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                      <div className="flex items-center gap-2 text-violet-400 font-bold text-xs uppercase tracking-wider">
-                        <Navigation size={16} className="text-violet-400 shrink-0" />
-                        Punto de Recojo de Paquetes (Comercio Remitente)
-                      </div>
-                      {group.googleMapsUrl && (
-                        <a
-                          href={group.googleMapsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-xl flex items-center gap-2 font-bold text-xs shadow-lg shadow-emerald-500/10 transition-all cursor-pointer shrink-0"
-                        >
-                          <ExternalLink size={14} />
-                          Navegar con GPS (Google Maps / Waze)
-                        </a>
-                      )}
-                    </div>
+            {/* Chart 2: Top Distritos de Entrega (Progress Bars) */}
+            <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
+                    <MapPin size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white leading-tight">Top Distritos con Mayor Volumen</h3>
+                    <p className="text-[11px] text-slate-400">Destinos más solicitados por los comercios</p>
+                  </div>
+                </div>
+              </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                      {/* 1. Dirección de Recojo */}
-                      <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-1">
-                        <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider block">
-                          Dirección de Recojo:
-                        </span>
-                        <p className="text-white font-bold text-sm leading-snug">
-                          {group.direccionRecojo}
-                        </p>
-                      </div>
-
-                      {/* 2. Referencia del Recojo */}
-                      <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-1">
-                        <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider block">
-                          Referencia de Recojo:
-                        </span>
-                        <p className={`font-semibold text-xs ${group.referenciaRecojo && group.referenciaRecojo !== 'Sin referencia' ? 'text-amber-300' : 'text-slate-500 italic'}`}>
-                          {group.referenciaRecojo && group.referenciaRecojo !== 'Sin referencia' ? group.referenciaRecojo : 'Sin referencia específica registrada'}
-                        </p>
-                      </div>
-
-                      {/* 3. Teléfono de Contacto */}
-                      <div className="bg-slate-900/90 p-3.5 rounded-xl border border-slate-800 space-y-1">
-                        <span className="text-slate-400 font-bold text-[10px] uppercase tracking-wider block">
-                          Teléfono de Contacto / Coordinación:
-                        </span>
+              {isLoading ? (
+                <div className="h-64 flex items-center justify-center text-slate-500 text-xs font-bold animate-pulse">
+                  Cargando datos de distritos...
+                </div>
+              ) : metrics.topDistritos.length === 0 ? (
+                <div className="h-64 flex flex-col items-center justify-center text-slate-500 text-xs">
+                  <MapPin size={32} className="mb-2 opacity-50" />
+                  <span>Sin datos de destino disponibles.</span>
+                </div>
+              ) : (
+                <div className="space-y-4 my-auto">
+                  {metrics.topDistritos.map((dist, idx) => (
+                    <div key={idx} className="space-y-1.5">
+                      <div className="flex items-center justify-between text-xs font-semibold">
                         <div className="flex items-center gap-2">
-                          <Phone size={14} className="text-violet-400 shrink-0" />
-                          <span className="text-white font-bold text-sm">{group.telefonoComercio}</span>
+                          <span className="w-5 h-5 rounded-lg bg-slate-800 text-purple-300 text-[10px] font-bold flex items-center justify-center">
+                            #{idx + 1}
+                          </span>
+                          <span className="text-white font-medium">{dist.name}</span>
+                        </div>
+                        <span className="font-mono text-purple-300 font-bold">{dist.count} envíos ({dist.pct}%)</span>
+                      </div>
+
+                      <div className="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
+                        <div
+                          className="bg-gradient-to-r from-purple-600 to-indigo-500 h-full rounded-full transition-all duration-1000"
+                          style={{ width: `${dist.pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Row 2: Top Comercios Activos Table & Financial Breakdown Card */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Top Comercios Ranking List (2 cols) */}
+            <div className="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center">
+                    <Store size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white leading-tight">Top Comercios Activos del Día</h3>
+                    <p className="text-[11px] text-slate-400">Comercios con mayor número de paquetes solicitados</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => navigate('/admin/monitoreo-recojos')}
+                  className="text-xs text-purple-400 hover:text-purple-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                >
+                  <span>Ver Todos</span>
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+
+              {isLoading ? (
+                <div className="py-8 text-center text-slate-500 text-xs animate-pulse">Cargando ranking de comercios...</div>
+              ) : metrics.topComercios.length === 0 ? (
+                <div className="py-8 text-center text-slate-500 text-xs">No hay comercios con envíos registrados hoy.</div>
+              ) : (
+                <div className="divide-y divide-slate-800/60 border border-slate-800/80 rounded-2xl overflow-hidden bg-slate-950/40">
+                  {metrics.topComercios.map((com, idx) => (
+                    <div key={idx} className="p-4 flex items-center justify-between hover:bg-slate-900/60 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold flex items-center justify-center text-sm shrink-0">
+                          {com.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-bold text-white text-xs">{com.name}</div>
+                          <div className="text-[10px] text-slate-400 font-mono">RUC: {com.ruc}</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-6">
+                        <div className="text-right">
+                          <span className="text-[10px] text-slate-400 block font-medium">Paquetes</span>
+                          <span className="text-xs font-extrabold text-purple-300 font-mono">{com.count} envíos</span>
+                        </div>
+
+                        <div className="text-right hidden sm:block">
+                          <span className="text-[10px] text-slate-400 block font-medium">Fletes Total</span>
+                          <span className="text-xs font-extrabold text-emerald-400 font-mono">S/ {com.fletes.toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+              )}
+            </div>
 
-                {/* Reusing <TablaPedidos> Component */}
-                {isOpen && (
-                  <div className="p-4 bg-slate-950/20">
-                    <TablaPedidos
-                      pedidos={group.pedidos}
-                      onCopyCode={handleCopyCode}
-                      onShareWhatsApp={handleShareWhatsApp}
-                      copiedCode={copiedCode}
-                    />
-                  </div>
-                )}
+            {/* Financial Summary Card (1 col) */}
+            <div className="bg-gradient-to-b from-slate-900/80 via-slate-900/40 to-slate-950 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between space-y-5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                  <TrendingUp size={16} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white leading-tight">Balance Financiero</h3>
+                  <p className="text-[11px] text-slate-400">Resumen monetario del periodo</p>
+                </div>
               </div>
-            );
-          })}
+
+              <div className="space-y-3 my-auto">
+                <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-slate-400 block">Total Fletes (Tarifas)</span>
+                    <span className="text-lg font-extrabold text-emerald-400 font-mono">S/ {metrics.totalFletes.toFixed(2)}</span>
+                  </div>
+                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                    <DollarSign size={16} />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-slate-400 block">Cobranza Contra Entrega</span>
+                    <span className="text-lg font-extrabold text-blue-300 font-mono">S/ {metrics.totalContraEntrega.toFixed(2)}</span>
+                  </div>
+                  <div className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                    <Wallet size={16} />
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-purple-300 block font-bold">Monto Total Administrado</span>
+                    <span className="text-xl font-extrabold text-white font-mono">
+                      S/ {(metrics.totalFletes + metrics.totalContraEntrega).toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-xs">
+                    💰
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => navigate('/admin/monitoreo-recojos')}
+                className="w-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 text-xs font-bold py-3 rounded-xl transition-all cursor-pointer text-center"
+              >
+                Ir a Monitoreo Detallado ➔
+              </button>
+            </div>
+          </div>
         </main>
 
-        {/* Mobile Bottom Navigation Bar */}
-        <MobileBottomNav
-          onOpenMenu={() => setMovilAbierto(true)}
-        />
+        <MobileBottomNav onOpenMenu={() => setMovilAbierto(true)} />
       </div>
     </div>
   );
