@@ -13,7 +13,7 @@ import { selectedPinIcon, MapClickListener, MapController } from './agendarEnvio
 
 interface Props {
   errorMsg: string;
-  activeRestrictedZone: { id: number; nombre: string; descripcion: string } | null;
+  activeRestrictedZone: { id: number; nombre: string; descripcion?: string } | null;
   activeYellowZone?: ZonaAlejadaDto | null;
   idDistritoDestinatario: number | '';
   setIdDistritoDestinatario: (val: number | '') => void;
