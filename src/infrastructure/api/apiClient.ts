@@ -12,7 +12,7 @@ export const getApiBaseUrl = (): string => {
   }
   // Si estamos en Vercel o en cualquier dominio de producción que no sea localhost
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'http://18.219.36.15';
+    return '';
   }
   return 'http://localhost:5254';
 };
