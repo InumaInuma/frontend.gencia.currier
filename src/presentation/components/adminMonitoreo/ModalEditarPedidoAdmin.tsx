@@ -12,6 +12,7 @@ interface Props {
     telefonoDestinatario: string;
     direccionDestinatario: string;
     referenciaDestinatario?: string;
+    descripcionProducto?: string;
     observaciones?: string;
     montoCobrar: number;
     tarifaEnvio: number;
@@ -46,6 +47,7 @@ export const ModalEditarPedidoAdmin: React.FC<Props> = ({
   const [telefonoDestinatario, setTelefonoDestinatario] = useState('');
   const [direccionDestinatario, setDireccionDestinatario] = useState('');
   const [referenciaDestinatario, setReferenciaDestinatario] = useState('');
+  const [descripcionProducto, setDescripcionProducto] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [montoCobrar, setMontoCobrar] = useState<number>(0);
   const [tarifaEnvio, setTarifaEnvio] = useState<number>(0);
@@ -59,6 +61,7 @@ export const ModalEditarPedidoAdmin: React.FC<Props> = ({
       setTelefonoDestinatario(pedido.telefonoDestinatario || '');
       setDireccionDestinatario(pedido.direccionDestinatario || '');
       setReferenciaDestinatario(pedido.referenciaDestinatario || '');
+      setDescripcionProducto(pedido.descripcionProducto || '');
       setObservaciones(pedido.observaciones || '');
       setMontoCobrar(pedido.montoCobrar || 0);
       setTarifaEnvio(pedido.tarifaEnvio || 0);
@@ -93,6 +96,7 @@ export const ModalEditarPedidoAdmin: React.FC<Props> = ({
         telefonoDestinatario,
         direccionDestinatario,
         referenciaDestinatario,
+        descripcionProducto,
         observaciones,
         montoCobrar,
         tarifaEnvio,
@@ -270,6 +274,17 @@ export const ModalEditarPedidoAdmin: React.FC<Props> = ({
                 type="text"
                 value={direccionDestinatario}
                 onChange={(e) => setDireccionDestinatario(e.target.value)}
+                className="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-2.5 outline-none focus:border-violet-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-300 font-bold mb-1">Producto / Detalle del Contenido</label>
+              <input
+                type="text"
+                value={descripcionProducto}
+                onChange={(e) => setDescripcionProducto(e.target.value)}
+                placeholder="Ej: Zapatillas Nike Talla 41, Mochila Cuero, etc."
                 className="w-full bg-slate-900 border border-slate-800 text-white rounded-xl p-2.5 outline-none focus:border-violet-500"
               />
             </div>

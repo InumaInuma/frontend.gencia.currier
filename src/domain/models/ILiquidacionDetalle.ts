@@ -7,6 +7,7 @@ export interface ILiquidacionDetalle {
   telefonoDestinatario: string;
   distritoNombre: string;
   direccionDestinatario: string;
+  descripcionProducto?: string;
   idEstadosPedido: number;
   estadoPedido: string;
   montoCobrar: number;
@@ -23,4 +24,6 @@ export interface ILiquidacionDetalle {
   montoTotalPedido: number;
   esRendido: number;
   fechaRendicion?: string;
+  fotoEntregaUrl?: string;
+  captureUrl?: string;
 }

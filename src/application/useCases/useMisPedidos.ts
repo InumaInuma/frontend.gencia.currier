@@ -175,6 +175,7 @@ export const useLiquidacionesResumenAdmin = (params?: { fechaInicio?: string; fe
   return useQuery({
     queryKey: ['liquidaciones-resumen-admin', params?.fechaInicio, params?.fechaFin],
     queryFn: () => pedidosRepository.getLiquidacionesResumenAdmin(params),
+    staleTime: 30000,
     refetchOnWindowFocus: false,
   });
 };
@@ -184,6 +185,7 @@ export const useLiquidacionDetalleMotorizado = (idConductor: number | null, para
     queryKey: ['liquidacion-detalle-motorizado', idConductor, params?.fechaInicio, params?.fechaFin],
     queryFn: () => (idConductor ? pedidosRepository.getLiquidacionDetalleMotorizado(idConductor, params) : Promise.resolve([])),
     enabled: !!idConductor,
+    staleTime: 30000,
     refetchOnWindowFocus: false,
   });
 };

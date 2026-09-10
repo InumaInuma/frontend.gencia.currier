@@ -28,10 +28,13 @@ import { ModalExitoEnvio } from '../../components/agendarEnvio/ModalExitoEnvio';
 import { ModalAvisoCondicionesAgendado } from '../../components/agendarEnvio/ModalAvisoCondicionesAgendado';
 import { Paso1DatosEnvio } from '../../components/agendarEnvio/Paso1DatosEnvio';
 import { Paso2UbicacionGPS } from '../../components/agendarEnvio/Paso2UbicacionGPS';
+import { openWhatsAppWithPedidoMessage } from '../../../infrastructure/utils/whatsappMessageHelper';
+import { useComercioCuentasBancarias } from '../../../application/useCases/useComercioCuentasBancarias';
 
 export const AgendarEnvioPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { data: cuentasBancarias } = useComercioCuentasBancarias();
 
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
@@ -46,6 +49,7 @@ export const AgendarEnvioPage: React.FC = () => {
   const [direccionDestinatario, setDireccionDestinatario] = useState('');
   const [idDistritoDestinatario, setIdDistritoDestinatario] = useState<number | ''>('');
   const [referenciaDestinatario, setReferenciaDestinatario] = useState('');
+  const [descripcionProducto, setDescripcionProducto] = useState('');
   const [observaciones, setObservaciones] = useState('');
   const [esContraEntrega, setEsContraEntrega] = useState(false);
   const [montoCobrar, setMontoCobrar] = useState<number | ''>('');
@@ -201,6 +205,20 @@ export const AgendarEnvioPage: React.FC = () => {
     }
 
     try {
+      const finalTariff = (() => {
+        const matchedDist = distritosList.find((d) => {
+          const apMatch = distritos?.find((ap) => ap.id === idDistritoDestinatario);
+          return (apMatch && d.nombre.toLowerCase() === apMatch.nombre.toLowerCase()) || d.id === idDistritoDestinatario;
+        });
+        const baseTariff = matchedDist ? matchedDist.tarifaDespacho : distritoInfo.coberturaActiva ? distritoInfo.tarifaDespacho : 10;
+        if (activeYellowZone) {
+          return activeYellowZone.usarPorcentaje
+            ? Math.round(baseTariff * (1 + activeYellowZone.porcentajeRecargo / 100) * 100) / 100
+            : baseTariff + activeYellowZone.montoFijoRecargo;
+        }
+        return baseTariff;
+      })();
+
       const res = await registrarMutation.mutateAsync({
         nombreRemitente: nombreRemitente.trim() || user.nombreComercial || 'Mi Comercio',
         nombreDestinatario: nombreDestinatario.trim(),
@@ -208,22 +226,11 @@ export const AgendarEnvioPage: React.FC = () => {
         direccionDestinatario: direccionDestinatario.trim(),
         idDistritoDestinatario: Number(idDistritoDestinatario),
         referenciaDestinatario: referenciaDestinatario.trim(),
+        descripcionProducto: descripcionProducto.trim(),
         observaciones: observaciones.trim(),
         googleMapsUrl: googleMapsUrl.trim(),
         montoCobrar: esContraEntrega ? Number(montoCobrar) || 0 : 0,
-        tarifaEnvio: (() => {
-          const matchedDist = distritosList.find((d) => {
-            const apMatch = distritos?.find((ap) => ap.id === idDistritoDestinatario);
-            return (apMatch && d.nombre.toLowerCase() === apMatch.nombre.toLowerCase()) || d.id === idDistritoDestinatario;
-          });
-          const baseTariff = matchedDist ? matchedDist.tarifaDespacho : distritoInfo.coberturaActiva ? distritoInfo.tarifaDespacho : 10;
-          if (activeYellowZone) {
-            return activeYellowZone.usarPorcentaje
-              ? Math.round(baseTariff * (1 + activeYellowZone.porcentajeRecargo / 100) * 100) / 100
-              : baseTariff + activeYellowZone.montoFijoRecargo;
-          }
-          return baseTariff;
-        })(),
+        tarifaEnvio: finalTariff,
         destinatarioPagaEnvio: destinatarioPagaEnvio,
       });
       setCreatedTrackingCode(res.codigoSeguimiento);
@@ -242,8 +249,33 @@ export const AgendarEnvioPage: React.FC = () => {
 
   const handleShareWhatsApp = () => {
     if (createdTrackingCode) {
-      const text = `¡Hola ${nombreDestinatario}! Tu pedido ha sido agendado con ALMAIN CURRIER. Código de seguimiento: ${createdTrackingCode}`;
-      window.open(`https://wa.me/51${telefonoDestinatario.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+      const currentDistrito = distritosList.find(d => d.id === idDistritoDestinatario)?.nombre || distritoInfo?.nombre;
+      const matchedDist = distritosList.find((d) => {
+        const apMatch = distritos?.find((ap) => ap.id === idDistritoDestinatario);
+        return (apMatch && d.nombre.toLowerCase() === apMatch.nombre.toLowerCase()) || d.id === idDistritoDestinatario;
+      });
+      const baseTariff = matchedDist ? matchedDist.tarifaDespacho : distritoInfo.coberturaActiva ? distritoInfo.tarifaDespacho : 10;
+      const finalTariff = activeYellowZone
+        ? (activeYellowZone.usarPorcentaje
+            ? Math.round(baseTariff * (1 + activeYellowZone.porcentajeRecargo / 100) * 100) / 100
+            : baseTariff + activeYellowZone.montoFijoRecargo)
+        : baseTariff;
+
+      openWhatsAppWithPedidoMessage({
+        nombreDestinatario,
+        telefonoDestinatario,
+        nombreComercio: user?.nombreComercial || user?.nombreCompleto || nombreRemitente,
+        descripcionProducto,
+        direccionDestinatario,
+        distritoNombre: currentDistrito,
+        referenciaDestinatario,
+        googleMapsUrl,
+        montoCobrar: esContraEntrega ? Number(montoCobrar) || 0 : 0,
+        tarifaEnvio: finalTariff,
+        destinatarioPagaEnvio,
+        codigoSeguimiento: createdTrackingCode,
+        cuentasBancarias: cuentasBancarias && cuentasBancarias.length > 0 ? cuentasBancarias : undefined,
+      });
     }
   };
 
@@ -255,6 +287,7 @@ export const AgendarEnvioPage: React.FC = () => {
     setDireccionDestinatario('');
     setIdDistritoDestinatario('');
     setReferenciaDestinatario('');
+    setDescripcionProducto('');
     setObservaciones('');
     setGoogleMapsUrl('');
     setEsContraEntrega(false);
@@ -414,6 +447,8 @@ export const AgendarEnvioPage: React.FC = () => {
                 setNombreDestinatario={setNombreDestinatario}
                 telefonoDestinatario={telefonoDestinatario}
                 setTelefonoDestinatario={setTelefonoDestinatario}
+                descripcionProducto={descripcionProducto}
+                setDescripcionProducto={setDescripcionProducto}
                 esContraEntrega={esContraEntrega}
                 setEsContraEntrega={setEsContraEntrega}
                 montoCobrar={montoCobrar}

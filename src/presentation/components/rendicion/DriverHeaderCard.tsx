@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { ILiquidacionResumen } from '../../../domain/models/ILiquidacionResumen';
-import { Bike, Phone, DollarSign } from 'lucide-react';
+import { Bike, Phone, DollarSign, Copy, Check } from 'lucide-react';
 
 interface Props {
   selectedConductor: ILiquidacionResumen;
@@ -15,6 +15,14 @@ export const DriverHeaderCard: React.FC<Props> = ({
   onConfirmarRendicion,
   isPendingConfirmacion,
 }) => {
+  const [copiedPhone, setCopiedPhone] = useState(false);
+
+  const handleCopyPhone = (phone: string) => {
+    navigator.clipboard.writeText(phone);
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
+  };
+
   return (
     <div className="bg-slate-900/60 border border-slate-800 p-6 rounded-3xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-xl">
       <div className="flex items-center gap-4">
@@ -30,10 +38,20 @@ export const DriverHeaderCard: React.FC<Props> = ({
           </div>
           <div className="flex items-center gap-4 text-xs text-slate-400 mt-1">
             {selectedConductor.telefonoConductor && (
-              <span className="flex items-center gap-1 text-slate-300">
+              <button
+                type="button"
+                onClick={() => handleCopyPhone(selectedConductor.telefonoConductor!)}
+                className="flex items-center gap-1.5 text-slate-300 hover:text-cyan-300 transition-colors cursor-pointer group"
+                title="Clic para copiar celular"
+              >
                 <Phone size={13} className="text-emerald-400" />
-                {selectedConductor.telefonoConductor}
-              </span>
+                <span className="group-hover:underline">{selectedConductor.telefonoConductor}</span>
+                {copiedPhone ? (
+                  <Check size={12} className="text-emerald-400" />
+                ) : (
+                  <Copy size={11} className="opacity-0 group-hover:opacity-100 text-cyan-400 transition-opacity" />
+                )}
+              </button>
             )}
             <span>Vehículo: <strong className="text-white">{selectedConductor.tipoVehiculo || 'Motorizado'}</strong></span>
           </div>

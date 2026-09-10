@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Phone, FileText, ChevronRight, AlertCircle } from 'lucide-react';
+import { User, Phone, FileText, ChevronRight, AlertCircle, ShoppingBag } from 'lucide-react';
 
 interface Props {
   nombreRemitente: string;
@@ -8,6 +8,8 @@ interface Props {
   setNombreDestinatario: (val: string) => void;
   telefonoDestinatario: string;
   setTelefonoDestinatario: (val: string) => void;
+  descripcionProducto: string;
+  setDescripcionProducto: (val: string) => void;
   esContraEntrega: boolean;
   setEsContraEntrega: (val: boolean) => void;
   montoCobrar: number | '';
@@ -27,6 +29,8 @@ export const Paso1DatosEnvio: React.FC<Props> = ({
   setNombreDestinatario,
   telefonoDestinatario,
   setTelefonoDestinatario,
+  descripcionProducto,
+  setDescripcionProducto,
   esContraEntrega,
   setEsContraEntrega,
   montoCobrar,
@@ -96,11 +100,28 @@ export const Paso1DatosEnvio: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* 4. Contra Entrega */}
+      {/* 4. Producto a Enviar */}
+      <div>
+        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
+          4. Producto / Contenido del Envío
+        </label>
+        <div className="relative">
+          <ShoppingBag size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+          <input
+            type="text"
+            value={descripcionProducto}
+            onChange={(e) => setDescripcionProducto(e.target.value)}
+            placeholder="Ej: Mochila de cuero negra, Zapatillas Nike Talla 41, Cosméticos, etc."
+            className="w-full bg-slate-950 border border-slate-800 text-white text-sm rounded-xl pl-9 pr-3 py-3 outline-none focus:border-violet-500 transition-colors"
+          />
+        </div>
+      </div>
+
+      {/* 5. Contra Entrega */}
       <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-white block">4. ¿Cobrar al Entregar el Pedido?</span>
+            <span className="text-xs font-bold text-white block">5. ¿Cobrar al Entregar el Pedido?</span>
             <span className="text-[11px] text-slate-400">Activa si el repartidor debe cobrar en efectivo/Yape</span>
           </div>
           <button
@@ -133,11 +154,11 @@ export const Paso1DatosEnvio: React.FC<Props> = ({
         )}
       </div>
 
-      {/* 5. Quién Paga el Envío */}
+      {/* 6. Quién Paga el Envío */}
       <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-white block">5. ¿Quién asume el costo de envío?</span>
+            <span className="text-xs font-bold text-white block">6. ¿Quién asume el costo de envío?</span>
             <span className="text-[11px] text-slate-400">
               {destinatarioPagaEnvio
                 ? 'El motorizado le cobrará el envío al cliente final.'
@@ -156,10 +177,10 @@ export const Paso1DatosEnvio: React.FC<Props> = ({
         </div>
       </div>
 
-      {/* 6. Observaciones */}
+      {/* 7. Observaciones */}
       <div>
         <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-1.5">
-          6. Notas u Observación
+          7. Notas u Observación
         </label>
         <div className="relative">
           <FileText size={15} className="absolute top-3 left-3 text-slate-500" />

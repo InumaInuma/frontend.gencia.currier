@@ -94,33 +94,33 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
 
     if (role === 'comercio' && !isCurrentlyInClientView) {
       return [
-        { path: '/comercio/dashboard', label: 'Gestión de Envíos', icon: <ShoppingBag size={20} /> },
-        { path: '/comercio/agendar-envio', label: 'Agendar Nuevo Envío', icon: <Plus size={20} /> },
+        { path: '/comercio/dashboard', label: 'Gestión de Envíos', icon: <ShoppingBag size={18} /> },
+        { path: '/comercio/agendar-envio', label: 'Agendar Nuevo Envío', icon: <Plus size={18} /> },
       ];
     }
 
     if (role === 'motorizado') {
       return [
-        { path: '/motorizado/recojos', label: 'Mis Recojos Asignados', icon: <Package size={20} /> },
-        { path: '/motorizado/entregas', label: 'Entregas Asignadas', icon: <Truck size={20} /> },
+        { path: '/motorizado/recojos', label: 'Mis Recojos Asignados', icon: <Package size={18} /> },
+        { path: '/motorizado/entregas', label: 'Entregas Asignadas', icon: <Truck size={18} /> },
       ];
     }
 
     if (role === 'administrador' || role === 'admin' || role === 'superadmin') {
       return [
-        { path: '/admin/dashboard', label: 'Panel Principal', icon: <LayoutDashboard size={20} /> },
-        { path: '/admin/asignar-recojos', label: 'Asignar Recojos', icon: <Bike size={20} /> },
-        { path: '/admin/asignar-entregas', label: 'Asignar Entregas', icon: <Truck size={20} /> },
-        { path: '/admin/reprogramaciones', label: 'Reprogramaciones', icon: <CalendarClock size={20} /> },
-        { path: '/admin/cobertura', label: 'Zonas de Cobertura', icon: <MapPin size={20} /> },
-        { path: '/admin/monitoreo-recojos', label: 'Monitoreo de Pedidos', icon: <Navigation size={20} /> },
-        { path: '/admin/rendicion-cuentas', label: 'Rendición & Caja', icon: <Receipt size={20} /> },
+        { path: '/admin/dashboard', label: 'Panel Principal', icon: <LayoutDashboard size={18} /> },
+        { path: '/admin/asignar-recojos', label: 'Asignar Recojos', icon: <Bike size={18} /> },
+        { path: '/admin/asignar-entregas', label: 'Asignar Entregas', icon: <Truck size={18} /> },
+        { path: '/admin/reprogramaciones', label: 'Reprogramaciones', icon: <CalendarClock size={18} /> },
+        { path: '/admin/cobertura', label: 'Zonas de Cobertura', icon: <MapPin size={18} /> },
+        { path: '/admin/monitoreo-recojos', label: 'Monitoreo de Pedidos', icon: <Navigation size={18} /> },
+        { path: '/admin/rendicion-cuentas', label: 'Rendición & Caja', icon: <Receipt size={18} /> },
       ];
     }
 
     // Cliente View (or Comercio switched to Cliente view)
     return [
-      { path: '/cliente/dashboard', label: 'Rastrear por Código', icon: <Search size={20} /> },
+      { path: '/cliente/dashboard', label: 'Rastrear por Código', icon: <Search size={18} /> },
     ];
   };
 
@@ -138,12 +138,12 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
               }
             }}
             title={item.label}
-            className={`w-full flex items-center py-3 rounded-xl transition-all duration-200 text-violet-400 hover:bg-violet-600/20 font-semibold cursor-pointer ${
-              contraido ? 'justify-center px-0' : 'px-4 gap-4'
+            className={`w-full flex items-center py-2 rounded-xl transition-all duration-200 text-violet-400 hover:bg-violet-600/20 font-semibold cursor-pointer ${
+              contraido ? 'justify-center px-0' : 'px-3.5 gap-3'
             }`}
           >
             <span className="shrink-0 relative">{item.icon}</span>
-            {!contraido && <span className="font-medium text-sm">{item.label}</span>}
+            {!contraido && <span className="font-medium text-xs sm:text-sm">{item.label}</span>}
           </button>
         </li>
       );
@@ -156,13 +156,13 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
           onClick={() => setMobileOpen(false)}
           title={item.label}
           className={({ isActive }) => `
-            w-full flex items-center py-3 rounded-xl transition-all duration-200 group cursor-pointer 
-            ${contraido ? 'justify-center px-0' : 'px-4 gap-4'} 
+            w-full flex items-center py-2 rounded-xl transition-all duration-200 group cursor-pointer 
+            ${contraido ? 'justify-center px-0' : 'px-3.5 gap-3'} 
             ${isActive ? 'bg-violet-600 text-white font-bold shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-900 hover:text-white'}
           `}
         >
           <span className="shrink-0 relative">{item.icon}</span>
-          {!contraido && <span className="font-medium text-sm">{item.label}</span>}
+          {!contraido && <span className="font-medium text-xs sm:text-sm truncate">{item.label}</span>}
         </NavLink>
       </li>
     );
@@ -185,14 +185,14 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
         } right-0 md:left-0 ${contraido ? 'w-20' : 'w-64'}`}
       >
         {/* Header Logo & Mobile Close Button */}
-        <div className={`h-16 flex items-center justify-between border-b border-slate-900 ${contraido ? 'justify-center px-2' : 'px-6'}`}>
+        <div className={`h-14 sm:h-16 flex items-center justify-between border-b border-slate-900 shrink-0 ${contraido ? 'justify-center px-2' : 'px-5'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-sm shrink-0 shadow-lg shadow-violet-500/20">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-xs sm:text-sm shrink-0 shadow-lg shadow-violet-500/20">
               AC
             </div>
             {!contraido && (
               <div className="flex flex-col truncate">
-                <span className="font-bold tracking-tight text-white text-base">ALMAIN CURRIER</span>
+                <span className="font-bold tracking-tight text-white text-sm sm:text-base leading-tight">ALMAIN CURRIER</span>
                 <span className="text-[10px] text-violet-400 font-semibold uppercase tracking-wider">
                   {isCurrentlyInClientView ? 'Vista Cliente Final' : user.rolNombre}
                 </span>
@@ -213,24 +213,24 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
 
         {/* User Identity Banner (Full or Collapsed Avatar Circle) */}
         {contraido ? (
-          <div className="my-4 flex justify-center">
+          <div className="my-2.5 flex justify-center shrink-0">
             <div
-              className="w-10 h-10 rounded-full border-2 border-cyan-400 bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-extrabold text-xs shadow-md shadow-cyan-500/20"
+              className="w-9 h-9 rounded-full border-2 border-cyan-400 bg-cyan-500/10 text-cyan-300 flex items-center justify-center font-extrabold text-xs shadow-md shadow-cyan-500/20"
               title={user.nombreCompleto}
             >
               {userInitials}
             </div>
           </div>
         ) : (
-          <div className="p-4 mx-3 my-3 bg-slate-900/60 border border-slate-800 rounded-2xl flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-violet-600/20 text-violet-400 border border-violet-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+          <div className="p-2.5 mx-3 my-2 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center gap-2.5 shrink-0">
+            <div className="w-7 h-7 rounded-full bg-violet-600/20 text-violet-400 border border-violet-500/30 flex items-center justify-center font-bold text-xs shrink-0">
               {user.nombreCompleto.charAt(0)}
             </div>
             <div className="truncate">
-              <p className="text-xs font-bold text-white truncate">
+              <p className="text-xs font-bold text-white truncate leading-tight">
                 {isCurrentlyInClientView ? user.nombreCompleto : (user.nombreComercial || user.nombreCompleto)}
               </p>
-              <p className="text-[11px] text-slate-400 truncate">
+              <p className="text-[10px] text-slate-400 truncate mt-0.5">
                 {user.correo}
               </p>
             </div>
@@ -238,45 +238,45 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Upper Navigation Section */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
+        <nav className="flex-1 overflow-y-auto no-scrollbar px-3 py-1 space-y-0.5">
           {!contraido && (
-            <div className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
+            <div className="px-3 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
               {isCurrentlyInClientView ? 'Menú Compras Cliente' : 'Menú Principal'}
             </div>
           )}
-          <ul className="space-y-1">
+          <ul className="space-y-0.5">
             {menuItems.map((item) => renderItem(item))}
 
-            {/* Cerrar Sesión Button directly below Perfil Comercio */}
+            {/* Cerrar Sesión Button directly below items */}
             <li key="logout-nav">
               <button
                 onClick={handleLogout}
                 title="Cerrar Sesión"
-                className={`w-full flex items-center py-3 rounded-xl transition-all duration-200 text-red-400 hover:bg-red-500/10 hover:text-red-300 font-semibold cursor-pointer ${
-                  contraido ? 'justify-center px-0' : 'px-4 gap-4'
+                className={`w-full flex items-center py-2 rounded-xl transition-all duration-200 text-red-400 hover:bg-red-500/10 hover:text-red-300 font-semibold cursor-pointer ${
+                  contraido ? 'justify-center px-0' : 'px-3.5 gap-3'
                 }`}
               >
-                <LogOut size={20} className="shrink-0" />
-                {!contraido && <span className="font-medium text-sm">Cerrar Sesión</span>}
+                <LogOut size={18} className="shrink-0" />
+                {!contraido && <span className="font-medium text-xs sm:text-sm">Cerrar Sesión</span>}
               </button>
             </li>
           </ul>
         </nav>
 
         {/* Fixed Bottom Footer Area */}
-        <div className="p-3 border-t border-slate-900 space-y-2 bg-slate-950">
+        <div className="p-2.5 border-t border-slate-900 space-y-1.5 bg-slate-950 shrink-0">
           
           {/* Upgrade CTA for ClienteFinal Users */}
           {user.rolNombre === 'ClienteFinal' && (
             <NavLink
               to="/comercio/upgrade"
               onClick={() => setMobileOpen(false)}
-              className={`w-full flex items-center gap-3 py-2.5 px-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 py-2 px-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg transition-all cursor-pointer ${
                 contraido ? 'justify-center px-0' : ''
               }`}
               title="Convertirme en Comercio (Agendar Envíos)"
             >
-              <Store size={18} className="shrink-0" />
+              <Store size={16} className="shrink-0" />
               {!contraido && (
                 <div className="text-left">
                   <span className="font-bold text-xs block">¿Tienes un Negocio?</span>
@@ -290,7 +290,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
           {isComercioAccount && (
             <button
               onClick={handleToggleMode}
-              className={`w-full flex items-center gap-3 py-2.5 px-3 rounded-xl bg-gradient-to-r ${
+              className={`w-full flex items-center gap-2.5 py-2 px-3 rounded-xl bg-gradient-to-r ${
                 isCurrentlyInClientView
                   ? 'from-indigo-600/20 to-violet-600/20 text-indigo-300 border border-indigo-500/30'
                   : 'from-amber-500/10 to-orange-500/10 text-amber-300 border border-amber-500/20'
@@ -299,7 +299,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
               }`}
               title={isCurrentlyInClientView ? 'Volver a Panel de Comercio' : 'Ir a Mis Compras como Cliente'}
             >
-              <Repeat size={18} className="shrink-0" />
+              <Repeat size={16} className="shrink-0" />
               {!contraido && (
                 <div className="text-left">
                   <span className="font-bold text-xs block">
@@ -320,11 +320,11 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => setContraido(!contraido)}
             className={`flex items-center justify-center rounded-xl border border-slate-800 hover:bg-slate-900 text-slate-300 hover:text-white transition-all cursor-pointer ${
-              contraido ? 'w-12 h-12 mx-auto' : 'w-full py-2.5 px-3 gap-3'
+              contraido ? 'w-10 h-10 mx-auto' : 'w-full py-2 px-3 gap-2.5'
             }`}
             title={contraido ? 'Expandir menú (>)' : 'Solo Mostrar Iconos (<)'}
           >
-            {contraido ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            {contraido ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             {!contraido && <span className="font-semibold text-xs">Solo Mostrar Iconos</span>}
           </button>
         </div>

@@ -15,6 +15,7 @@ import { ModalEditarPedidoAdmin } from '../../components/adminMonitoreo/ModalEdi
 import { ModalCancelarRecojoPedido } from '../../components/motorizadoRecojos/ModalCancelarRecojoPedido';
 import type { IMonitoreoRecojo } from '../../../domain/models/IMonitoreoRecojo';
 import type { IPedido } from '../../../domain/models/IPedido';
+import { openWhatsAppWithPedidoMessage } from '../../../infrastructure/utils/whatsappMessageHelper';
 import {
   Bike,
   Navigation,
@@ -147,11 +148,21 @@ export const MonitoreoRecojosPage: React.FC = () => {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const handleShareWhatsApp = (codigo: string, destinatario: string, telefono: string) => {
-    const text = `Hola ${destinatario}, tu envío ha sido agendado con el código de seguimiento *${codigo}*. Rastrealo en nuestra plataforma.`;
-    const cleanPhone = telefono.replace(/\D/g, '');
-    const url = `https://wa.me/51${cleanPhone}?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+  const handleShareWhatsApp = (pedido: IPedido) => {
+    openWhatsAppWithPedidoMessage({
+      nombreDestinatario: pedido.nombreDestinatario,
+      telefonoDestinatario: pedido.telefonoDestinatario,
+      nombreComercio: pedido.nombreComercial,
+      descripcionProducto: pedido.descripcionProducto,
+      direccionDestinatario: pedido.direccionDestinatario,
+      distritoNombre: pedido.distritoNombre,
+      referenciaDestinatario: pedido.referenciaDestinatario,
+      googleMapsUrl: pedido.googleMapsUrl,
+      montoCobrar: pedido.montoCobrar,
+      tarifaEnvio: pedido.tarifaEnvio,
+      destinatarioPagaEnvio: pedido.destinatarioPagaEnvio,
+      codigoSeguimiento: pedido.codigoSeguimiento,
+    });
   };
 
   // Handle Edit Save from Modal
@@ -248,64 +259,31 @@ export const MonitoreoRecojosPage: React.FC = () => {
     return Object.values(groupMap);
   }, [pedidos, searchTerm]);
 
-  // Group Driver Routes for Tab 2
-  const driverRoutes = useMemo(() => {
+  // Filtered Monitored Packages for Tab 2 (Single Unified Table)
+  const filteredMonitoreoItems = useMemo(() => {
     if (!monitoreoItems || monitoreoItems.length === 0) return [];
 
     const query = searchTerm.toLowerCase().trim();
-    const routeMap: { [key: number]: GroupedDriverRoute } = {};
 
-    monitoreoItems.forEach((item) => {
+    return monitoreoItems.filter((item) => {
       if (selectedDriverFilter !== 'todos' && String(item.idConductor) !== selectedDriverFilter) {
-        return;
+        return false;
       }
 
-      const matchSearch =
-        !query ||
-        item.nombreConductor.toLowerCase().includes(query) ||
-        item.nombreComercial.toLowerCase().includes(query) ||
-        item.codigoSeguimiento.toLowerCase().includes(query) ||
-        item.nombreDestinatario.toLowerCase().includes(query) ||
-        item.distritoNombre.toLowerCase().includes(query);
+      if (!query) return true;
 
-      if (!matchSearch) return;
-
-      const routeId = item.idAsignacionRecojo;
-      if (!routeMap[routeId]) {
-        routeMap[routeId] = {
-          idAsignacionRecojo: item.idAsignacionRecojo,
-          idConductor: item.idConductor,
-          nombreConductor: item.nombreConductor,
-          telefonoConductor: item.telefonoConductor,
-          placaVehiculo: item.placaVehiculo,
-          tipoVehiculo: item.tipoVehiculo,
-          estadoAsignacion: item.estadoAsignacion,
-          fechaAsignacion: item.fechaAsignacion,
-          comercios: [],
-          totalPedidos: 0,
-        };
-      }
-
-      let comGroup = routeMap[routeId].comercios.find((c) => c.idComercio === item.idComercio);
-      if (!comGroup) {
-        comGroup = {
-          idComercio: item.idComercio,
-          nombreComercial: item.nombreComercial,
-          ruc: item.ruc,
-          direccionRecojo: item.direccionRecojo,
-          referenciaRecojo: item.referenciaRecojo,
-          telefonoComercio: item.telefonoComercio,
-          googleMapsUrlComercio: item.googleMapsUrlComercio || item.googleMapsUrl,
-          pedidos: [],
-        };
-        routeMap[routeId].comercios.push(comGroup);
-      }
-
-      comGroup.pedidos.push(item);
-      routeMap[routeId].totalPedidos += 1;
+      return (
+        (item.nombreConductor && item.nombreConductor.toLowerCase().includes(query)) ||
+        (item.nombreComercial && item.nombreComercial.toLowerCase().includes(query)) ||
+        (item.codigoSeguimiento && item.codigoSeguimiento.toLowerCase().includes(query)) ||
+        (item.nombreDestinatario && item.nombreDestinatario.toLowerCase().includes(query)) ||
+        (item.distritoNombre && item.distritoNombre.toLowerCase().includes(query)) ||
+        (item.direccionDestinatario && item.direccionDestinatario.toLowerCase().includes(query)) ||
+        (item.telefonoDestinatario && item.telefonoDestinatario.includes(query)) ||
+        (item.placaVehiculo && item.placaVehiculo.toLowerCase().includes(query)) ||
+        (item.ruc && item.ruc.toLowerCase().includes(query))
+      );
     });
-
-    return Object.values(routeMap);
   }, [monitoreoItems, searchTerm, selectedDriverFilter]);
 
   const uniqueDrivers = useMemo(() => {
@@ -314,12 +292,6 @@ export const MonitoreoRecojosPage: React.FC = () => {
     monitoreoItems.forEach((i) => map.set(i.idConductor, i.nombreConductor));
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [monitoreoItems]);
-
-  const toggleRouteAccordion = (id: number) => {
-    setOpenRouteIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-    );
-  };
 
   const toggleCommerceAccordion = (id: number) => {
     setOpenCommerceIds((prev) =>
@@ -448,8 +420,8 @@ export const MonitoreoRecojosPage: React.FC = () => {
                 <Bike size={24} />
               </div>
               <div>
-                <span className="text-xs text-slate-400 font-medium">Rutas de Motorizados</span>
-                <h3 className="text-2xl font-extrabold text-yellow-300 font-mono">{driverRoutes.length}</h3>
+                <span className="text-xs text-slate-400 font-medium">Motorizados Activos</span>
+                <h3 className="text-2xl font-extrabold text-yellow-300 font-mono">{uniqueDrivers.length}</h3>
               </div>
             </div>
           </div>
@@ -477,7 +449,7 @@ export const MonitoreoRecojosPage: React.FC = () => {
               }`}
             >
               <Bike size={16} />
-              <span>2. Rutas por Motorizado ({driverRoutes.length})</span>
+              <span>2. Rutas por Motorizado ({filteredMonitoreoItems.length})</span>
             </button>
           </div>
 
@@ -488,7 +460,7 @@ export const MonitoreoRecojosPage: React.FC = () => {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input
                 type="text"
-                placeholder="Buscar comercio, RUC, cliente, código..."
+                placeholder="Buscar comercio, RUC, cliente, chofer, código..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-slate-950 border border-slate-800 text-white placeholder-slate-500 rounded-xl pl-10 pr-4 py-2 text-xs outline-none focus:border-purple-500 transition-all font-medium"
@@ -689,132 +661,90 @@ export const MonitoreoRecojosPage: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 2: RUTAS POR MOTORIZADO */}
+          {/* TAB 2: RUTAS POR MOTORIZADO (TABLA ÚNICA CONSOLIDADA) */}
           {activeTab === 'rutas' && (
             <div className="space-y-4">
               {loadingMonitoreo ? (
                 <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-12 text-center text-slate-400 animate-pulse text-xs font-bold">
-                  Cargando rutas de motorizados...
+                  Cargando monitoreo de rutas de motorizados...
                 </div>
-              ) : driverRoutes.length === 0 ? (
+              ) : filteredMonitoreoItems.length === 0 ? (
                 <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-12 text-center space-y-3">
                   <Truck size={40} className="mx-auto text-slate-600 opacity-60" />
-                  <h3 className="text-base font-bold text-white">No hay rutas de recojo asignadas activas</h3>
+                  <h3 className="text-base font-bold text-white">No hay envíos asignados en este rango</h3>
                   <p className="text-xs text-slate-400 max-w-md mx-auto">
-                    Asigna recojos en la pestaña &apos;Asignar Recojos&apos; para que los motorizados aparezcan monitoreados aquí.
+                    {selectedDriverFilter !== 'todos' || searchTerm
+                      ? 'No se encontraron paquetes asignados con los filtros aplicados.'
+                      : "Asigna recojos en el módulo 'Asignar Recojos' para monitorear los paquetes en ruta aquí."}
                   </p>
                 </div>
               ) : (
-                driverRoutes.map((route, routeIdx) => {
-                  const isRouteOpen = openRouteIds.length === 0 || openRouteIds.includes(route.idAsignacionRecojo);
-                  return (
-                    <div
-                      key={`route_${route.idAsignacionRecojo}`}
-                      className="bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden shadow-xl"
-                    >
-                      {/* Driver Route Card Header */}
-                      <div
-                        onClick={() => toggleRouteAccordion(route.idAsignacionRecojo)}
-                        className="p-5 bg-gradient-to-r from-slate-900 via-slate-900/90 to-yellow-950/20 border-b border-slate-800 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-slate-900 transition-colors"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 flex items-center justify-center font-extrabold text-base shrink-0 shadow-lg">
-                            <Bike size={24} />
-                          </div>
-
-                          <div>
-                            <div className="flex items-center gap-3 flex-wrap">
-                              <h3 className="font-extrabold text-white text-base sm:text-lg">
-                                Chofer: {route.nombreConductor}
-                              </h3>
-                              <span className="text-xs font-mono bg-yellow-500/10 border border-yellow-500/30 text-yellow-300 px-2.5 py-0.5 rounded-md font-bold">
-                                {route.tipoVehiculo}: {route.placaVehiculo}
-                              </span>
-                            </div>
-
-                            <p className="text-xs text-slate-400 flex items-center gap-3 mt-1 flex-wrap">
-                              {route.telefonoConductor && (
-                                <span className="flex items-center gap-1 font-mono text-[11px] text-slate-300">
-                                  <Phone size={11} className="text-yellow-400" />
-                                  {route.telefonoConductor}
-                                </span>
-                              )}
-                              <span className="flex items-center gap-1 font-mono text-[11px] text-slate-400">
-                                <Clock size={11} className="text-slate-500" />
-                                Asignado: {new Date(route.fechaAsignacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 border-slate-800/60 pt-3 sm:pt-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-extrabold text-yellow-300 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1.5 rounded-xl font-mono">
-                              {route.comercios.length} {route.comercios.length === 1 ? 'Comercio' : 'Comercios'}
-                            </span>
-                            <span className="text-xs font-extrabold text-purple-300 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl font-mono">
-                              {route.totalPedidos} Paquetes
-                            </span>
-                            <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-300">
-                              {route.estadoAsignacion}
-                            </span>
-                          </div>
-
-                          <div className="w-8 h-8 rounded-xl bg-slate-800 flex items-center justify-center text-slate-300 shrink-0">
-                            {isRouteOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                          </div>
-                        </div>
+                <div className="bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden shadow-xl p-5 space-y-4">
+                  {/* Table Header Summary */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 flex items-center justify-center shrink-0">
+                        <Bike size={20} />
                       </div>
-
-                      {/* Route Accordion Body: Commerce Sub-Accordions */}
-                      {isRouteOpen && (
-                        <div className="p-5 space-y-4 bg-slate-950/40">
-                          {route.comercios.map((comercio, cIdx) => (
-                            <div
-                              key={`route_com_${comercio.idComercio}`}
-                              className="bg-slate-950/80 border border-slate-800/80 rounded-2xl overflow-hidden p-4 space-y-3"
-                            >
-                              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-900 pb-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-xl bg-purple-600/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs shrink-0">
-                                    {cIdx + 1}
-                                  </div>
-                                  <div>
-                                    <h4 className="font-extrabold text-white text-sm">
-                                      {comercio.nombreComercial}
-                                    </h4>
-                                    <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                                      <MapPin size={12} className="text-purple-400 shrink-0" />
-                                      {comercio.direccionRecojo} {comercio.referenciaRecojo ? `(${comercio.referenciaRecojo})` : ''}
-                                    </p>
-                                  </div>
-                                </div>
-
-                                {comercio.googleMapsUrlComercio && (
-                                  <a
-                                    href={comercio.googleMapsUrlComercio}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-xl font-bold transition-all text-xs shrink-0"
-                                  >
-                                    <ExternalLink size={12} />
-                                    <span>Mapa GPS</span>
-                                  </a>
-                                )}
-                              </div>
-
-                              {/* Package Table with Admin Actions */}
-                              <TablaMonitoreoRecojo
-                                pedidos={comercio.pedidos}
-                                onCancelarPedido={(p) => setPedidoACancelar(p)}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      <div>
+                        <h3 className="font-extrabold text-white text-base">
+                          Monitoreo de Envíos en Ruta
+                        </h3>
+                        <p className="text-xs text-slate-400">
+                          Control operativo en tiempo real de todos los paquetes asignados a motorizados.
+                        </p>
+                      </div>
                     </div>
-                  );
-                })
+
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-bold text-yellow-300 bg-yellow-500/10 border border-yellow-500/30 px-3 py-1.5 rounded-xl font-mono">
+                        {uniqueDrivers.length} {uniqueDrivers.length === 1 ? 'Motorizado' : 'Motorizados'}
+                      </span>
+                      <span className="text-xs font-bold text-purple-300 bg-purple-500/10 border border-purple-500/30 px-3 py-1.5 rounded-xl font-mono">
+                        {filteredMonitoreoItems.length} {filteredMonitoreoItems.length === 1 ? 'Paquete' : 'Paquetes'}
+                      </span>
+                      <span className="text-xs font-bold text-slate-300 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl font-mono">
+                        Total Cobro: <strong className="text-emerald-400 font-extrabold">S/ {filteredMonitoreoItems.reduce((acc, curr) => acc + (curr.montoCobrar || 0), 0).toFixed(2)}</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Tabla Única de Monitoreo de Envíos */}
+                  <TablaMonitoreoRecojo
+                    pedidos={filteredMonitoreoItems}
+                    mostrarMotorizado={true}
+                    mostrarComercio={true}
+                    onCopyCode={handleCopyCode}
+                    copiedCode={copiedCode}
+                    onEditarPedido={(m) =>
+                      setPedidoAEditar({
+                        id: m.idPedido,
+                        codigoSeguimiento: m.codigoSeguimiento,
+                        idComercio: m.idComercio || 0,
+                        nombreComercial: m.nombreComercial || '',
+                        razonSocial: m.razonSocial || '',
+                        ruc: m.ruc || '',
+                        direccionRecojo: m.direccionRecojo || '',
+                        nombreDestinatario: m.nombreDestinatario,
+                        telefonoDestinatario: m.telefonoDestinatario,
+                        direccionDestinatario: m.direccionDestinatario,
+                        referenciaDestinatario: m.referenciaDestinatario,
+                        distritoNombre: m.distritoNombre,
+                        descripcionProducto: m.descripcionProducto,
+                        observaciones: m.observaciones,
+                        montoCobrar: m.montoCobrar,
+                        tarifaEnvio: m.tarifaEnvio || 0,
+                        destinatarioPagaEnvio: m.destinatarioPagaEnvio || false,
+                        idEstadosPedido: m.idEstadosPedido || 1,
+                        estadoNombre: m.estadoPedido,
+                        fechaRegistro: m.fechaRegistro || '',
+                        motivoCancelacion: m.motivoCancelacion,
+                        observacionCancelacion: m.observacionCancelacion,
+                      })
+                    }
+                    onCancelarPedido={(p) => setPedidoACancelar(p)}
+                  />
+                </div>
               )}
             </div>
           )}

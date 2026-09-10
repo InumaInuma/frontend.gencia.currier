@@ -1,6 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '../context/AuthContext';
 
+import type { ICrearCuentaBancariaParams } from '../../domain/models/IComercioCuentaBancaria';
+
 interface UpgradeParams {
   ruc: string;
   razonSocial: string;
@@ -9,6 +11,7 @@ interface UpgradeParams {
   referenciaRecojo?: string;
   googleMapsUrl?: string;
   telefono?: string;
+  cuentasBancarias?: ICrearCuentaBancariaParams[];
 }
 
 export const useUpgrade = () => {
@@ -23,7 +26,8 @@ export const useUpgrade = () => {
         params.direccionFiscal,
         params.referenciaRecojo,
         params.googleMapsUrl,
-        params.telefono
+        params.telefono,
+        params.cuentasBancarias
       );
     },
   });

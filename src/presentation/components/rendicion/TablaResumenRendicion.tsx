@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { ILiquidacionResumen } from '../../../domain/models/ILiquidacionResumen';
 import {
   DollarSign,
@@ -11,7 +11,10 @@ import {
   Wallet,
   Building2,
   Percent,
-  Coins
+  Coins,
+  Phone,
+  Copy,
+  Check
 } from 'lucide-react';
 
 interface Props {
@@ -43,6 +46,15 @@ export const TablaResumenRendicion: React.FC<Props> = ({
   onConfirmarRendicion,
   isPendingConfirmacion,
 }) => {
+  const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
+
+  const handleCopyPhone = (phone: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(phone);
+    setCopiedPhone(phone);
+    setTimeout(() => setCopiedPhone(null), 2000);
+  };
+
   // Calculamos la suma global de 70% pago a motorizados y 30% comisión agencia
   const totalPagoMotorizados70 = (filteredResumen || []).reduce((acc, item) => acc + (item.montoPagoMotorizado || 0), 0);
   const totalGananciaAgencia30 = (filteredResumen || []).reduce((acc, item) => acc + (item.montoGananciaAgencia || 0), 0);
@@ -140,7 +152,7 @@ export const TablaResumenRendicion: React.FC<Props> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => onChangeSearchTerm(e.target.value)}
-            placeholder="Buscar por motorizado o placa..."
+            placeholder="Buscar por motorizado..."
             className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-purple-500 font-medium transition-all"
           />
         </div>
@@ -162,18 +174,18 @@ export const TablaResumenRendicion: React.FC<Props> = ({
       {/* Table */}
       {!isLoading && filteredResumen.length > 0 && (
         <div className="overflow-x-auto bg-slate-900/40 border border-slate-900 rounded-3xl shadow-xl">
-          <table className="w-full text-left text-xs text-slate-300 border-collapse min-w-[1100px]">
+          <table className="w-full text-left text-xs text-slate-300 border-collapse">
             <thead>
               <tr className="border-b border-slate-900 text-slate-400 uppercase font-semibold text-[10px] bg-slate-950/80">
-                <th className="p-3.5">Motorizado / Vehículo</th>
-                <th className="p-3.5 text-center">Entregas</th>
-                <th className="p-3.5 text-right text-amber-400">Efectivo Cobrado</th>
-                <th className="p-3.5 text-right text-emerald-400">Pago Motorizado (70%)</th>
-                <th className="p-3.5 text-right text-cyan-400">Comisión Agencia (30%)</th>
-                <th className="p-3.5 text-right text-purple-400">Yape / Plin</th>
-                <th className="p-3.5 text-right text-yellow-300 font-extrabold">Saldo Neto Caja</th>
-                <th className="p-3.5 text-center">Estado Rendición</th>
-                <th className="p-3.5 text-center">Acciones Administrador</th>
+                <th className="py-2.5 px-3">Motorizado</th>
+                <th className="py-2.5 px-2 text-center whitespace-nowrap">Entregas</th>
+                <th className="py-2.5 px-2 text-right text-amber-400 whitespace-nowrap">Efectivo</th>
+                <th className="py-2.5 px-2 text-right text-emerald-400 whitespace-nowrap">Pago Chofer (70%)</th>
+                <th className="py-2.5 px-2 text-right text-cyan-400 whitespace-nowrap">Agencia (30%)</th>
+                <th className="py-2.5 px-2 text-right text-purple-400 whitespace-nowrap">Yape / Plin</th>
+                <th className="py-2.5 px-2 text-right text-yellow-300 font-extrabold whitespace-nowrap">Saldo Neto</th>
+                <th className="py-2.5 px-2 text-center whitespace-nowrap">Estado</th>
+                <th className="py-2.5 px-3 text-center whitespace-nowrap">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-900">
@@ -191,83 +203,92 @@ export const TablaResumenRendicion: React.FC<Props> = ({
                     }`}
                   >
                     {/* Driver details */}
-                    <td className="p-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300">
-                          <Bike size={18} />
+                    <td className="py-2.5 px-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-slate-300 shrink-0">
+                          <Bike size={16} />
                         </div>
-                        <div>
-                          <span className="font-bold text-white block text-sm">{item.nombreConductor}</span>
-                          <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                            <span>Placa: <strong className="text-cyan-300">{item.placaVehiculo}</strong></span>
-                            {item.telefonoConductor && <span>• {item.telefonoConductor}</span>}
-                          </div>
+                        <div className="min-w-0">
+                          <span className="font-bold text-white block text-xs leading-snug">
+                            {item.nombreConductor}
+                          </span>
+                          {item.telefonoConductor && (
+                            <button
+                              type="button"
+                              onClick={(e) => handleCopyPhone(item.telefonoConductor!, e)}
+                              className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-cyan-300 transition-colors cursor-pointer group mt-0.5"
+                              title="Clic para copiar celular"
+                            >
+                              <Phone size={10} className="text-emerald-400 shrink-0" />
+                              <span className="font-medium group-hover:underline">{item.telefonoConductor}</span>
+                              {copiedPhone === item.telefonoConductor ? (
+                                <Check size={11} className="text-emerald-400 shrink-0" />
+                              ) : (
+                                <Copy size={10} className="opacity-0 group-hover:opacity-100 text-cyan-400 shrink-0 transition-opacity" />
+                              )}
+                            </button>
+                          )}
                         </div>
                       </div>
                     </td>
 
                     {/* Deliveries Count & Breakdown */}
-                    <td className="p-3.5 text-center">
-                      <div className="inline-flex items-center gap-1.5 text-xs font-semibold">
-                        <span className="text-emerald-400 font-bold">{item.totalPedidosEntregados} entregados</span>
-                        {item.totalPedidosNoEntregados > 0 && (
-                          <span className="text-red-400 text-[11px]">({item.totalPedidosNoEntregados} no entregados)</span>
-                        )}
-                      </div>
+                    <td className="py-2.5 px-2 text-center whitespace-nowrap">
+                      <span className="text-emerald-400 font-bold text-xs block">{item.totalPedidosEntregados} entregados</span>
                       <span className="text-[10px] text-slate-500 block">
-                        Total: {item.totalPedidosAsignados || (item.totalPedidosEntregados + item.totalPedidosNoEntregados)} paquetes
+                        Total: {item.totalPedidosAsignados || (item.totalPedidosEntregados + item.totalPedidosNoEntregados)} paq.
                       </span>
                     </td>
 
                     {/* Cash Pending */}
-                    <td className="p-3.5 text-right font-mono font-extrabold text-sm text-amber-400">
+                    <td className="py-2.5 px-2 text-right font-mono font-extrabold text-xs text-amber-400 whitespace-nowrap">
                       S/ {item.montoEfectivoPendiente.toFixed(2)}
                     </td>
 
                     {/* Pago al Motorizado (70%) */}
-                    <td className="p-3.5 text-right font-mono font-bold text-xs text-emerald-400">
+                    <td className="py-2.5 px-2 text-right font-mono font-bold text-xs text-emerald-400 whitespace-nowrap">
                       S/ {pagoMotorizado.toFixed(2)}
                     </td>
 
                     {/* Ganancia Agencia (30%) */}
-                    <td className="p-3.5 text-right font-mono font-bold text-xs text-cyan-400">
+                    <td className="py-2.5 px-2 text-right font-mono font-bold text-xs text-cyan-400 whitespace-nowrap">
                       S/ {gananciaAgencia.toFixed(2)}
                     </td>
 
                     {/* Yape Digital */}
-                    <td className="p-3.5 text-right font-mono font-bold text-xs text-purple-400">
+                    <td className="py-2.5 px-2 text-right font-mono font-bold text-xs text-purple-400 whitespace-nowrap">
                       S/ {item.montoYapeDigital.toFixed(2)}
                     </td>
 
                     {/* Saldo Neto a Rendir */}
-                    <td className="p-3.5 text-right font-mono font-extrabold text-sm text-yellow-300 bg-yellow-500/5">
+                    <td className="py-2.5 px-2 text-right font-mono font-extrabold text-xs text-yellow-300 bg-yellow-500/5 whitespace-nowrap">
                       S/ {saldoNeto.toFixed(2)}
                     </td>
 
                     {/* Status Badge */}
-                    <td className="p-3.5 text-center">
+                    <td className="py-2.5 px-2 text-center whitespace-nowrap">
                       {tienePendiente ? (
-                        <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[11px] font-extrabold inline-flex items-center gap-1">
-                          <AlertCircle size={13} /> Pendiente Dinero
+                        <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-extrabold inline-flex items-center gap-1">
+                          <AlertCircle size={11} /> Pendiente
                         </span>
                       ) : (
-                        <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[11px] font-extrabold inline-flex items-center gap-1">
-                          <CheckCircle2 size={13} /> Liquidado
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold inline-flex items-center gap-1">
+                          <CheckCircle2 size={11} /> Liquidado
                         </span>
                       )}
                     </td>
 
                     {/* Actions */}
-                    <td className="p-3.5 text-center">
-                      <div className="flex items-center justify-center gap-2">
+                    <td className="py-2.5 px-3 text-center whitespace-nowrap">
+                      <div className="flex items-center justify-center gap-1.5">
                         {/* Full Page Detail View Button */}
                         <button
                           onClick={() => onSelectConductor(item)}
-                          className="px-3 py-1.5 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/40 font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
-                          title="Ver desglose completo de paquetes en vista dedicada"
+                          className="px-2.5 py-1 rounded-lg bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/40 font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+                          title="Ver desglose completo"
                         >
-                          <Eye size={14} />
-                          <span>Ver Desglose</span>
+                          <Eye size={13} />
+                          <span>Desglose</span>
                         </button>
 
                         {/* Confirm Cash Received Button */}
@@ -275,11 +296,11 @@ export const TablaResumenRendicion: React.FC<Props> = ({
                           <button
                             onClick={() => onConfirmarRendicion(item.idConductor, item.nombreConductor)}
                             disabled={isPendingConfirmacion}
-                            className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all shadow-md shadow-emerald-600/30 active:scale-95"
-                            title="Confirmar recepción física de dinero en efectivo"
+                            className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-all shadow-sm shadow-emerald-600/30 active:scale-95"
+                            title="Confirmar recepción física de dinero"
                           >
-                            <Wallet size={14} />
-                            <span>Confirmar Rendición</span>
+                            <Wallet size={13} />
+                            <span>Liquidar</span>
                           </button>
                         )}
                       </div>

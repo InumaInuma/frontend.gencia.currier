@@ -16,6 +16,8 @@ export interface IConfirmarEntregaParams {
   montoYape?: number;
   referenciaYape?: string;
   observacion?: string;
+  fotoPruebaEntrega?: File | null;
+  fotoComprobantePago?: File | null;
 }
 
 export interface IPedidosRepository {

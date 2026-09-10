@@ -28,6 +28,7 @@ export interface IMonitoreoRecojo {
   idDistritoDestinatario: number;
   distritoNombre: string;
   referenciaDestinatario?: string;
+  descripcionProducto?: string;
   observaciones?: string;
   motivoCancelacion?: string;
   observacionCancelacion?: string;
@@ -38,4 +39,6 @@ export interface IMonitoreoRecojo {
   idEstadosPedido: number;
   estadoPedido: string;
   fechaRegistro: string;
+  fotoEntregaUrl?: string;
+  captureUrl?: string;
 }

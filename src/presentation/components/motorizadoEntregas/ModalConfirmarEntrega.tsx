@@ -13,7 +13,7 @@ interface Props {
   setMontoYape: (val: string) => void;
   referenciaYape: string;
   setReferenciaYape: (val: string) => void;
-  onConfirmarEntrega: () => void;
+  onConfirmarEntrega: (fotoClienteFile: File | null, fotoPagoFile: File | null) => void;
   isPending: boolean;
 }
 
@@ -32,7 +32,9 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
   isPending,
 }) => {
   const [fotoClientePreview, setFotoClientePreview] = useState<string | null>(null);
+  const [fotoClienteFile, setFotoClienteFile] = useState<File | null>(null);
   const [fotoPagoPreview, setFotoPagoPreview] = useState<string | null>(null);
+  const [fotoPagoFile, setFotoPagoFile] = useState<File | null>(null);
 
   if (!deliveryModalItem) return null;
 
@@ -80,13 +82,15 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
   // Helper for reading selected image files
   const handleFileSelected = (
     e: React.ChangeEvent<HTMLInputElement>,
-    setter: (val: string | null) => void
+    setPreview: (val: string | null) => void,
+    setFile: (file: File | null) => void
   ) => {
     const file = e.target.files?.[0];
     if (file) {
+      setFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setter(reader.result as string);
+        setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -327,7 +331,10 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
               </div>
               <button
                 type="button"
-                onClick={() => setFotoClientePreview(null)}
+                onClick={() => {
+                  setFotoClientePreview(null);
+                  setFotoClienteFile(null);
+                }}
                 className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 cursor-pointer transition-colors"
                 title="Eliminar foto"
               >
@@ -339,13 +346,13 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
               <label className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-slate-950 border border-dashed border-slate-700 hover:border-violet-500 text-slate-300 hover:text-white text-xs font-semibold cursor-pointer transition-all">
                 <Camera size={16} className="text-violet-400" />
                 <span>📸 Tomar Foto</span>
-                <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileSelected(e, setFotoClientePreview)} className="hidden" />
+                <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileSelected(e, setFotoClientePreview, setFotoClienteFile)} className="hidden" />
               </label>
 
               <label className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-slate-950 border border-dashed border-slate-700 hover:border-violet-500 text-slate-300 hover:text-white text-xs font-semibold cursor-pointer transition-all">
                 <Upload size={16} className="text-cyan-400" />
                 <span>📁 Subir Imagen</span>
-                <input type="file" accept="image/*" onChange={(e) => handleFileSelected(e, setFotoClientePreview)} className="hidden" />
+                <input type="file" accept="image/*" onChange={(e) => handleFileSelected(e, setFotoClientePreview, setFotoClienteFile)} className="hidden" />
               </label>
             </div>
           )}
@@ -369,7 +376,10 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
               </div>
               <button
                 type="button"
-                onClick={() => setFotoPagoPreview(null)}
+                onClick={() => {
+                  setFotoPagoPreview(null);
+                  setFotoPagoFile(null);
+                }}
                 className="p-2 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 cursor-pointer transition-colors"
                 title="Eliminar captura"
               >
@@ -381,13 +391,13 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
               <label className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-slate-950 border border-dashed border-slate-700 hover:border-purple-500 text-slate-300 hover:text-white text-xs font-semibold cursor-pointer transition-all">
                 <Camera size={16} className="text-purple-400" />
                 <span>📸 Tomar Foto</span>
-                <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileSelected(e, setFotoPagoPreview)} className="hidden" />
+                <input type="file" accept="image/*" capture="environment" onChange={(e) => handleFileSelected(e, setFotoPagoPreview, setFotoPagoFile)} className="hidden" />
               </label>
 
               <label className="flex items-center justify-center gap-1.5 p-3 rounded-2xl bg-slate-950 border border-dashed border-slate-700 hover:border-purple-500 text-slate-300 hover:text-white text-xs font-semibold cursor-pointer transition-all">
                 <Upload size={16} className="text-cyan-400" />
                 <span>📁 Subir Captura</span>
-                <input type="file" accept="image/*" onChange={(e) => handleFileSelected(e, setFotoPagoPreview)} className="hidden" />
+                <input type="file" accept="image/*" onChange={(e) => handleFileSelected(e, setFotoPagoPreview, setFotoPagoFile)} className="hidden" />
               </label>
             </div>
           )}
@@ -396,7 +406,7 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
         {/* Confirm Button */}
         <button
           type="button"
-          onClick={onConfirmarEntrega}
+          onClick={() => onConfirmarEntrega(fotoClienteFile, fotoPagoFile)}
           disabled={isPending}
           className="w-full py-3.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-emerald-600/20 active:scale-95 transition-all"
         >

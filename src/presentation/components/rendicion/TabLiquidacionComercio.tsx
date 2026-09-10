@@ -35,16 +35,16 @@ export const TabLiquidacionComercio: React.FC<Props> = ({ resumenComercios }) =>
         <>
           {/* DESKTOP FINANCIAL REPORT TABLE VIEW (visible on md+) */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300 border-collapse min-w-[1050px]">
+            <table className="w-full text-left text-xs text-slate-300 border-collapse">
               <thead>
                 <tr className="border-b border-slate-900 text-slate-400 uppercase font-semibold text-[10px] bg-slate-950/80">
-                  <th className="p-3.5">Comercio Remitente</th>
-                  <th className="p-3.5 text-center">Pedidos Entregados</th>
-                  <th className="p-3.5 text-right text-slate-200">Total Costo Envíos</th>
-                  <th className="p-3.5 text-right text-cyan-300">Envíos Pagados por Cliente</th>
-                  <th className="p-3.5 text-right text-amber-300">Envíos a Pagar por Comercio</th>
-                  <th className="p-3.5 text-right text-emerald-400">Dinero Productos Tienda</th>
-                  <th className="p-3.5 text-right text-emerald-300">Monto Neto a Transferir</th>
+                  <th className="py-2.5 px-3 whitespace-nowrap">Comercio Remitente</th>
+                  <th className="py-2.5 px-2 text-center whitespace-nowrap">Entregados</th>
+                  <th className="py-2.5 px-2 text-right text-slate-200 whitespace-nowrap">Costo Envíos</th>
+                  <th className="py-2.5 px-2 text-right text-cyan-300 whitespace-nowrap">Pagado Cliente</th>
+                  <th className="py-2.5 px-2 text-right text-amber-300 whitespace-nowrap">Desc. Comercio</th>
+                  <th className="py-2.5 px-2 text-right text-emerald-400 whitespace-nowrap">Cobro Productos</th>
+                  <th className="py-2.5 px-3 text-right text-emerald-300 whitespace-nowrap">Neto a Transferir</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-900">
@@ -52,16 +52,16 @@ export const TabLiquidacionComercio: React.FC<Props> = ({ resumenComercios }) =>
                   return (
                     <tr key={`com_tab_row_${com.idComercio}`} className="hover:bg-slate-950/60 transition-colors">
                       {/* 1. Comercio */}
-                      <td className="p-3.5">
+                      <td className="py-2.5 px-3 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <Store size={16} className="text-violet-400 shrink-0" />
-                          <span className="font-extrabold text-white text-sm">{com.nombreComercial}</span>
+                          <Store size={15} className="text-violet-400 shrink-0" />
+                          <span className="font-extrabold text-white text-xs">{com.nombreComercial}</span>
                         </div>
                       </td>
 
                       {/* 2. Pedidos Entregados */}
-                      <td className="p-3.5 text-center">
-                        <span className="font-mono font-extrabold text-emerald-400 text-sm block">
+                      <td className="py-2.5 px-2 text-center whitespace-nowrap">
+                        <span className="font-mono font-extrabold text-emerald-400 text-xs block">
                           {com.entregados} / {com.totalPedidos}
                         </span>
                         {com.reprogramados + com.cancelados > 0 && (
@@ -71,45 +71,45 @@ export const TabLiquidacionComercio: React.FC<Props> = ({ resumenComercios }) =>
                         )}
                       </td>
 
-                      {/* 3. Total Costo Envíos (ej: 5 envíos de S/ 9 = S/ 45) */}
-                      <td className="p-3.5 text-right font-mono font-bold text-slate-200 text-sm">
+                      {/* 3. Total Costo Envíos */}
+                      <td className="py-2.5 px-2 text-right font-mono font-bold text-slate-200 text-xs whitespace-nowrap">
                         S/ {com.totalCostoEnvios.toFixed(2)}
                       </td>
 
-                      {/* 4. Envíos Pagados por Cliente (ej: 3 envíos = S/ 27) */}
-                      <td className="p-3.5 text-right font-mono">
-                        <strong className="text-cyan-300 font-extrabold text-sm block">
+                      {/* 4. Envíos Pagados por Cliente */}
+                      <td className="py-2.5 px-2 text-right font-mono whitespace-nowrap">
+                        <strong className="text-cyan-300 font-extrabold text-xs block">
                           S/ {com.enviosPagadosPorCliente.toFixed(2)}
                         </strong>
                         <span className="text-[10px] text-slate-400 font-sans block">
-                          (Cobrados en destino)
+                          (En destino)
                         </span>
                       </td>
 
-                      {/* 5. Envíos a Pagar por Comercio (ej: 2 envíos = S/ 18) */}
-                      <td className="p-3.5 text-right font-mono">
-                        <strong className="text-amber-300 font-extrabold text-sm block">
+                      {/* 5. Envíos a Pagar por Comercio */}
+                      <td className="py-2.5 px-2 text-right font-mono whitespace-nowrap">
+                        <strong className="text-amber-300 font-extrabold text-xs block">
                           S/ {com.enviosACobrarComercio.toFixed(2)}
                         </strong>
                         <span className="text-[10px] text-amber-400/80 font-sans block">
-                          (Descuento por delivery)
+                          (Desc. delivery)
                         </span>
                       </td>
 
-                      {/* 6. Dinero Recaudado por Productos para la Tienda (ej. S/ 150.00) */}
-                      <td className="p-3.5 text-right font-mono">
-                        <strong className="text-emerald-400 font-extrabold text-sm block">
+                      {/* 6. Dinero Recaudado por Productos para la Tienda */}
+                      <td className="py-2.5 px-2 text-right font-mono whitespace-nowrap">
+                        <strong className="text-emerald-400 font-extrabold text-xs block">
                           S/ {com.cobradoProductos.toFixed(2)}
                         </strong>
                         <span className="text-[10px] text-slate-400 font-sans block">
-                          (Cobrado por productos)
+                          (Productos)
                         </span>
                       </td>
 
-                      {/* 7. Monto Neto a Transferir al Comercio (ej: 150 - 18 = S/ 132.00) */}
-                      <td className="p-3.5 text-right font-mono">
+                      {/* 7. Monto Neto a Transferir al Comercio */}
+                      <td className="py-2.5 px-3 text-right font-mono whitespace-nowrap">
                         <span
-                          className={`px-3 py-1.5 rounded-xl font-extrabold text-sm inline-block border shadow-md ${
+                          className={`px-2.5 py-1 rounded-lg font-extrabold text-xs inline-block border shadow-sm ${
                             com.balanceNetoComercio >= 0
                               ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
                               : 'bg-red-500/20 text-red-300 border-red-500/40'

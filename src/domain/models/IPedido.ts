@@ -15,6 +15,7 @@ export interface IPedido {
   direccionDestinatario: string;
   distritoNombre: string;
   referenciaDestinatario?: string;
+  descripcionProducto?: string;
   observaciones?: string;
   motivoCancelacion?: string;
   observacionCancelacion?: string;
@@ -27,6 +28,8 @@ export interface IPedido {
   nombreConductor?: string;
   telefonoConductor?: string;
   fechaRegistro: string;
+  fotoEntregaUrl?: string;
+  captureUrl?: string;
 }
 
 export interface IRegisterPedidoParams {
@@ -36,6 +39,7 @@ export interface IRegisterPedidoParams {
   direccionDestinatario: string;
   idDistritoDestinatario: number;
   referenciaDestinatario?: string;
+  descripcionProducto?: string;
   observaciones?: string;
   googleMapsUrl?: string;
   montoCobrar: number;

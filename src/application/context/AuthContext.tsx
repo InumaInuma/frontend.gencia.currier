@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { IUser } from '../../domain/models/IUser';
 import { AuthRepository } from '../../infrastructure/repositories/AuthRepository';
 
+import type { ICrearCuentaBancariaParams } from '../../domain/models/IComercioCuentaBancaria';
+
 interface AuthContextType {
   user: IUser | null;
   isAuthenticated: boolean;
@@ -15,7 +17,8 @@ interface AuthContextType {
     direccionFiscal: string,
     referenciaRecojo?: string,
     googleMapsUrl?: string,
-    telefono?: string
+    telefono?: string,
+    cuentasBancarias?: ICrearCuentaBancariaParams[]
   ) => Promise<IUser>;
 }
 
@@ -67,7 +70,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     direccionFiscal: string,
     referenciaRecojo?: string,
     googleMapsUrl?: string,
-    telefono?: string
+    telefono?: string,
+    cuentasBancarias?: any[]
   ): Promise<IUser> => {
     const upgradedUser = await authRepository.upgradeToComercio(
       ruc,
@@ -76,7 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       direccionFiscal,
       referenciaRecojo,
       googleMapsUrl,
-      telefono
+      telefono,
+      cuentasBancarias
     );
     setUser(upgradedUser);
     localStorage.setItem('auth_user', JSON.stringify(upgradedUser));

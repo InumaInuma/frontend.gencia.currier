@@ -1,4 +1,5 @@
 import type { IUser } from '../models/IUser';
+import type { ICrearCuentaBancariaParams } from '../models/IComercioCuentaBancaria';
 
 export interface IAuthRepository {
   login(correo: string, clave: string): Promise<IUser>;
@@ -19,6 +20,7 @@ export interface IAuthRepository {
     direccionFiscal: string,
     referenciaRecojo?: string,
     googleMapsUrl?: string,
-    telefono?: string
+    telefono?: string,
+    cuentasBancarias?: ICrearCuentaBancariaParams[]
   ): Promise<IUser>;
 }

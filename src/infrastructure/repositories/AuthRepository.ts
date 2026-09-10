@@ -1,5 +1,6 @@
 import type { IAuthRepository } from '../../domain/repositories/IAuthRepository';
 import type { IUser } from '../../domain/models/IUser';
+import type { ICrearCuentaBancariaParams } from '../../domain/models/IComercioCuentaBancaria';
 import { apiClient } from '../api/apiClient';
 
 interface BaseResponse<T> {
@@ -100,7 +101,8 @@ export class AuthRepository implements IAuthRepository {
     direccionFiscal: string,
     referenciaRecojo?: string,
     googleMapsUrl?: string,
-    telefono?: string
+    telefono?: string,
+    cuentasBancarias?: ICrearCuentaBancariaParams[]
   ): Promise<IUser> {
     try {
       const response = await apiClient.post<BaseResponse<LoginResponseDto>>('/api/auth/upgrade-to-comercio', {
@@ -111,6 +113,7 @@ export class AuthRepository implements IAuthRepository {
         referenciaRecojo,
         googleMapsUrl,
         telefono,
+        cuentasBancarias,
       });
 
       const body = response.data;

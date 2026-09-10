@@ -26,6 +26,7 @@ export interface IMonitoreoEntrega {
   idDistritoDestinatario: number;
   distritoNombre: string;
   referenciaDestinatario?: string;
+  descripcionProducto?: string;
   observaciones?: string;
   googleMapsUrl?: string;
   montoCobrar: number;
@@ -34,4 +35,6 @@ export interface IMonitoreoEntrega {
   idEstadosPedido: number;
   estadoPedido: string;
   fechaRegistro: string;
+  fotoEntregaUrl?: string;
+  captureUrl?: string;
 }

@@ -6,7 +6,10 @@ import { TablaPedidos } from '../../components/TablaPedidos';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
 import { isAfterCutoffTimePeru, getPeruTimeString } from '../../../infrastructure/utils/peruTime';
-import { LogOut, ShoppingBag, Plus, ShoppingCart, Clock, Truck, CheckCircle2, Calendar, AlertTriangle } from 'lucide-react';
+import { openWhatsAppWithPedidoMessage } from '../../../infrastructure/utils/whatsappMessageHelper';
+import { useComercioCuentasBancarias } from '../../../application/useCases/useComercioCuentasBancarias';
+import type { IPedido } from '../../../domain/models/IPedido';
+import { LogOut, ShoppingBag, Plus, ShoppingCart, Clock, Truck, CheckCircle2, Calendar, AlertTriangle, RefreshCw } from 'lucide-react';
 
 const getTodayFormatted = () => {
   const today = new Date();
@@ -19,6 +22,7 @@ const getTodayFormatted = () => {
 export const ComercioDashboard: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { data: cuentasBancarias } = useComercioCuentasBancarias();
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
@@ -43,9 +47,22 @@ export const ComercioDashboard: React.FC = () => {
     setTimeout(() => setCopiedCode(null), 2000);
   };
 
-  const handleShareWhatsApp = (codigo: string, destinatario: string, telefono: string) => {
-    const text = `¡Hola ${destinatario}! Tu pedido ha sido agendado con ALMAIN CURRIER. Código de seguimiento: ${codigo}`;
-    window.open(`https://wa.me/51${telefono.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
+  const handleShareWhatsApp = (pedido: IPedido) => {
+    openWhatsAppWithPedidoMessage({
+      nombreDestinatario: pedido.nombreDestinatario,
+      telefonoDestinatario: pedido.telefonoDestinatario,
+      nombreComercio: user?.nombreComercial || pedido.nombreComercial || user?.nombreCompleto,
+      descripcionProducto: pedido.descripcionProducto,
+      direccionDestinatario: pedido.direccionDestinatario,
+      distritoNombre: pedido.distritoNombre,
+      referenciaDestinatario: pedido.referenciaDestinatario,
+      googleMapsUrl: pedido.googleMapsUrl,
+      montoCobrar: pedido.montoCobrar,
+      tarifaEnvio: pedido.tarifaEnvio,
+      destinatarioPagaEnvio: pedido.destinatarioPagaEnvio,
+      codigoSeguimiento: pedido.codigoSeguimiento,
+      cuentasBancarias: cuentasBancarias && cuentasBancarias.length > 0 ? cuentasBancarias : undefined,
+    });
   };
 
   const goToAgendar = () => navigate('/comercio/agendar-envio');
@@ -58,7 +75,7 @@ export const ComercioDashboard: React.FC = () => {
   const pedidosEntregados = pedidos?.filter(p => p.estadoNombre === 'Entregado').length || 0;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex pb-20 md:pb-0">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex overflow-x-hidden w-full pb-20 md:pb-0">
       {/* Left Sidebar */}
       <LeftSidebar
         contraido={contraido}
@@ -68,29 +85,39 @@ export const ComercioDashboard: React.FC = () => {
       />
 
       {/* Main Content */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${contraido ? 'md:ml-20' : 'md:ml-64'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ${contraido ? 'md:ml-20' : 'md:ml-64'}`}>
 
         {/* Sticky Header */}
-        <header className="border-b border-slate-900 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between pl-14 md:pl-8">
-            <div className="flex items-center gap-3">
-              <span className="font-bold tracking-tight text-white text-base">
-                {user.nombreComercial || 'Dream Drivers (Comercio)'}
-              </span>
+        <header className="h-16 border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center justify-center shrink-0">
+              <ShoppingBag size={20} />
             </div>
+            <div>
+              <h1 className="font-bold text-white text-base sm:text-lg leading-tight">
+                {user.nombreComercial || 'Gestión de Envíos'}
+              </h1>
+              <p className="text-[11px] text-slate-400 hidden sm:block">
+                {user.ruc ? `${user.nombreComercial} · RUC ${user.ruc}` : 'Panel de control de envíos agendados y seguimiento'}
+              </p>
+            </div>
+          </div>
 
-            <div className="flex items-center gap-4">
-              <span className="hidden sm:inline-block text-xs bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2.5 py-1 rounded-full font-medium">
-                {user.nombreComercial ? `${user.nombreComercial} · RUC ${user.ruc}` : 'Comercio Afiliado'}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="hidden md:flex items-center gap-2 text-sm text-slate-400 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl px-3.5 py-1.5 cursor-pointer transition-all duration-200"
-              >
-                <LogOut size={16} />
-                <span>Cerrar Sesión</span>
-              </button>
-            </div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => refetch()}
+              className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <RefreshCw size={14} />
+              <span className="hidden sm:inline">Actualizar</span>
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs text-red-400 flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <LogOut size={14} />
+              <span className="hidden sm:inline">Cerrar Sesión</span>
+            </button>
           </div>
         </header>
 

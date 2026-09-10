@@ -305,6 +305,31 @@ export class PedidosRepository implements IPedidosRepository {
 
   async actualizarEstadoEntregaPedido(params: IConfirmarEntregaParams): Promise<boolean> {
     try {
+      if (params.fotoPruebaEntrega || params.fotoComprobantePago) {
+        const formData = new FormData();
+        formData.append('idAsignacionEntrega', params.idAsignacionEntrega.toString());
+        formData.append('idPedido', params.idPedido.toString());
+        formData.append('idEstado', params.idEstado.toString());
+        formData.append('montoEfectivo', (params.montoEfectivo || 0).toString());
+        formData.append('montoYape', (params.montoYape || 0).toString());
+        if (params.referenciaYape) formData.append('referenciaYape', params.referenciaYape);
+        if (params.observacion) formData.append('observacion', params.observacion);
+
+        if (params.fotoPruebaEntrega) formData.append('fotoPruebaEntrega', params.fotoPruebaEntrega);
+        if (params.fotoComprobantePago) formData.append('fotoComprobantePago', params.fotoComprobantePago);
+
+        const response = await apiClient.post<BaseResponse<boolean>>(
+          '/api/pedidos/motorizado/actualizar-estado-entrega-con-evidencia',
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        const body = response.data;
+        if (!body.isSuccess) {
+          throw new Error(body.message || 'Error al actualizar el estado de entrega del paquete.');
+        }
+        return true;
+      }
+
       const response = await apiClient.post<BaseResponse<boolean>>('/api/pedidos/motorizado/actualizar-estado-entrega', params);
       const body = response.data;
       if (!body.isSuccess) {

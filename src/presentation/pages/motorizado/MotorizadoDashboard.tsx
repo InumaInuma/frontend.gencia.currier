@@ -38,7 +38,9 @@ export const MotorizadoDashboard: React.FC = () => {
         {/* Header */}
         <header className="h-16 border-b border-slate-900 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Bike className="text-violet-400 shrink-0" size={24} />
+            <div className="w-10 h-10 rounded-2xl bg-violet-500/20 text-violet-300 border border-violet-500/30 flex items-center justify-center shrink-0">
+              <Bike size={20} />
+            </div>
             <div>
               <h1 className="font-bold text-white text-base sm:text-lg leading-tight">
                 Consola del Repartidor
@@ -49,16 +51,16 @@ export const MotorizadoDashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <span className="hidden sm:inline-block text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full font-bold">
               Conductor Conectado
             </span>
             <button
               onClick={handleLogout}
-              className="hidden md:flex items-center gap-2 text-xs font-semibold text-red-400 hover:text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2 cursor-pointer transition-all"
+              className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-xs text-red-400 flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <LogOut size={14} />
-              Cerrar Sesión
+              <span className="hidden sm:inline">Cerrar Sesión</span>
             </button>
           </div>
         </header>
