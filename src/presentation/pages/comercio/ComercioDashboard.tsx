@@ -31,7 +31,7 @@ export const ComercioDashboard: React.FC = () => {
   const [fechaInicio, setFechaInicio] = useState<string>(getTodayFormatted());
   const [fechaFin, setFechaFin] = useState<string>(getTodayFormatted());
 
-  const { data: pedidos, isLoading: loadingPedidos } = useMisPedidos({
+  const { data: pedidos, isLoading: loadingPedidos, refetch } = useMisPedidos({
     fechaInicio: fechaInicio || undefined,
     fechaFin: fechaFin || undefined,
   });
