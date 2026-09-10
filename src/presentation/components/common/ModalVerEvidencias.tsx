@@ -21,9 +21,12 @@ export const resolveImageUrl = (url?: string | null): string => {
   ) {
     return url;
   }
-  const baseUrl = getApiBaseUrl();
   const cleanPath = url.startsWith('/') ? url : `/${url}`;
-  return `${baseUrl}${cleanPath}`;
+  const baseUrl = getApiBaseUrl();
+  if (baseUrl) {
+    return `${baseUrl}${cleanPath}`;
+  }
+  return `http://18.219.36.15${cleanPath}`;
 };
 
 export const ModalVerEvidencias: React.FC<Props> = ({

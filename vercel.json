@@ -9,6 +9,10 @@
       "destination": "http://18.219.36.15/hubs/:path*"
     },
     {
+      "source": "/uploads/:path*",
+      "destination": "http://18.219.36.15/uploads/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
