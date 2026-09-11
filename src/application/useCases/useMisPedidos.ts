@@ -249,3 +249,9 @@ export const useEditarPedidoAdmin = () => {
     },
   });
 };
+
+export const useResolverLinkMaps = () => {
+  return useMutation({
+    mutationFn: (url: string) => pedidosRepository.resolverLinkMaps(url),
+  });
+};

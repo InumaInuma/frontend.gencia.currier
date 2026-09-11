@@ -407,4 +407,17 @@ export class PedidosRepository implements IPedidosRepository {
       return null; // Si no existe el código o hay error 404, retorna null de forma segura para la interfaz de rastreo
     }
   }
+
+  async resolverLinkMaps(url: string): Promise<{ lat?: number; lng?: number; finalUrl?: string } | null> {
+    if (!url || !url.trim()) return null;
+    try {
+      const response = await apiClient.get<BaseResponse<{ lat?: number; lng?: number; finalUrl?: string }>>(
+        `/api/pedidos/resolver-link-maps?url=${encodeURIComponent(url.trim())}`
+      );
+      return response.data.isSuccess && response.data.data ? response.data.data : null;
+    } catch (err) {
+      console.error('Error al resolver el enlace de Google Maps:', err);
+      return null;
+    }
+  }
 }

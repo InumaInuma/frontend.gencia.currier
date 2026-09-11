@@ -42,4 +42,5 @@ export interface IPedidosRepository {
   getLiquidacionDetalleMotorizado(idConductor: number, params?: { fechaInicio?: string; fechaFin?: string }): Promise<ILiquidacionDetalle[]>;
   confirmarRendicionDinero(idConductor: number): Promise<boolean>;
   rastrearPedidoPorCodigo(codigo: string): Promise<IRastreoPedido | null>;
+  resolverLinkMaps(url: string): Promise<{ lat?: number; lng?: number; finalUrl?: string } | null>;
 }
