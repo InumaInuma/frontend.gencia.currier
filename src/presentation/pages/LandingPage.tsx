@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../application/context/AuthContext';
 import { useRastrearPedidoPorCodigo } from '../../application/useCases/useMisPedidos';
 import { usePWAInstall } from '../../application/hooks/usePWAInstall';
+import { AnimatedLogisticsBackground } from '../components/landing/AnimatedLogisticsBackground';
 import {
   Search,
   Truck,
@@ -97,12 +98,14 @@ export const LandingPage: React.FC = () => {
   const currentStep = pedidoData ? getStepProgress(pedidoData.idEstadosPedido) : 0;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
+    <div className="relative min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-red-600 selection:text-white overflow-x-hidden font-sans">
+      {/* Dynamic Animated Logistics Network & Route Nodes (strictly in the background) */}
+      <AnimatedLogisticsBackground />
       
       {/* ─────────────────────────────────────────────────────────────
           1. HEADER / NAVBAR
       ────────────────────────────────────────────────────────────── */}
-      <header className="h-20 border-b border-slate-900 bg-slate-950/90 backdrop-blur-xl sticky top-0 z-50 px-4 sm:px-8">
+      <header className="h-20 border-b border-slate-900/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
           
           {/* Logo & Brand Name */}
@@ -228,7 +231,7 @@ export const LandingPage: React.FC = () => {
       {/* ─────────────────────────────────────────────────────────────
           2. MAIN HERO & TRACKING SEARCH SECTION
       ────────────────────────────────────────────────────────────── */}
-      <main className="flex-1">
+      <main className="flex-1 relative z-10">
         <section id="rastreo" className="relative py-12 sm:py-20 px-4 sm:px-8 max-w-7xl mx-auto space-y-10">
           
           {/* Subtle Ambient Background Glows */}
@@ -248,7 +251,7 @@ export const LandingPage: React.FC = () => {
                   onClick={promptInstall}
                   className="px-5 py-3 rounded-2xl bg-gradient-to-r from-red-950/90 via-slate-900 to-slate-950 border border-red-500/40 hover:border-red-400 text-white text-xs sm:text-sm font-extrabold shadow-xl shadow-red-600/20 hover:scale-105 transition-all cursor-pointer flex items-center gap-3.5 group"
                 >
-                  <img src="/logofragata.jpg" alt="Logo Fragata" className="w-7 h-7 object-contain rounded-lg bg-white p-0.5 shadow-md shrink-0" />
+                  <img src="/icons/icon-192.png" alt="Logo Fragata" className="w-8 h-8 object-contain rounded-xl bg-white p-0.5 shadow-md shrink-0" />
                   <div className="text-left">
                     <span className="block leading-tight font-extrabold text-red-200">Instalar FRAGATA COURIER App</span>
                     <span className="block text-[10px] text-slate-400 font-normal">Añadir a pantalla de inicio en Android / iOS / Windows</span>
@@ -985,7 +988,7 @@ export const LandingPage: React.FC = () => {
       {/* ─────────────────────────────────────────────────────────────
           8. FOOTER
       ────────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-slate-900 py-10 px-4 sm:px-8 bg-slate-950 text-xs text-slate-500 space-y-6">
+      <footer className="relative z-10 border-t border-slate-900 py-10 px-4 sm:px-8 bg-slate-950/90 backdrop-blur-md text-xs text-slate-500 space-y-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img

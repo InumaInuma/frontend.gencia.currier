@@ -57,8 +57,8 @@ export const RegisterPage: React.FC = () => {
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center bg-slate-950 px-4 py-12 overflow-hidden">
       {/* Glow Backdrop */}
-      <div className="absolute top-1/4 right-1/4 translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-violet-600/10 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 left-1/4 -translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-indigo-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 right-1/4 translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full bg-red-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/4 -translate-x-1/2 translate-y-1/2 w-96 h-96 rounded-full bg-rose-600/10 blur-3xl pointer-events-none" />
 
       {/* Card */}
       <div className="relative w-full max-w-xl bg-slate-900/60 backdrop-blur-xl border border-slate-800 rounded-2xl p-8 shadow-2xl">
@@ -77,6 +77,10 @@ export const RegisterPage: React.FC = () => {
 
         {/* Header */}
         <div className="mb-8">
+          <Link to="/" className="inline-flex items-center gap-3 mb-4 group cursor-pointer">
+            <img src="/icons/icon-192.png" alt="Fragata Courier" className="w-9 h-9 object-contain bg-white rounded-xl p-0.5 shadow-md shadow-red-500/20 group-hover:scale-105 transition-all" />
+            <span className="font-black text-lg text-white">FRAGATA <span className="text-red-500">COURIER</span></span>
+          </Link>
           <h1 className="text-2xl font-bold tracking-tight text-white">
             Crear Cuenta de Cliente
           </h1>
@@ -245,7 +249,7 @@ export const RegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={registerMutation.isPending}
-            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 disabled:from-slate-800 disabled:to-slate-800 text-white text-sm font-semibold rounded-xl py-3.5 px-4 shadow-lg cursor-pointer transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 disabled:from-slate-800 disabled:to-slate-800 text-white text-sm font-bold rounded-xl py-3.5 px-4 shadow-lg shadow-red-600/30 cursor-pointer transition-all duration-200"
           >
             {registerMutation.isPending ? (
               <Loader2 className="animate-spin" size={18} />

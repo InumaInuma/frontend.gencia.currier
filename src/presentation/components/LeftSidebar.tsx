@@ -138,7 +138,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
               }
             }}
             title={item.label}
-            className={`w-full flex items-center py-2 rounded-xl transition-all duration-200 text-violet-400 hover:bg-violet-600/20 font-semibold cursor-pointer ${
+            className={`w-full flex items-center py-2 rounded-xl transition-all duration-200 text-red-400 hover:bg-red-600/20 font-semibold cursor-pointer ${
               contraido ? 'justify-center px-0' : 'px-3.5 gap-3'
             }`}
           >
@@ -158,7 +158,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
           className={({ isActive }) => `
             w-full flex items-center py-2 rounded-xl transition-all duration-200 group cursor-pointer 
             ${contraido ? 'justify-center px-0' : 'px-3.5 gap-3'} 
-            ${isActive ? 'bg-violet-600 text-white font-bold shadow-lg shadow-violet-500/20' : 'text-slate-400 hover:bg-slate-900 hover:text-white'}
+            ${isActive ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold shadow-lg shadow-red-500/20' : 'text-slate-400 hover:bg-slate-900 hover:text-white'}
           `}
         >
           <span className="shrink-0 relative">{item.icon}</span>
@@ -187,13 +187,17 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
         {/* Header Logo & Mobile Close Button */}
         <div className={`h-14 sm:h-16 flex items-center justify-between border-b border-slate-900 shrink-0 ${contraido ? 'justify-center px-2' : 'px-5'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center font-extrabold text-white text-xs sm:text-sm shrink-0 shadow-lg shadow-violet-500/20">
-              AC
-            </div>
+            <img
+              src="/icons/icon-192.png"
+              alt="Fragata Courier"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-contain bg-white p-0.5 shrink-0 shadow-md shadow-red-500/20 border border-slate-800"
+            />
             {!contraido && (
               <div className="flex flex-col truncate">
-                <span className="font-bold tracking-tight text-white text-sm sm:text-base leading-tight">ALMAIN CURRIER</span>
-                <span className="text-[10px] text-violet-400 font-semibold uppercase tracking-wider">
+                <span className="font-black tracking-tight text-white text-sm sm:text-base leading-tight">
+                  FRAGATA <span className="text-red-500">COURIER</span>
+                </span>
+                <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider">
                   {isCurrentlyInClientView ? 'Vista Cliente Final' : user.rolNombre}
                 </span>
               </div>
@@ -223,7 +227,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           <div className="p-2.5 mx-3 my-2 bg-slate-900/60 border border-slate-800 rounded-xl flex items-center gap-2.5 shrink-0">
-            <div className="w-7 h-7 rounded-full bg-violet-600/20 text-violet-400 border border-violet-500/30 flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="w-7 h-7 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 flex items-center justify-center font-bold text-xs shrink-0">
               {user.nombreCompleto.charAt(0)}
             </div>
             <div className="truncate">
@@ -271,7 +275,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
             <NavLink
               to="/comercio/upgrade"
               onClick={() => setMobileOpen(false)}
-              className={`w-full flex items-center gap-2.5 py-2 px-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white shadow-lg transition-all cursor-pointer ${
+              className={`w-full flex items-center gap-2.5 py-2 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white shadow-lg transition-all cursor-pointer ${
                 contraido ? 'justify-center px-0' : ''
               }`}
               title="Convertirme en Comercio (Agendar Envíos)"
@@ -280,7 +284,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
               {!contraido && (
                 <div className="text-left">
                   <span className="font-bold text-xs block">¿Tienes un Negocio?</span>
-                  <span className="text-[10px] text-violet-200 block">Activar Perfil Comercio</span>
+                  <span className="text-[10px] text-red-200 block">Activar Perfil Comercio</span>
                 </div>
               )}
             </NavLink>

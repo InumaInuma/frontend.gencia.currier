@@ -77,7 +77,7 @@ export const TablaMonitoreoRecojo: React.FC<Props> = ({
     if (!telefono) return;
     const cleanPhone = telefono.replace(/\D/g, '');
     const finalPhone = cleanPhone.startsWith('51') ? cleanPhone : `51${cleanPhone}`;
-    const text = encodeURIComponent(`Hola ${nombre}, te saludamos de Almain Courier.`);
+    const text = encodeURIComponent(`Hola ${nombre}, te saludamos de Fragata Courier.`);
     window.open(`https://wa.me/${finalPhone}?text=${text}`, '_blank');
   };
 

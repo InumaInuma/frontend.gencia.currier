@@ -63,7 +63,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
     } else {
       // Fallback para navegadores que soportan PWA de forma directa en su menú
       alert(
-        '📱 Para instalar ALMAIN CURRIER:\nEn el menú de tu navegador (⋮), selecciona "Instalar Aplicación" o "Agregar a Pantalla de Inicio".'
+        '📱 Para instalar FRAGATA COURIER:\nEn el menú de tu navegador (⋮), selecciona "Instalar Aplicación" o "Agregar a Pantalla de Inicio".'
       );
     }
   };
@@ -75,7 +75,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
         <button
           onClick={handleInstallClick}
           className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-violet-500/20 transition-all duration-200 cursor-pointer active:scale-95 ${className}`}
-          title="Descargar App ALMAIN CURRIER"
+          title="Descargar App FRAGATA COURIER"
         >
           <Download className="w-4 h-4 text-violet-200 animate-bounce shrink-0" />
         </button>
@@ -91,7 +91,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
         <button
           onClick={handleInstallClick}
           className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-xs shadow-xl shadow-violet-600/20 border border-violet-400/30 transition-all duration-200 cursor-pointer active:scale-[0.98] ${className}`}
-          title="Descargar e Instalar App ALMAIN CURRIER"
+          title="Descargar e Instalar App FRAGATA COURIER"
         >
           <Download className="w-4 h-4 text-violet-200 animate-bounce shrink-0" />
           <span className="truncate">Descargar App</span>
@@ -114,7 +114,7 @@ export const InstallPwaButton: React.FC<InstallPwaButtonProps> = ({
                 <Smartphone className="w-6 h-6 text-violet-400" />
               </div>
               <div>
-                <h3 className="font-bold text-lg text-white">Instalar ALMAIN CURRIER</h3>
+                <h3 className="font-bold text-lg text-white">Instalar FRAGATA COURIER</h3>
                 <p className="text-xs text-slate-400">Instrucciones para iPhone & iPad</p>
               </div>
             </div>

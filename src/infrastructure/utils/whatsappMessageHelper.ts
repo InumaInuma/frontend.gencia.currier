@@ -50,7 +50,7 @@ export function buildWhatsAppPedidoMessage(info: IWhatsAppPedidoInfo): string {
 
   const lineas = [
     `¡Hola ${info.nombreDestinatario}! 👋`,
-    `Tu pedido ha sido registrado con la agencia de envíos *ALMAIN CURRIER* de parte del comercio ${comercio}.`,
+    `Tu pedido ha sido registrado con la agencia de envíos *FRAGATA COURIER* de parte del comercio ${comercio}.`,
     '',
     prod,
     dir,

@@ -79,7 +79,7 @@ export const CrearPedidoModal: React.FC<Props> = ({ isOpen, onClose, defaultSend
 
   const handleShareWhatsApp = () => {
     if (createdTrackingCode) {
-      const text = `¡Hola ${nombreDestinatario}! Tu pedido ha sido agendado con ALMAIN CURRIER. Código de seguimiento: ${createdTrackingCode}`;
+      const text = `¡Hola ${nombreDestinatario}! Tu pedido ha sido agendado con FRAGATA COURIER. Código de seguimiento: ${createdTrackingCode}`;
       window.open(`https://wa.me/51${telefonoDestinatario.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
     }
   };
