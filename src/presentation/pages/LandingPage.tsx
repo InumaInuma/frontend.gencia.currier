@@ -4,6 +4,7 @@ import { useAuth } from '../../application/context/AuthContext';
 import { useRastrearPedidoPorCodigo } from '../../application/useCases/useMisPedidos';
 import { usePWAInstall } from '../../application/hooks/usePWAInstall';
 import { AnimatedLogisticsBackground } from '../components/landing/AnimatedLogisticsBackground';
+import { IOSInstallModal } from '../components/landing/IOSInstallModal';
 import {
   Search,
   Truck,
@@ -36,11 +37,20 @@ import {
 
 export const LandingPage: React.FC = () => {
   const { user, isAuthenticated } = useAuth();
-  const { isInstalled, promptInstall } = usePWAInstall();
+  const { isInstalled, isIOS, promptInstall } = usePWAInstall();
 
   const [inputCode, setInputCode] = useState('');
   const [activeCode, setActiveCode] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showIOSModal, setShowIOSModal] = useState(false);
+
+  const handleInstallClick = () => {
+    if (isIOS) {
+      setShowIOSModal(true);
+    } else {
+      promptInstall();
+    }
+  };
 
   // Quick contact form state
   const [contactName, setContactName] = useState('');
@@ -105,21 +115,21 @@ export const LandingPage: React.FC = () => {
       {/* ─────────────────────────────────────────────────────────────
           1. HEADER / NAVBAR
       ────────────────────────────────────────────────────────────── */}
-      <header className="h-20 border-b border-slate-900/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50 px-4 sm:px-8">
-        <div className="max-w-7xl mx-auto h-full flex items-center justify-between">
+      <header className="h-16 sm:h-20 border-b border-slate-900/80 bg-slate-950/90 backdrop-blur-xl sticky top-0 z-50 px-3.5 sm:px-8 transition-all">
+        <div className="max-w-7xl mx-auto h-full flex items-center justify-between gap-2">
           
           {/* Logo & Brand Name */}
-          <Link to="/" className="flex items-center gap-3 group">
+          <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <img
-              src="/logofragata.jpg"
+              src="/icons/icon-192.png"
               alt="Logo Fragata Courier"
-              className="h-11 w-11 sm:h-12 sm:w-12 rounded-2xl object-contain bg-white/95 p-1 shadow-lg shadow-red-500/10 border border-slate-800 group-hover:scale-105 transition-all"
+              className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl object-contain bg-white p-0.5 shadow-md shadow-red-500/20 border border-slate-800 group-hover:scale-105 transition-all shrink-0"
             />
-            <div>
-              <span className="font-black text-white text-lg sm:text-xl tracking-tight block leading-tight">
+            <div className="flex flex-col">
+              <span className="font-black text-white text-base sm:text-lg lg:text-xl tracking-tight leading-none whitespace-nowrap">
                 FRAGATA <span className="text-red-500">COURIER</span>
               </span>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
+              <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider hidden xs:block mt-1 leading-none">
                 Agencia Logística Expresa
               </span>
             </div>
@@ -144,33 +154,45 @@ export const LandingPage: React.FC = () => {
             </a>
           </nav>
 
-          {/* User Auth Buttons or Panel Link */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {isAuthenticated && user ? (
               <Link
                 to="/dashboard"
-                className="px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/30 transition-all flex items-center gap-2"
+                className="px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/30 transition-all flex items-center gap-1.5"
               >
-                <span>Panel ({user.rolNombre})</span>
-                <ArrowRight size={16} />
+                <span>Panel</span>
+                <ArrowRight size={14} />
               </Link>
             ) : (
               <>
+                {/* Desktop Buttons */}
+                <div className="hidden sm:flex items-center gap-2.5">
+                  <Link
+                    to="/login"
+                    className="px-3.5 py-2 text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <LogIn size={14} />
+                    <span>Ingresar</span>
+                  </Link>
+
+                  <Link
+                    to="/register"
+                    className="px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 rounded-xl shadow-lg shadow-red-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <UserPlus size={14} />
+                    <span>Afiliar Comercio</span>
+                  </Link>
+                </div>
+
+                {/* Mobile Direct Fast Login Button */}
                 <Link
                   to="/login"
-                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl transition-all flex items-center gap-1.5"
+                  className="sm:hidden px-3 py-2 text-xs font-bold text-slate-300 hover:text-white bg-slate-900 border border-slate-800 rounded-xl flex items-center gap-1.5 cursor-pointer active:scale-95"
+                  title="Ingresar al Sistema"
                 >
-                  <LogIn size={15} />
-                  <span>Ingresar</span>
-                </Link>
-
-                <Link
-                  to="/register"
-                  className="px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 rounded-xl shadow-lg shadow-red-600/20 transition-all flex items-center gap-1.5"
-                >
-                  <UserPlus size={15} />
-                  <span className="hidden sm:inline">Afiliar Comercio</span>
-                  <span className="sm:hidden">Registro</span>
+                  <LogIn size={14} />
+                  <span>Entrar</span>
                 </Link>
               </>
             )}
@@ -179,51 +201,93 @@ export const LandingPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+              className="lg:hidden p-2 sm:p-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white active:scale-95 transition-all cursor-pointer"
+              aria-label="Abrir Menú"
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Slide-down Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-800 bg-slate-950/95 backdrop-blur-2xl px-4 py-4 space-y-3 animate-fade-in">
-            <a
-              href="#rastreo"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-bold text-slate-300 hover:text-red-400 py-1"
-            >
-              🔍 Rastrear Envío
-            </a>
-            <a
-              href="#nosotros"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-bold text-slate-300 hover:text-red-400 py-1"
-            >
-              🏢 Quiénes Somos
-            </a>
-            <a
-              href="#servicios"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-bold text-slate-300 hover:text-red-400 py-1"
-            >
-              📦 Servicios
-            </a>
-            <a
-              href="#empresas"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-bold text-slate-300 hover:text-red-400 py-1"
-            >
-              🤝 Empresas Aliadas
-            </a>
-            <a
-              href="#contacto"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm font-bold text-slate-300 hover:text-red-400 py-1"
-            >
-              📞 Contacto
-            </a>
+          <div className="lg:hidden border-t border-slate-800/80 bg-slate-950/98 backdrop-blur-2xl px-4 py-5 space-y-4 animate-fade-in shadow-2xl">
+            {/* Quick Auth Actions inside Drawer */}
+            <div className="grid grid-cols-2 gap-2.5 pb-3 border-b border-slate-900">
+              <Link
+                to="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white text-xs font-bold text-center flex items-center justify-center gap-1.5 shadow-lg shadow-red-600/20"
+              >
+                <UserPlus size={14} />
+                <span>Afiliar Tienda</span>
+              </Link>
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 px-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-200 text-xs font-bold text-center flex items-center justify-center gap-1.5"
+              >
+                <LogIn size={14} />
+                <span>Mi Cuenta</span>
+              </Link>
+            </div>
+
+            {/* Navigation links */}
+            <div className="space-y-1">
+              <a
+                href="#rastreo"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-900 hover:text-red-400 transition-all"
+              >
+                <Search size={16} className="text-red-400" />
+                <span>Rastrear Envío en Vivo</span>
+              </a>
+              <a
+                href="#nosotros"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-900 hover:text-red-400 transition-all"
+              >
+                <Building2 size={16} className="text-red-400" />
+                <span>Quiénes Somos</span>
+              </a>
+              <a
+                href="#servicios"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-900 hover:text-red-400 transition-all"
+              >
+                <Truck size={16} className="text-red-400" />
+                <span>Nuestros Servicios</span>
+              </a>
+              <a
+                href="#empresas"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-900 hover:text-red-400 transition-all"
+              >
+                <Store size={16} className="text-red-400" />
+                <span>Empresas Aliadas</span>
+              </a>
+              <a
+                href="#contacto"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold text-slate-200 hover:bg-slate-900 hover:text-red-400 transition-all"
+              >
+                <Phone size={16} className="text-red-400" />
+                <span>Contacto & Cotizaciones</span>
+              </a>
+            </div>
+
+            {/* WhatsApp Quick Link inside Drawer */}
+            <div className="pt-2 border-t border-slate-900">
+              <a
+                href="https://wa.me/51966622023?text=Hola%20Fragata%20Courier,%20deseo%20afiliar%20mi%20tienda%20para%20env%C3%ADos."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-500/20 transition-all"
+              >
+                <MessageCircle size={15} />
+                <span>Escribir al WhatsApp (+51 966 622 023)</span>
+              </a>
+            </div>
           </div>
         )}
       </header>
@@ -239,58 +303,60 @@ export const LandingPage: React.FC = () => {
 
           {/* Hero Header Text */}
           <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-bold uppercase tracking-wider shadow-sm">
-              <Zap size={14} className="text-red-400 animate-pulse" />
-              <span>Seguimiento de Envíos en Tiempo Real • Lima & Callao</span>
+            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow-sm max-w-full">
+              <Zap size={13} className="text-red-400 animate-pulse shrink-0" />
+              <span className="truncate sm:whitespace-normal">Seguimiento en Tiempo Real • Lima & Callao</span>
             </div>
 
             {/* Prominent PWA Download/Install Button */}
             {!isInstalled && (
-              <div className="pt-2 pb-1 flex justify-center">
+              <div className="pt-2 pb-1 flex justify-center w-full px-2">
                 <button
-                  onClick={promptInstall}
-                  className="px-5 py-3 rounded-2xl bg-gradient-to-r from-red-950/90 via-slate-900 to-slate-950 border border-red-500/40 hover:border-red-400 text-white text-xs sm:text-sm font-extrabold shadow-xl shadow-red-600/20 hover:scale-105 transition-all cursor-pointer flex items-center gap-3.5 group"
+                  onClick={handleInstallClick}
+                  className="w-full max-w-sm sm:max-w-md px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-red-950/90 via-slate-900 to-slate-950 border border-red-500/40 hover:border-red-400 text-white text-xs sm:text-sm font-extrabold shadow-xl shadow-red-600/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-between gap-3 group"
                 >
-                  <img src="/icons/icon-192.png" alt="Logo Fragata" className="w-8 h-8 object-contain rounded-xl bg-white p-0.5 shadow-md shrink-0" />
-                  <div className="text-left">
-                    <span className="block leading-tight font-extrabold text-red-200">Instalar FRAGATA COURIER App</span>
-                    <span className="block text-[10px] text-slate-400 font-normal">Añadir a pantalla de inicio en Android / iOS / Windows</span>
+                  <div className="flex items-center gap-2.5 sm:gap-3 text-left">
+                    <img src="/icons/icon-192.png" alt="Logo Fragata" className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-xl bg-white p-0.5 shadow-md shrink-0" />
+                    <div>
+                      <span className="block leading-tight font-extrabold text-red-200 text-xs sm:text-sm">Instalar FRAGATA App</span>
+                      <span className="block text-[9px] sm:text-[10px] text-slate-400 font-normal">Acceso directo en Android / iOS / PC</span>
+                    </div>
                   </div>
-                  <div className="w-8 h-8 rounded-xl bg-red-600/30 border border-red-500/50 text-red-300 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-all ml-1 shrink-0">
-                    <Download size={16} />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-red-600/30 border border-red-500/50 text-red-300 flex items-center justify-center group-hover:bg-red-600 group-hover:text-white transition-all shrink-0">
+                    <Download size={15} />
                   </div>
                 </button>
               </div>
             )}
 
-            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight sm:leading-tight px-1">
               Rastrea tu pedido sin necesidad de registrarte
             </h1>
 
-            <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
+            <p className="text-xs sm:text-sm md:text-base text-slate-400 max-w-2xl mx-auto px-2">
               Si compraste en una tienda afiliada a <strong className="text-white">FRAGATA COURIER</strong>, ingresa aquí tu código de envío para conocer el estado y ubicación de tu paquete en vivo.
             </p>
           </div>
 
           {/* Public Search Bar Box */}
-          <div className="max-w-2xl mx-auto bg-slate-900/80 backdrop-blur-2xl border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 relative z-10">
-            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+          <div className="max-w-2xl mx-auto bg-slate-900/90 backdrop-blur-2xl border border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-2xl space-y-3 relative z-10">
+            <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={17} />
                 <input
                   type="text"
                   value={inputCode}
                   onChange={(e) => setInputCode(e.target.value)}
                   placeholder="CÓDIGO DE ENVÍO (EJ. DD-20260909-178E32)"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-11 pr-4 py-3.5 text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-red-500 transition-all uppercase"
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl sm:rounded-2xl pl-10 pr-3 py-3 sm:py-3.5 text-xs sm:text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-red-500 transition-all uppercase"
                 />
               </div>
 
               <button
                 type="submit"
-                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-sm font-bold shadow-lg shadow-red-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 shrink-0"
+                className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 active:scale-[0.98] text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/30 transition-all cursor-pointer flex items-center justify-center gap-2 shrink-0"
               >
-                <Search size={16} />
+                <Search size={15} />
                 <span>Rastrear Envío</span>
               </button>
             </form>
@@ -1013,6 +1079,23 @@ export const LandingPage: React.FC = () => {
           <p>© {new Date().getFullYear()} FRAGATA COURIER. Todos los derechos reservados. Lima, Perú.</p>
         </div>
       </footer>
+
+      {/* Floating Fast WhatsApp Action Button */}
+      <a
+        href="https://wa.me/51966622023?text=Hola%20Fragata%20Courier,%20deseo%20hacer%20una%20consulta%20sobre%20env%C3%ADos."
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-5 right-5 z-40 p-3.5 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-2xl shadow-emerald-500/40 hover:scale-110 active:scale-95 transition-all flex items-center justify-center group cursor-pointer border border-emerald-400/40"
+        title="Escríbenos por WhatsApp (+51 966 622 023)"
+      >
+        <MessageCircle size={24} className="group-hover:rotate-12 transition-transform" />
+      </a>
+
+      {/* Interactive iOS Install Guide Modal */}
+      <IOSInstallModal
+        isOpen={showIOSModal}
+        onClose={() => setShowIOSModal(false)}
+      />
     </div>
   );
 };

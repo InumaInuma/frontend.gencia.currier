@@ -6,9 +6,20 @@
   "description": "Plataforma de Logística Expresa, Envíos y Seguimiento en Tiempo Real — FRAGATA COURIER",
   "start_url": "/",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone",
+    "minimal-ui"
+  ],
   "background_color": "#020617",
   "theme_color": "#dc2626",
   "orientation": "portrait",
+  "lang": "es",
+  "categories": [
+    "business",
+    "logistics",
+    "productivity"
+  ],
   "prefer_related_applications": false,
   "icons": [
     {
