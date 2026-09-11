@@ -63,7 +63,7 @@ export const LandingPage: React.FC = () => {
 
   const handleSendWhatsAppContact = (e: React.FormEvent) => {
     e.preventDefault();
-    const phone = '51987654321'; // WhatsApp Fragata Courier
+    const phone = '51966622023'; // WhatsApp Fragata Courier
     const text = `Hola Fragata Courier, me contacto desde la web.%0A*Nombre:* ${encodeURIComponent(contactName)}%0A*Comercio:* ${encodeURIComponent(contactBusiness)}%0A*Teléfono:* ${encodeURIComponent(contactPhone)}%0A*Consulta:* ${encodeURIComponent(contactMessage || 'Deseo cotizar envíos para mi negocio.')}`;
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
   };
@@ -853,9 +853,9 @@ export const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-white block">WhatsApp Comercial & Operaciones</span>
-                    <span className="text-xs text-slate-400 block mt-0.5">+51 987 654 321</span>
+                    <span className="text-xs text-slate-400 block mt-0.5">+51 966 622 023</span>
                     <a
-                      href="https://wa.me/51987654321?text=Hola%20Fragata%20Courier,%20deseo%20afiliar%20mi%20tienda%20para%20env%C3%ADos."
+                      href="https://wa.me/51966622023?text=Hola%20Fragata%20Courier,%20deseo%20afiliar%20mi%20tienda%20para%20env%C3%ADos."
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-bold mt-2 hover:underline"
@@ -927,7 +927,7 @@ export const LandingPage: React.FC = () => {
                         required
                         value={contactPhone}
                         onChange={(e) => setContactPhone(e.target.value)}
-                        placeholder="Ej. 987654321"
+                        placeholder="Ej. 966622023"
                         className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500"
                       />
                     </div>
