@@ -18,6 +18,7 @@ interface LoginResponseDto {
   rolNombre: string;
   idPersona: number;
   idTenant?: number | null;
+  debeCambiarClave?: boolean;
 }
 
 export class AuthRepository implements IAuthRepository {
@@ -43,6 +44,7 @@ export class AuthRepository implements IAuthRepository {
         idPersona: body.data.idPersona,
         idTenant: body.data.idTenant,
         token: body.data.token,
+        debeCambiarClave: body.data.debeCambiarClave,
       };
     } catch (err: any) {
       const errMsg = err.response?.data?.message || err.message || 'Error en el inicio de sesión.';
@@ -131,9 +133,49 @@ export class AuthRepository implements IAuthRepository {
         idPersona: body.data.idPersona,
         idTenant: body.data.idTenant,
         token: body.data.token,
+        debeCambiarClave: body.data.debeCambiarClave,
       };
     } catch (err: any) {
       const errMsg = err.response?.data?.message || err.message || 'Error al ascender la cuenta a Comercio.';
+      throw new Error(errMsg);
+    }
+  }
+
+  async cambiarClavePrimerAcceso(
+    claveActual: string,
+    nuevaClave: string,
+    confirmarNuevaClave: string
+  ): Promise<IUser> {
+    try {
+      const response = await apiClient.post<BaseResponse<LoginResponseDto>>(
+        '/api/auth/cambiar-clave-primer-acceso',
+        {
+          claveActual,
+          nuevaClave,
+          confirmarNuevaClave,
+        }
+      );
+
+      const body = response.data;
+
+      if (!body.isSuccess || !body.data) {
+        throw new Error(body.message || 'Error al cambiar la contraseña.');
+      }
+
+      return {
+        correo: body.data.correo,
+        nombreCompleto: body.data.nombreCompleto,
+        nombreComercial: body.data.nombreComercial,
+        ruc: body.data.ruc,
+        rolNombre: body.data.rolNombre,
+        idPersona: body.data.idPersona,
+        idTenant: body.data.idTenant,
+        token: body.data.token,
+        debeCambiarClave: false,
+      };
+    } catch (err: any) {
+      const errMsg =
+        err.response?.data?.message || err.message || 'Error al cambiar la contraseña.';
       throw new Error(errMsg);
     }
   }

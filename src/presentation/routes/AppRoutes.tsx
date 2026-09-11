@@ -10,6 +10,8 @@ import MonitoreoRecojosPage from '../pages/admin/MonitoreoRecojosPage';
 import RendicionCuentasAdminPage from '../pages/admin/RendicionCuentasAdminPage';
 import { ReprogramacionesAdminPage } from '../pages/admin/ReprogramacionesAdminPage';
 import { CoberturaAdminPage } from '../pages/admin/CoberturaAdminPage';
+import { ColaboradoresAdminPage } from '../pages/admin/ColaboradoresAdminPage';
+import { ModalActualizarClaveObligatoria } from '../components/common/ModalActualizarClaveObligatoria';
 import ComercioDashboard from '../pages/comercio/ComercioDashboard';
 import AgendarEnvioPage from '../pages/comercio/AgendarEnvioPage';
 import MotorizadoRecojosPage from '../pages/motorizado/MotorizadoRecojosPage';
@@ -94,6 +96,9 @@ const RoleRedirect: React.FC = () => {
 export const AppRoutes: React.FC = () => {
   return (
     <BrowserRouter>
+      {/* Modal Bloqueante de Actualización de Contraseña al 1er Acceso */}
+      <ModalActualizarClaveObligatoria />
+
       <Routes>
         {/* Landing Page Pública con Rastreo de Envíos */}
         <Route path="/" element={<LandingPage />} />
@@ -197,6 +202,15 @@ export const AppRoutes: React.FC = () => {
           element={
             <RoleProtectedRoute allowedRoles={['Administrador']}>
               <CoberturaAdminPage />
+            </RoleProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/colaboradores"
+          element={
+            <RoleProtectedRoute allowedRoles={['Administrador']}>
+              <ColaboradoresAdminPage />
             </RoleProtectedRoute>
           }
         />

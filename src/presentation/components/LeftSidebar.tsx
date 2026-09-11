@@ -20,6 +20,7 @@ import {
   CalendarClock,
   MapPin,
   Plus,
+  Users,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -114,6 +115,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
         { path: '/admin/reprogramaciones', label: 'Reprogramaciones', icon: <CalendarClock size={18} /> },
         { path: '/admin/cobertura', label: 'Zonas de Cobertura', icon: <MapPin size={18} /> },
         { path: '/admin/monitoreo-recojos', label: 'Monitoreo de Pedidos', icon: <Navigation size={18} /> },
+        { path: '/admin/colaboradores', label: 'Colaboradores', icon: <Users size={18} /> },
         { path: '/admin/rendicion-cuentas', label: 'Rendición & Caja', icon: <Receipt size={18} /> },
       ];
     }

@@ -23,4 +23,9 @@ export interface IAuthRepository {
     telefono?: string,
     cuentasBancarias?: ICrearCuentaBancariaParams[]
   ): Promise<IUser>;
+  cambiarClavePrimerAcceso(
+    claveActual: string,
+    nuevaClave: string,
+    confirmarNuevaClave: string
+  ): Promise<IUser>;
 }

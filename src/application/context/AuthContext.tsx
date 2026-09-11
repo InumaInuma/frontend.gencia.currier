@@ -20,6 +20,11 @@ interface AuthContextType {
     telefono?: string,
     cuentasBancarias?: ICrearCuentaBancariaParams[]
   ) => Promise<IUser>;
+  cambiarClavePrimerAcceso: (
+    claveActual: string,
+    nuevaClave: string,
+    confirmarNuevaClave: string
+  ) => Promise<IUser>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -89,8 +94,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return upgradedUser;
   };
 
+  const cambiarClavePrimerAcceso = async (
+    claveActual: string,
+    nuevaClave: string,
+    confirmarNuevaClave: string
+  ): Promise<IUser> => {
+    const updatedUser = await authRepository.cambiarClavePrimerAcceso(
+      claveActual,
+      nuevaClave,
+      confirmarNuevaClave
+    );
+    setUser(updatedUser);
+    localStorage.setItem('auth_user', JSON.stringify(updatedUser));
+    localStorage.setItem('dreamdrivers_user', JSON.stringify(updatedUser));
+    return updatedUser;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, upgrade }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated: !!user,
+        isLoading,
+        login,
+        logout,
+        upgrade,
+        cambiarClavePrimerAcceso,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -270,7 +270,7 @@ export const MotorizadoEntregasPage: React.FC = () => {
   const handleOpenWhatsApp = (telefono: string, cliente: string, codigoSeguimiento: string) => {
     const num = telefono.replace(/\D/g, '');
     const cleanNum = num.startsWith('51') ? num : `51${num}`;
-    const msg = `¡Hola ${cliente}! Le saluda su repartidor de FRAGATA COURIER 🏍️.\nLe informamos que su paquete está en camino a su ubicación.\n\n📦 *Código de envío:* ${codigoSeguimiento}\n🌐 Puedes hacerle seguimiento en tiempo real con este código ingresando a nuestra web:\nhttps://fragata-express.vercel.app/`;
+    const msg = `¡Hola ${cliente}! Le saluda su repartidor de FRAGATA COURIER 🏍️.\nLe informamos que su paquete está en camino a su ubicación.\n\n📦 *Código de envío:* ${codigoSeguimiento}\n🌐 Puedes hacerle seguimiento en tiempo real con este código ingresando a nuestra web:\nhttps://fragata-courier.vercel.app/`;
     window.open(`https://wa.me/${cleanNum}?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

@@ -7,4 +7,5 @@ export interface IUser {
   idPersona: number;
   idTenant?: number | null;
   token: string;
+  debeCambiarClave?: boolean;
 }
