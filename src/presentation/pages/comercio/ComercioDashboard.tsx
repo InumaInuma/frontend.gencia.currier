@@ -27,13 +27,22 @@ export const ComercioDashboard: React.FC = () => {
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
 
-  // Date range filters - default today
+  // Date range & pagination state
   const [fechaInicio, setFechaInicio] = useState<string>(getTodayFormatted());
   const [fechaFin, setFechaFin] = useState<string>(getTodayFormatted());
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 10;
+
+  // Reset page to 1 when date filter changes
+  React.useEffect(() => {
+    setPageNumber(1);
+  }, [fechaInicio, fechaFin]);
 
   const { data: pedidos, isLoading: loadingPedidos, refetch } = useMisPedidos({
     fechaInicio: fechaInicio || undefined,
     fechaFin: fechaFin || undefined,
+    pageNumber,
+    pageSize,
   });
 
   const handleLogout = async () => {
@@ -69,7 +78,7 @@ export const ComercioDashboard: React.FC = () => {
 
   if (!user) return null;
 
-  const totalPedidos = pedidos?.length || 0;
+  const totalPedidos = pedidos && pedidos.length > 0 ? (pedidos[0].totalRegistros ?? pedidos.length) : 0;
   const pedidosPendientes = pedidos?.filter(p => p.estadoNombre === 'Registrado').length || 0;
   const pedidosEnCamino = pedidos?.filter(p => p.estadoNombre === 'En Camino').length || 0;
   const pedidosEntregados = pedidos?.filter(p => p.estadoNombre === 'Entregado').length || 0;
@@ -275,6 +284,9 @@ export const ComercioDashboard: React.FC = () => {
                 onCopyCode={handleCopy}
                 onShareWhatsApp={handleShareWhatsApp}
                 copiedCode={copiedCode}
+                pageNumber={pageNumber}
+                onPageChange={setPageNumber}
+                pageSize={pageSize}
               />
             )}
           </div>

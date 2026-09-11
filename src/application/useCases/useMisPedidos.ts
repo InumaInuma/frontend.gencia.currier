@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { PedidosRepository } from '../../infrastructure/repositories/PedidosRepository';
 import type { IRegisterPedidoParams } from '../../domain/models/IPedido';
 import type { IAsignarRecojoParams } from '../../domain/models/IConductor';
-import type { IConfirmarEntregaParams } from '../../domain/repositories/IPedidosRepository';
+import type { IConfirmarEntregaParams, IPedidoMasivoItem } from '../../domain/repositories/IPedidosRepository';
 
 const pedidosRepository = new PedidosRepository();
 
@@ -253,5 +253,17 @@ export const useEditarPedidoAdmin = () => {
 export const useResolverLinkMaps = () => {
   return useMutation({
     mutationFn: (url: string) => pedidosRepository.resolverLinkMaps(url),
+  });
+};
+
+export const useRegistrarPedidoMasivo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (pedidos: IPedidoMasivoItem[]) => pedidosRepository.registrarPedidoMasivo(pedidos),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mis-pedidos'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-pedidos-todos'] });
+    },
   });
 };

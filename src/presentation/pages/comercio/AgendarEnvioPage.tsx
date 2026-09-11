@@ -30,6 +30,7 @@ import { Paso1DatosEnvio } from '../../components/agendarEnvio/Paso1DatosEnvio';
 import { Paso2UbicacionGPS } from '../../components/agendarEnvio/Paso2UbicacionGPS';
 import { openWhatsAppWithPedidoMessage } from '../../../infrastructure/utils/whatsappMessageHelper';
 import { useComercioCuentasBancarias } from '../../../application/useCases/useComercioCuentasBancarias';
+import { CargaMasivaExcel } from '../../components/agendarEnvio/CargaMasivaExcel';
 
 export const AgendarEnvioPage: React.FC = () => {
   const { user } = useAuth();
@@ -38,6 +39,9 @@ export const AgendarEnvioPage: React.FC = () => {
 
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
+
+  // Modo agendado: 'individual' (1 a 1) o 'masivo' (Excel)
+  const [modoAgendado, setModoAgendado] = useState<'individual' | 'masivo'>('individual');
 
   // Wizard step: 1 = "Datos de Envío", 2 = "Ubicación GPS"
   const [step, setStep] = useState<1 | 2>(1);
@@ -379,118 +383,155 @@ export const AgendarEnvioPage: React.FC = () => {
             }}
           />
 
-          {/* WIZARD CONTAINER */}
-          <div className="space-y-5">
-            {/* After-cutoff banner */}
-            {isAfterCutoffTimePeru() && (
-              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-1.5">
-                <div className="flex items-center gap-2 font-bold text-amber-200">
-                  <AlertTriangle size={15} className="shrink-0" />
-                  <span>Aviso de Horario — Hora Perú: {getPeruTimeString()}</span>
-                </div>
-                <p className="text-amber-200/80 pl-5 text-[11px]">
-                  Envíos agendados después de las <strong>09:30 AM</strong> se programan para el siguiente día hábil.
-                </p>
-              </div>
-            )}
-
-            {/* STEP TABS */}
-            <div className="flex gap-0 rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/30">
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-bold transition-all cursor-pointer ${
-                  step === 1
-                    ? 'bg-violet-600/30 text-violet-300 border-b-2 border-violet-500'
-                    : 'text-slate-400 hover:text-white border-b-2 border-transparent'
-                }`}
-              >
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold ${
-                    step === 1 ? 'bg-violet-600 text-white' : step > 1 ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'
-                  }`}
-                >
-                  {step > 1 ? <CheckCircle2 size={14} /> : '1'}
-                </div>
-                Datos de Envío
-              </button>
-              <div className="w-px bg-slate-800" />
-              <button
-                type="button"
-                onClick={() => {
-                  if (step === 1) handleNext();
-                }}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-bold transition-all cursor-pointer ${
-                  step === 2
-                    ? 'bg-violet-600/30 text-violet-300 border-b-2 border-violet-500'
-                    : 'text-slate-400 hover:text-white border-b-2 border-transparent'
-                }`}
-              >
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold ${
-                    step === 2 ? 'bg-violet-600 text-white' : 'bg-slate-700 text-slate-400'
-                  }`}
-                >
-                  2
-                </div>
-                <MapPin size={15} />
-                Ubicación GPS
-              </button>
-            </div>
-
-            {/* STEP 1: DATOS DE ENVÍO */}
-            {step === 1 && (
-              <Paso1DatosEnvio
-                nombreRemitente={nombreRemitente}
-                setNombreRemitente={setNombreRemitente}
-                nombreDestinatario={nombreDestinatario}
-                setNombreDestinatario={setNombreDestinatario}
-                telefonoDestinatario={telefonoDestinatario}
-                setTelefonoDestinatario={setTelefonoDestinatario}
-                descripcionProducto={descripcionProducto}
-                setDescripcionProducto={setDescripcionProducto}
-                esContraEntrega={esContraEntrega}
-                setEsContraEntrega={setEsContraEntrega}
-                montoCobrar={montoCobrar}
-                setMontoCobrar={setMontoCobrar}
-                destinatarioPagaEnvio={destinatarioPagaEnvio}
-                setDestinatarioPagaEnvio={setDestinatarioPagaEnvio}
-                observaciones={observaciones}
-                setObservaciones={setObservaciones}
-                step1Error={step1Error}
-                handleNext={handleNext}
-              />
-            )}
-
-            {/* STEP 2: UBICACIÓN GPS / MAPA */}
-            {step === 2 && (
-              <Paso2UbicacionGPS
-                errorMsg={errorMsg}
-                activeRestrictedZone={activeRestrictedZone}
-                activeYellowZone={activeYellowZone}
-                idDistritoDestinatario={idDistritoDestinatario}
-                setIdDistritoDestinatario={setIdDistritoDestinatario}
-                direccionDestinatario={direccionDestinatario}
-                setDireccionDestinatario={setDireccionDestinatario}
-                referenciaDestinatario={referenciaDestinatario}
-                setReferenciaDestinatario={setReferenciaDestinatario}
-                googleMapsUrl={googleMapsUrl}
-                setGoogleMapsUrl={setGoogleMapsUrl}
-                selectedCoords={selectedCoords}
-                setSelectedCoords={setSelectedCoords}
-                distritoInfo={distritoInfo}
-                distritos={distritos}
-                loadingDistritos={loadingDistritos}
-                distritosList={distritosList}
-                greenPolygon={greenPolygon}
-                redZones={redZones}
-                yellowZones={yellowZones}
-                isPending={registrarMutation.isPending}
-                handleSubmit={handleSubmit}
-                onBackToStep1={() => setStep(1)}
-              />
-            )}
+          {/* MODE SELECTOR: INDIVIDUAL VS MASIVO */}
+          <div className="flex bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800 mb-6">
+            <button
+              type="button"
+              onClick={() => setModoAgendado('individual')}
+              className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                modoAgendado === 'individual'
+                  ? 'bg-gradient-to-r from-violet-600 to-indigo-600 text-white shadow-lg shadow-violet-500/25'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <span>📝 Registro Individual</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-950/40 border border-white/10 font-normal hidden sm:inline">
+                1 a 1
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setModoAgendado('masivo')}
+              className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                modoAgendado === 'masivo'
+                  ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-500/25'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+              }`}
+            >
+              <span>📊 Carga Masiva</span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-950/40 border border-white/10 font-normal">
+                Excel (.xlsx)
+              </span>
+            </button>
           </div>
+
+          {/* MODO CARGA MASIVA */}
+          {modoAgendado === 'masivo' ? (
+            <CargaMasivaExcel distritos={distritos} distritosList={distritosList} />
+          ) : (
+            /* WIZARD CONTAINER (INDIVIDUAL) */
+            <div className="space-y-5">
+              {/* After-cutoff banner */}
+              {isAfterCutoffTimePeru() && (
+                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs space-y-1.5">
+                  <div className="flex items-center gap-2 font-bold text-amber-200">
+                    <AlertTriangle size={15} className="shrink-0" />
+                    <span>Aviso de Horario — Hora Perú: {getPeruTimeString()}</span>
+                  </div>
+                  <p className="text-amber-200/80 pl-5 text-[11px]">
+                    Envíos agendados después de las <strong>09:30 AM</strong> se programan para el siguiente día hábil.
+                  </p>
+                </div>
+              )}
+
+              {/* STEP TABS */}
+              <div className="flex gap-0 rounded-2xl overflow-hidden border border-slate-800 bg-slate-900/30">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-bold transition-all cursor-pointer ${
+                    step === 1
+                      ? 'bg-violet-600/30 text-violet-300 border-b-2 border-violet-500'
+                      : 'text-slate-400 hover:text-white border-b-2 border-transparent'
+                  }`}
+                >
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold ${
+                      step === 1 ? 'bg-violet-600 text-white' : step > 1 ? 'bg-emerald-500 text-white' : 'bg-slate-700 text-slate-400'
+                    }`}
+                  >
+                    {step > 1 ? <CheckCircle2 size={14} /> : '1'}
+                  </div>
+                  Datos de Envío
+                </button>
+                <div className="w-px bg-slate-800" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (step === 1) handleNext();
+                  }}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-bold transition-all cursor-pointer ${
+                    step === 2
+                      ? 'bg-violet-600/30 text-violet-300 border-b-2 border-violet-500'
+                      : 'text-slate-400 hover:text-white border-b-2 border-transparent'
+                  }`}
+                >
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-extrabold ${
+                      step === 2 ? 'bg-violet-600 text-white' : 'bg-slate-700 text-slate-400'
+                    }`}
+                  >
+                    2
+                  </div>
+                  <MapPin size={15} />
+                  Ubicación GPS
+                </button>
+              </div>
+
+              {/* STEP 1: DATOS DE ENVÍO */}
+              {step === 1 && (
+                <Paso1DatosEnvio
+                  nombreRemitente={nombreRemitente}
+                  setNombreRemitente={setNombreRemitente}
+                  nombreDestinatario={nombreDestinatario}
+                  setNombreDestinatario={setNombreDestinatario}
+                  telefonoDestinatario={telefonoDestinatario}
+                  setTelefonoDestinatario={setTelefonoDestinatario}
+                  descripcionProducto={descripcionProducto}
+                  setDescripcionProducto={setDescripcionProducto}
+                  esContraEntrega={esContraEntrega}
+                  setEsContraEntrega={setEsContraEntrega}
+                  montoCobrar={montoCobrar}
+                  setMontoCobrar={setMontoCobrar}
+                  destinatarioPagaEnvio={destinatarioPagaEnvio}
+                  setDestinatarioPagaEnvio={setDestinatarioPagaEnvio}
+                  observaciones={observaciones}
+                  setObservaciones={setObservaciones}
+                  step1Error={step1Error}
+                  handleNext={handleNext}
+                />
+              )}
+
+              {/* STEP 2: UBICACIÓN GPS / MAPA */}
+              {step === 2 && (
+                <Paso2UbicacionGPS
+                  errorMsg={errorMsg}
+                  activeRestrictedZone={activeRestrictedZone}
+                  activeYellowZone={activeYellowZone}
+                  idDistritoDestinatario={idDistritoDestinatario}
+                  setIdDistritoDestinatario={setIdDistritoDestinatario}
+                  direccionDestinatario={direccionDestinatario}
+                  setDireccionDestinatario={setDireccionDestinatario}
+                  referenciaDestinatario={referenciaDestinatario}
+                  setReferenciaDestinatario={setReferenciaDestinatario}
+                  googleMapsUrl={googleMapsUrl}
+                  setGoogleMapsUrl={setGoogleMapsUrl}
+                  selectedCoords={selectedCoords}
+                  setSelectedCoords={setSelectedCoords}
+                  distritoInfo={distritoInfo}
+                  distritos={distritos}
+                  loadingDistritos={loadingDistritos}
+                  distritosList={distritosList}
+                  greenPolygon={greenPolygon}
+                  redZones={redZones}
+                  yellowZones={yellowZones}
+                  isPending={registrarMutation.isPending}
+                  handleSubmit={handleSubmit}
+                  onBackToStep1={() => setStep(1)}
+                />
+              )}
+            </div>
+          )}
         </main>
 
         <MobileBottomNav onOpenMenu={() => setMovilAbierto(true)} />

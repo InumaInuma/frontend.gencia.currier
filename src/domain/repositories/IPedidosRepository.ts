@@ -20,9 +20,34 @@ export interface IConfirmarEntregaParams {
   fotoComprobantePago?: File | null;
 }
 
+export interface IPedidoMasivoItem {
+  nombreDestinatario: string;
+  telefonoDestinatario: string;
+  direccionDestinatario: string;
+  idDistritoDestinatario: number;
+  referenciaDestinatario?: string;
+  descripcionProducto?: string;
+  observaciones?: string;
+  googleMapsUrl?: string;
+  montoCobrar: number;
+  tarifaEnvio: number;
+  destinatarioPagaEnvio: boolean;
+}
+
+export interface IResultadoCargaMasiva {
+  totalInsertados: number;
+  pedidosCreados: Array<{
+    id: number;
+    codigoSeguimiento: string;
+    nombreDestinatario: string;
+    telefonoDestinatario: string;
+  }>;
+}
+
 export interface IPedidosRepository {
   getDistritos(): Promise<IDistrito[]>;
   registrarPedido(params: IRegisterPedidoParams): Promise<IPedidoResultado>;
+  registrarPedidoMasivo(pedidos: IPedidoMasivoItem[]): Promise<IResultadoCargaMasiva>;
   getMisPedidos(params?: { fechaInicio?: string; fechaFin?: string; pageNumber?: number; pageSize?: number }): Promise<IPedido[]>;
   getMisCompras(): Promise<IPedido[]>;
   getTodosLosPedidosAdmin(params?: { fechaInicio?: string; fechaFin?: string }): Promise<IPedido[]>;

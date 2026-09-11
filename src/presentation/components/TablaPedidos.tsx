@@ -28,6 +28,9 @@ interface Props {
   copiedCode: string | null;
   onEditarPedido?: (pedido: IPedido) => void;
   onCancelarPedido?: (pedido: IPedido) => void;
+  pageNumber?: number;
+  onPageChange?: (newPage: number) => void;
+  pageSize?: number;
 }
 
 export const TablaPedidos: React.FC<Props> = ({
@@ -36,9 +39,12 @@ export const TablaPedidos: React.FC<Props> = ({
   onShareWhatsApp,
   copiedCode,
   onEditarPedido,
-  onCancelarPedido
+  onCancelarPedido,
+  pageNumber,
+  onPageChange,
+  pageSize = 10
 }) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [localPage, setLocalPage] = useState(1);
   const [selectedEvidenciasPedido, setSelectedEvidenciasPedido] = useState<IPedido | null>(null);
   const [vistaModo, setVistaModo] = useState<'tarjetas' | 'tabla'>(() => {
     if (typeof window !== 'undefined') {
@@ -46,16 +52,32 @@ export const TablaPedidos: React.FC<Props> = ({
     }
     return 'tabla';
   });
-  const pageSize = 10;
 
-  // Reset page when pedidos change
+  const isServerPaginated = typeof onPageChange === 'function';
+  const currentPage = isServerPaginated ? (pageNumber || 1) : localPage;
+
+  const handlePageClick = (p: number) => {
+    if (isServerPaginated && onPageChange) {
+      onPageChange(p);
+    } else {
+      setLocalPage(p);
+    }
+  };
+
+  // Reset local page when pedidos change
   React.useEffect(() => {
-    setCurrentPage(1);
+    setLocalPage(1);
   }, [pedidos]);
 
-  const totalPages = Math.ceil(pedidos.length / pageSize) || 1;
+  const totalCount = isServerPaginated
+    ? (pedidos[0]?.totalRegistros ?? pedidos.length)
+    : pedidos.length;
+
+  const totalPages = Math.ceil(totalCount / pageSize) || 1;
   const startIndex = (currentPage - 1) * pageSize;
-  const currentPedidos = pedidos.slice(startIndex, startIndex + pageSize);
+  const currentPedidos = isServerPaginated
+    ? pedidos
+    : pedidos.slice(startIndex, startIndex + pageSize);
 
   const [copiedPhone, setCopiedPhone] = useState<string | null>(null);
 
@@ -105,7 +127,7 @@ export const TablaPedidos: React.FC<Props> = ({
       <div className="flex items-center justify-between gap-3">
         <div className="text-xs text-slate-400 font-medium">
           Mostrando <strong className="text-white font-bold">{currentPedidos.length}</strong> de{' '}
-          <strong className="text-white font-bold">{pedidos.length}</strong> envíos
+          <strong className="text-white font-bold">{totalCount}</strong> envíos
         </div>
 
         <div className="hidden sm:flex items-center bg-slate-900 border border-slate-800 rounded-xl p-0.5 shadow-sm">
@@ -560,17 +582,17 @@ export const TablaPedidos: React.FC<Props> = ({
       {pedidos.length > 0 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-900 text-xs text-slate-400 px-1">
           <div>
-            Mostrando <span className="font-semibold text-white">{startIndex + 1}</span> a{' '}
+            Mostrando <span className="font-semibold text-white">{totalCount > 0 ? startIndex + 1 : 0}</span> a{' '}
             <span className="font-semibold text-white">
-              {Math.min(startIndex + pageSize, pedidos.length)}
+              {Math.min(startIndex + currentPedidos.length, totalCount)}
             </span>{' '}
-            de <span className="font-semibold text-white">{pedidos.length}</span> envíos
+            de <span className="font-semibold text-white">{totalCount}</span> envíos
           </div>
 
           {totalPages > 1 && (
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                onClick={() => handlePageClick(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
                 className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center gap-1 font-medium transition-colors cursor-pointer"
               >
@@ -582,7 +604,7 @@ export const TablaPedidos: React.FC<Props> = ({
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                   <button
                     key={pageNum}
-                    onClick={() => setCurrentPage(pageNum)}
+                    onClick={() => handlePageClick(pageNum)}
                     className={`w-7 h-7 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                       currentPage === pageNum
                         ? 'bg-violet-600 text-white shadow-md shadow-violet-600/30'
@@ -595,7 +617,7 @@ export const TablaPedidos: React.FC<Props> = ({
               </div>
 
               <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() => handlePageClick(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
                 className="px-2.5 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed text-white flex items-center gap-1 font-medium transition-colors cursor-pointer"
               >

@@ -30,6 +30,7 @@ export interface IPedido {
   fechaRegistro: string;
   fotoEntregaUrl?: string;
   captureUrl?: string;
+  totalRegistros?: number;
 }
 
 export interface IRegisterPedidoParams {

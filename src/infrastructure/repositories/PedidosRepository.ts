@@ -1,5 +1,5 @@
 import { apiClient } from '../api/apiClient';
-import type { IPedidosRepository, IConfirmarEntregaParams } from '../../domain/repositories/IPedidosRepository';
+import type { IPedidosRepository, IConfirmarEntregaParams, IPedidoMasivoItem, IResultadoCargaMasiva } from '../../domain/repositories/IPedidosRepository';
 import type { IDistrito } from '../../domain/models/IDistrito';
 import type { IPedido, IRegisterPedidoParams, IPedidoResultado } from '../../domain/models/IPedido';
 import type { IConductor, IAsignarRecojoParams } from '../../domain/models/IConductor';
@@ -37,6 +37,20 @@ export class PedidosRepository implements IPedidosRepository {
       return body.data;
     } catch (err: any) {
       const errMsg = err.response?.data?.message || err.message || 'Error al agendar el envío.';
+      throw new Error(errMsg);
+    }
+  }
+
+  async registrarPedidoMasivo(pedidos: IPedidoMasivoItem[]): Promise<IResultadoCargaMasiva> {
+    try {
+      const response = await apiClient.post<BaseResponse<IResultadoCargaMasiva>>('/api/pedidos/registrar-masivo', { pedidos });
+      const body = response.data;
+      if (!body.isSuccess || !body.data) {
+        throw new Error(body.message || 'Error al agendar la carga masiva.');
+      }
+      return body.data;
+    } catch (err: any) {
+      const errMsg = err.response?.data?.message || err.message || 'Error al agendar la carga masiva.';
       throw new Error(errMsg);
     }
   }

@@ -12,21 +12,43 @@ interface Props {
 }
 
 export const resolveImageUrl = (url?: string | null): string => {
-  if (!url) return '';
-  if (
-    url.startsWith('http://') ||
-    url.startsWith('https://') ||
-    url.startsWith('data:') ||
-    url.startsWith('blob:')
-  ) {
-    return url;
+  if (!url || typeof url !== 'string' || !url.trim()) return '';
+
+  const trimmed = url.trim();
+
+  // Data URI o Blob
+  if (trimmed.startsWith('data:') || trimmed.startsWith('blob:')) {
+    return trimmed;
   }
-  const cleanPath = url.startsWith('/') ? url : `/${url}`;
-  const baseUrl = getApiBaseUrl();
-  if (baseUrl) {
-    return `${baseUrl}${cleanPath}`;
+
+  // Si es una URL completa HTTPS (ej. AWS S3 o CDN)
+  if (trimmed.startsWith('https://')) {
+    return trimmed;
   }
-  return `http://18.219.36.15${cleanPath}`;
+
+  // Si contiene una ruta de uploads (ej. "/uploads/...", "http://.../uploads/...")
+  const uploadsIndex = trimmed.indexOf('/uploads/');
+  if (uploadsIndex !== -1) {
+    const relativePath = trimmed.substring(uploadsIndex); // "/uploads/..."
+
+    // En producción (Vercel con HTTPS u otro dominio público)
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+      // Usar ruta relativa para que pase por el proxy HTTPS de Vercel (vercel.json) sin error de Mixed Content
+      return relativePath;
+    }
+
+    // En desarrollo local
+    const baseUrl = getApiBaseUrl() || 'http://localhost:5254';
+    return `${baseUrl}${relativePath}`;
+  }
+
+  // Si contiene cualquier otra ruta relativa
+  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    return cleanPath;
+  }
+  const baseUrl = getApiBaseUrl() || 'http://localhost:5254';
+  return `${baseUrl}${cleanPath}`;
 };
 
 export const ModalVerEvidencias: React.FC<Props> = ({
@@ -39,6 +61,12 @@ export const ModalVerEvidencias: React.FC<Props> = ({
 }) => {
   const [errorFoto, setErrorFoto] = useState(false);
   const [errorCapture, setErrorCapture] = useState(false);
+
+  // Reset error states when image props or open state changes
+  React.useEffect(() => {
+    setErrorFoto(false);
+    setErrorCapture(false);
+  }, [fotoEntregaUrl, captureUrl, isOpen]);
 
   if (!isOpen) return null;
 
