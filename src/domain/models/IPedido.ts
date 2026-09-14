@@ -23,6 +23,9 @@ export interface IPedido {
   montoCobrar: number;
   tarifaEnvio?: number;
   destinatarioPagaEnvio?: boolean;
+  esFulfillment?: boolean;
+  idProductoAlmacen?: number;
+  cantidadProducto?: number;
   idEstadosPedido?: number;
   estadoNombre: string;
   nombreConductor?: string;
@@ -46,6 +49,9 @@ export interface IRegisterPedidoParams {
   montoCobrar: number;
   tarifaEnvio: number;
   destinatarioPagaEnvio: boolean;
+  esFulfillment?: boolean;
+  idProductoAlmacen?: number;
+  cantidadProducto?: number;
 }
 
 export interface IPedidoResultado {

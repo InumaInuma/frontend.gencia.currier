@@ -5,7 +5,7 @@ import { Bike, Phone, DollarSign, Copy, Check } from 'lucide-react';
 interface Props {
   selectedConductor: ILiquidacionResumen;
   onVolver: () => void;
-  onConfirmarRendicion: (idConductor: number, nombreConductor: string) => void;
+  onConfirmarRendicion: (conductor: ILiquidacionResumen) => void;
   isPendingConfirmacion: boolean;
 }
 
@@ -62,7 +62,7 @@ export const DriverHeaderCard: React.FC<Props> = ({
         {selectedConductor.montoEfectivoPendiente > 0 && (
           <button
             type="button"
-            onClick={() => onConfirmarRendicion(selectedConductor.idConductor, selectedConductor.nombreConductor)}
+            onClick={() => onConfirmarRendicion(selectedConductor)}
             disabled={isPendingConfirmacion}
             className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
           >

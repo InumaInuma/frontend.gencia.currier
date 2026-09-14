@@ -12,6 +12,7 @@ import type { ILiquidacionResumen } from '../../../domain/models/ILiquidacionRes
 import { FiltroRangoFechasRendicion } from '../../components/rendicion/FiltroRangoFechasRendicion';
 import { TablaResumenRendicion } from '../../components/rendicion/TablaResumenRendicion';
 import { VistaDetalleRendicionMotorizado } from '../../components/rendicion/VistaDetalleRendicionMotorizado';
+import { ModalConfirmarLiquidacion } from '../../components/rendicion/ModalConfirmarLiquidacion';
 import {
   CheckCircle2,
   AlertCircle,
@@ -44,6 +45,9 @@ export const RendicionCuentasAdminPage: React.FC = () => {
 
   // Motorizado seleccionado para Vista Detalle Completa
   const [selectedConductor, setSelectedConductor] = useState<ILiquidacionResumen | null>(null);
+
+  // Motorizado seleccionado para Modal de Confirmación de Liquidación
+  const [conductorALiquidar, setConductorALiquidar] = useState<ILiquidacionResumen | null>(null);
 
   // Query de resumen global por fechas
   const { data: resumenList, isLoading, refetch } = useLiquidacionesResumenAdmin({
@@ -117,17 +121,20 @@ export const RendicionCuentasAdminPage: React.FC = () => {
     );
   }, [detalleList]);
 
-  const handleConfirmarRendicion = async (idConductor: number, nombreMotorizado: string) => {
-    if (!window.confirm(`¿Confirmas que el motorizado ${nombreMotorizado} ha entregado físicamente todo el efectivo recaudado al almacén?`)) {
-      return;
-    }
+  const handleOpenLiquidacionModal = (conductor: ILiquidacionResumen) => {
+    setConductorALiquidar(conductor);
+  };
+
+  const handleEjecutarLiquidacion = async () => {
+    if (!conductorALiquidar) return;
     setFeedbackMsg(null);
     try {
-      await confirmarRendicionMutation.mutateAsync(idConductor);
+      await confirmarRendicionMutation.mutateAsync(conductorALiquidar.idConductor);
       setFeedbackMsg({
         type: 'success',
-        text: `¡Rendición confirmada! Se registró la recepción física del dinero en efectivo de ${nombreMotorizado}.`
+        text: `¡Rendición confirmada! Se registró la recepción física del dinero en efectivo de ${conductorALiquidar.nombreConductor}.`
       });
+      setConductorALiquidar(null);
       refetch();
     } catch (err: any) {
       setFeedbackMsg({
@@ -250,7 +257,7 @@ export const RendicionCuentasAdminPage: React.FC = () => {
               onChangeSearchTerm={setSearchTerm}
               totalesGlobales={totalesGlobales}
               onSelectConductor={setSelectedConductor}
-              onConfirmarRendicion={handleConfirmarRendicion}
+              onConfirmarRendicion={handleOpenLiquidacionModal}
               isPendingConfirmacion={confirmarRendicionMutation.isPending}
             />
           ) : (
@@ -260,11 +267,19 @@ export const RendicionCuentasAdminPage: React.FC = () => {
               isLoadingDetalle={isLoadingDetalle}
               resumenDetalle={resumenDetalle}
               onVolver={() => setSelectedConductor(null)}
-              onConfirmarRendicion={handleConfirmarRendicion}
+              onConfirmarRendicion={handleOpenLiquidacionModal}
               isPendingConfirmacion={confirmarRendicionMutation.isPending}
             />
           )}
         </main>
+
+        {/* Modal Estándar de Confirmación de Liquidación */}
+        <ModalConfirmarLiquidacion
+          conductor={conductorALiquidar}
+          onClose={() => setConductorALiquidar(null)}
+          onConfirmar={handleEjecutarLiquidacion}
+          isPending={confirmarRendicionMutation.isPending}
+        />
 
         {/* Mobile Bottom Nav */}
         <MobileBottomNav onOpenMenu={() => setMovilAbierto(true)} />

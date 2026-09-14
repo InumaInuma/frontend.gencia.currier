@@ -68,6 +68,7 @@ interface GroupedDriverRoute {
 
 interface ComercioGroup {
   idComercio: number;
+  key: string;
   nombreComercial: string;
   razonSocial: string;
   ruc: string;
@@ -102,7 +103,7 @@ export const MonitoreoRecojosPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDriverFilter, setSelectedDriverFilter] = useState<string>('todos');
   const [openRouteIds, setOpenRouteIds] = useState<number[]>([]);
-  const [openCommerceIds, setOpenCommerceIds] = useState<number[]>([]);
+  const [collapsedCommerceKeys, setCollapsedCommerceKeys] = useState<string[]>([]);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   // Toast feedback state
@@ -223,7 +224,7 @@ export const MonitoreoRecojosPage: React.FC = () => {
     if (!pedidos || pedidos.length === 0) return [];
 
     const query = searchTerm.toLowerCase().trim();
-    const groupMap: { [key: number]: ComercioGroup } = {};
+    const groupMap: { [key: string]: ComercioGroup } = {};
 
     pedidos.forEach((p) => {
       const matchSearch =
@@ -238,9 +239,11 @@ export const MonitoreoRecojosPage: React.FC = () => {
       if (!matchSearch) return;
 
       const comId = p.idComercio || 0;
-      if (!groupMap[comId]) {
-        groupMap[comId] = {
+      const key = `comercio_${comId}_${(p.nombreComercial || 'Comercio').trim().toLowerCase()}`;
+      if (!groupMap[key]) {
+        groupMap[key] = {
           idComercio: comId,
+          key,
           nombreComercial: p.nombreComercial || 'Comercio',
           razonSocial: p.razonSocial || '',
           ruc: p.ruc || '',
@@ -252,8 +255,8 @@ export const MonitoreoRecojosPage: React.FC = () => {
           totalMonto: 0,
         };
       }
-      groupMap[comId].pedidos.push(p);
-      groupMap[comId].totalMonto += (p.montoCobrar || 0) + (p.tarifaEnvio || 0);
+      groupMap[key].pedidos.push(p);
+      groupMap[key].totalMonto += (p.montoCobrar || 0) + (p.tarifaEnvio || 0);
     });
 
     return Object.values(groupMap);
@@ -293,9 +296,9 @@ export const MonitoreoRecojosPage: React.FC = () => {
     return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
   }, [monitoreoItems]);
 
-  const toggleCommerceAccordion = (id: number) => {
-    setOpenCommerceIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+  const toggleCommerceAccordion = (key: string) => {
+    setCollapsedCommerceKeys((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
   };
 
@@ -535,15 +538,15 @@ export const MonitoreoRecojosPage: React.FC = () => {
                 </div>
               ) : (
                 comercioGroups.map((group) => {
-                  const isOpen = openCommerceIds.length === 0 || openCommerceIds.includes(group.idComercio);
+                  const isOpen = !collapsedCommerceKeys.includes(group.key);
                   return (
                     <div
-                      key={`comercio_${group.idComercio}`}
+                      key={group.key}
                       className="bg-slate-900/40 border border-slate-800 rounded-3xl overflow-hidden shadow-xl transition-all"
                     >
                       {/* Commerce Header Accordion */}
                       <div
-                        onClick={() => toggleCommerceAccordion(group.idComercio)}
+                        onClick={() => toggleCommerceAccordion(group.key)}
                         className="p-5 bg-gradient-to-r from-slate-900 via-slate-900/90 to-purple-950/20 border-b border-slate-800 cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-slate-900 transition-colors"
                       >
                         <div className="flex items-center gap-4">

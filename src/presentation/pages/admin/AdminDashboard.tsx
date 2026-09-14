@@ -204,11 +204,13 @@ export const AdminDashboard: React.FC = () => {
 
         <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
           {/* Controls Bar: Date Range Filter & Navigation to Monitoring */}
-          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
-            <div className="flex items-center gap-2.5 w-full md:w-auto">
-              <Calendar size={16} className="text-purple-400 shrink-0" />
-              <span className="text-xs font-bold text-slate-300 shrink-0">Filtrar por Rango:</span>
-              <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-4 flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-4 shadow-xl">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 text-purple-400">
+                <Calendar size={16} className="shrink-0" />
+                <span className="text-xs font-bold text-slate-300 whitespace-nowrap">Filtrar por Rango:</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
                 <input
                   type="date"
                   value={fechaInicio}
@@ -227,28 +229,28 @@ export const AdminDashboard: React.FC = () => {
                     setFechaInicio(getTodayFormatted());
                     setFechaFin(getTodayFormatted());
                   }}
-                  className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/30 hover:bg-purple-500/20 text-xs font-bold transition-all cursor-pointer"
+                  className="px-3 py-2 rounded-xl bg-purple-500/10 text-purple-300 border border-purple-500/30 hover:bg-purple-500/20 text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
                 >
                   Hoy
                 </button>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 2xl:pt-0 border-t border-slate-800/80 2xl:border-t-0 shrink-0">
               <button
                 onClick={() => navigate('/admin/colaboradores')}
-                className="w-full sm:w-auto bg-slate-900/80 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700/80 hover:border-pink-500/50 text-xs font-bold px-4 py-2.5 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="w-full sm:w-auto bg-slate-900/80 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700/80 hover:border-pink-500/50 text-xs font-bold px-4 py-2.5 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap"
               >
-                <Users size={16} className="text-pink-500" />
+                <Users size={16} className="text-pink-500 shrink-0" />
                 <span>Colaboradores & Choferes</span>
               </button>
 
               <button
                 onClick={() => navigate('/admin/monitoreo-recojos')}
-                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer group"
+                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2 transition-all cursor-pointer group whitespace-nowrap"
               >
                 <span>Ver Monitoreo Operativo de Pedidos</span>
-                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
             </div>
           </div>

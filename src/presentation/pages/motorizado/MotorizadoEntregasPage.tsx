@@ -64,10 +64,11 @@ export const MotorizadoEntregasPage: React.FC = () => {
   const asignacionHeader = useMemo(() => {
     if (!misItems || misItems.length === 0) return null;
     const first = misItems[0];
+    const tieneRutaEnCurso = misItems.some((item) => item.idEstadosEntrega === 2);
     return {
       idAsignacionEntrega: first.idAsignacionEntrega || first.idPedido,
-      idEstadosEntrega: first.idEstadosEntrega || 1, // 1: Creado, 2: En Ruta, 3: Completado
-      estadoAsignacion: first.estadoAsignacion || 'Creado',
+      idEstadosEntrega: tieneRutaEnCurso ? 2 : (first.idEstadosEntrega || 1), // 1: Creado, 2: En Ruta, 3: Completado
+      estadoAsignacion: tieneRutaEnCurso ? 'En Ruta' : (first.estadoAsignacion || 'Creado'),
       placaVehiculo: first.placaVehiculo,
       tipoVehiculo: first.tipoVehiculo,
     };
@@ -422,20 +423,23 @@ export const MotorizadoEntregasPage: React.FC = () => {
         </main>
 
         {/* Modal Confirmar Entrega y Registrar Cobro */}
-        <ModalConfirmarEntrega
-          deliveryModalItem={deliveryModalItem}
-          onClose={() => setDeliveryModalItem(null)}
-          tipoPago={tipoPago}
-          setTipoPago={setTipoPago}
-          montoEfectivo={montoEfectivo}
-          setMontoEfectivo={setMontoEfectivo}
-          montoYape={montoYape}
-          setMontoYape={setMontoYape}
-          referenciaYape={referenciaYape}
-          setReferenciaYape={setReferenciaYape}
-          onConfirmarEntrega={handleConfirmarEntrega}
-          isPending={actualizarEstadoMutation.isPending}
-        />
+        {deliveryModalItem && (
+          <ModalConfirmarEntrega
+            key={`modal-confirm-${deliveryModalItem.idPedido}`}
+            deliveryModalItem={deliveryModalItem}
+            onClose={() => setDeliveryModalItem(null)}
+            tipoPago={tipoPago}
+            setTipoPago={setTipoPago}
+            montoEfectivo={montoEfectivo}
+            setMontoEfectivo={setMontoEfectivo}
+            montoYape={montoYape}
+            setMontoYape={setMontoYape}
+            referenciaYape={referenciaYape}
+            setReferenciaYape={setReferenciaYape}
+            onConfirmarEntrega={handleConfirmarEntrega}
+            isPending={actualizarEstadoMutation.isPending}
+          />
+        )}
 
         {/* Modal Reprogramar Entrega */}
         <ModalReprogramarEntrega

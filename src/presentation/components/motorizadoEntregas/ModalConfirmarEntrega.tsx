@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, DollarSign, QrCode, CheckCircle2, Camera, Trash2, Building2, Upload, Receipt } from 'lucide-react';
 import type { IMonitoreoEntrega } from '../../../domain/models/IMonitoreoEntrega';
 
@@ -35,6 +35,22 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
   const [fotoClienteFile, setFotoClienteFile] = useState<File | null>(null);
   const [fotoPagoPreview, setFotoPagoPreview] = useState<string | null>(null);
   const [fotoPagoFile, setFotoPagoFile] = useState<File | null>(null);
+
+  // Limpiar fotos previas cada vez que cambia el pedido a entregar o se abre el modal
+  useEffect(() => {
+    setFotoClientePreview(null);
+    setFotoClienteFile(null);
+    setFotoPagoPreview(null);
+    setFotoPagoFile(null);
+  }, [deliveryModalItem?.idPedido]);
+
+  const handleClose = () => {
+    setFotoClientePreview(null);
+    setFotoClienteFile(null);
+    setFotoPagoPreview(null);
+    setFotoPagoFile(null);
+    onClose();
+  };
 
   if (!deliveryModalItem) return null;
 
@@ -101,7 +117,7 @@ export const ModalConfirmarEntrega: React.FC<Props> = ({
       <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-3xl p-5 sm:p-6 space-y-4 shadow-2xl my-8">
         <button
           type="button"
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-5 right-5 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/50 cursor-pointer transition-colors"
         >
           <X size={18} />

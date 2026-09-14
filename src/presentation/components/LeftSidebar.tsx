@@ -21,6 +21,7 @@ import {
   MapPin,
   Plus,
   Users,
+  Warehouse,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -97,6 +98,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
       return [
         { path: '/comercio/dashboard', label: 'Gestión de Envíos', icon: <ShoppingBag size={18} /> },
         { path: '/comercio/agendar-envio', label: 'Agendar Nuevo Envío', icon: <Plus size={18} /> },
+        { path: '/comercio/mi-almacen', label: 'Mi Almacén & Stock', icon: <Warehouse size={18} /> },
       ];
     }
 
@@ -112,6 +114,7 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
         { path: '/admin/dashboard', label: 'Panel Principal', icon: <LayoutDashboard size={18} /> },
         { path: '/admin/asignar-recojos', label: 'Asignar Recojos', icon: <Bike size={18} /> },
         { path: '/admin/asignar-entregas', label: 'Asignar Entregas', icon: <Truck size={18} /> },
+        { path: '/admin/almacenaje', label: 'Almacén & Fulfillment', icon: <Warehouse size={18} /> },
         { path: '/admin/reprogramaciones', label: 'Reprogramaciones', icon: <CalendarClock size={18} /> },
         { path: '/admin/cobertura', label: 'Zonas de Cobertura', icon: <MapPin size={18} /> },
         { path: '/admin/monitoreo-recojos', label: 'Monitoreo de Pedidos', icon: <Navigation size={18} /> },

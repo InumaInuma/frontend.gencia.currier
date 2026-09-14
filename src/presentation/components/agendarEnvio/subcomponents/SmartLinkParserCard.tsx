@@ -50,8 +50,11 @@ export const SmartLinkParserCard: React.FC<Props> = ({
               const val = e.target.value;
               setLinkInput(val);
               if (setGoogleMapsUrl) setGoogleMapsUrl(val);
-              if (val.trim().length > 10) {
-                handleProcessLink(val);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleProcessLink(linkInput);
               }
             }}
             onPaste={(e) => {
@@ -82,7 +85,7 @@ export const SmartLinkParserCard: React.FC<Props> = ({
 
           <button
             type="button"
-            onClick={() => handleProcessLink()}
+            onClick={() => handleProcessLink(linkInput)}
             disabled={isProcessingLink || !linkInput.trim()}
             className="flex-1 sm:flex-none px-4 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-lg shadow-violet-600/30 cursor-pointer"
           >

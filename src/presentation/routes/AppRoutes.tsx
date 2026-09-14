@@ -11,9 +11,11 @@ import RendicionCuentasAdminPage from '../pages/admin/RendicionCuentasAdminPage'
 import { ReprogramacionesAdminPage } from '../pages/admin/ReprogramacionesAdminPage';
 import { CoberturaAdminPage } from '../pages/admin/CoberturaAdminPage';
 import { ColaboradoresAdminPage } from '../pages/admin/ColaboradoresAdminPage';
+import AlmacenajeAdminPage from '../pages/admin/AlmacenajeAdminPage';
 import { ModalActualizarClaveObligatoria } from '../components/common/ModalActualizarClaveObligatoria';
 import ComercioDashboard from '../pages/comercio/ComercioDashboard';
 import AgendarEnvioPage from '../pages/comercio/AgendarEnvioPage';
+import MiAlmacenComercioPage from '../pages/comercio/MiAlmacenComercioPage';
 import MotorizadoRecojosPage from '../pages/motorizado/MotorizadoRecojosPage';
 import MotorizadoEntregasPage from '../pages/motorizado/MotorizadoEntregasPage';
 import ClienteDashboard from '../pages/cliente/ClienteDashboard';
@@ -216,6 +218,15 @@ export const AppRoutes: React.FC = () => {
         />
 
         <Route
+          path="/admin/almacenaje"
+          element={
+            <RoleProtectedRoute allowedRoles={['Administrador']}>
+              <AlmacenajeAdminPage />
+            </RoleProtectedRoute>
+          }
+        />
+
+        <Route
           path="/comercio/dashboard"
           element={
             <RoleProtectedRoute allowedRoles={['Comercio']}>
@@ -229,6 +240,15 @@ export const AppRoutes: React.FC = () => {
           element={
             <RoleProtectedRoute allowedRoles={['Comercio']}>
               <AgendarEnvioPage />
+            </RoleProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/comercio/mi-almacen"
+          element={
+            <RoleProtectedRoute allowedRoles={['Comercio']}>
+              <MiAlmacenComercioPage />
             </RoleProtectedRoute>
           }
         />

@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../application/context/AuthContext';
 import { useDistritos } from '../../../application/useCases/useDistritos';
 import { useRegistrarPedido } from '../../../application/useCases/useMisPedidos';
 import { useCoberturaAdmin } from '../../../application/useCases/useCoberturaAdmin';
+import { useAlmacenaje } from '../../../application/useCases/useAlmacenaje';
+import type { IProductoAlmacen } from '../../../domain/models/IAlmacenaje';
 import type { DistritoTarifaDto, ZonaAlejadaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
 import { LeftSidebar } from '../../components/LeftSidebar';
 import { MobileBottomNav } from '../../components/MobileBottomNav';
@@ -35,10 +37,23 @@ import { CargaMasivaExcel } from '../../components/agendarEnvio/CargaMasivaExcel
 export const AgendarEnvioPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialFulfillment = queryParams.get('fulfillment') === 'true';
+  const initialProductoId = queryParams.get('productoId') ? Number(queryParams.get('productoId')) : '';
+
   const { data: cuentasBancarias } = useComercioCuentasBancarias();
+  const { getMiSuscripcion, getProductos: getProductosAlmacen } = useAlmacenaje();
 
   const [contraido, setContraido] = useState(false);
   const [movilAbierto, setMovilAbierto] = useState(false);
+
+  // Fulfillment state
+  const [tieneSuscripcionAlmacenaje, setTieneSuscripcionAlmacenaje] = useState(false);
+  const [productosAlmacen, setProductosAlmacen] = useState<IProductoAlmacen[]>([]);
+  const [esFulfillment, setEsFulfillment] = useState(initialFulfillment);
+  const [idProductoAlmacen, setIdProductoAlmacen] = useState<number | ''>(initialProductoId);
+  const [cantidadProducto, setCantidadProducto] = useState(1);
 
   // Modo agendado: 'individual' (1 a 1) o 'masivo' (Excel)
   const [modoAgendado, setModoAgendado] = useState<'individual' | 'masivo'>('individual');
@@ -118,6 +133,38 @@ export const AgendarEnvioPage: React.FC = () => {
     };
     fetchBackendCobertura();
   }, [getDistritosTarifas, getPoligonoVerde, getZonasRestringidas, getZonasAlejadas]);
+
+  const checkAlmacenaje = useCallback(async () => {
+    try {
+      const sub = await getMiSuscripcion();
+      if (sub && sub.tieneServicioAlmacenaje) {
+        setTieneSuscripcionAlmacenaje(true);
+        const prods = await getProductosAlmacen();
+        setProductosAlmacen(prods);
+        if (initialProductoId && prods.some(p => p.id === initialProductoId)) {
+          setIdProductoAlmacen(initialProductoId);
+          setEsFulfillment(true);
+          const pSel = prods.find(p => p.id === initialProductoId);
+          if (pSel) setDescripcionProducto(`${pSel.nombreProducto} x1`);
+        }
+      }
+    } catch (e) {
+      // Ignorar si el usuario no tiene rol comercio
+    }
+  }, [getMiSuscripcion, getProductosAlmacen, initialProductoId]);
+
+  useEffect(() => {
+    checkAlmacenaje();
+  }, [checkAlmacenaje]);
+
+  // Real-time listener para refrescar el stock de productos de almacén en el selector
+  useEffect(() => {
+    const handleInventarioUpdate = () => {
+      checkAlmacenaje();
+    };
+    window.addEventListener('inventario-almacen-actualizado', handleInventarioUpdate);
+    return () => window.removeEventListener('inventario-almacen-actualizado', handleInventarioUpdate);
+  }, [checkAlmacenaje]);
 
   // Compute active restricted zone if pin falls inside any red zone
   const activeRestrictedZone = (() => {
@@ -236,6 +283,9 @@ export const AgendarEnvioPage: React.FC = () => {
         montoCobrar: esContraEntrega ? Number(montoCobrar) || 0 : 0,
         tarifaEnvio: finalTariff,
         destinatarioPagaEnvio: destinatarioPagaEnvio,
+        esFulfillment: esFulfillment,
+        idProductoAlmacen: esFulfillment && idProductoAlmacen !== '' ? Number(idProductoAlmacen) : undefined,
+        cantidadProducto: esFulfillment ? cantidadProducto : undefined,
       });
       setCreatedTrackingCode(res.codigoSeguimiento);
     } catch (err: any) {
@@ -499,6 +549,14 @@ export const AgendarEnvioPage: React.FC = () => {
                   setObservaciones={setObservaciones}
                   step1Error={step1Error}
                   handleNext={handleNext}
+                  tieneSuscripcionAlmacenaje={tieneSuscripcionAlmacenaje}
+                  esFulfillment={esFulfillment}
+                  setEsFulfillment={setEsFulfillment}
+                  idProductoAlmacen={idProductoAlmacen}
+                  setIdProductoAlmacen={setIdProductoAlmacen}
+                  cantidadProducto={cantidadProducto}
+                  setCantidadProducto={setCantidadProducto}
+                  productosAlmacen={productosAlmacen}
                 />
               )}
 

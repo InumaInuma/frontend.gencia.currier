@@ -31,7 +31,7 @@ interface Props {
     totalGeneral: number;
   };
   onSelectConductor: (item: ILiquidacionResumen) => void;
-  onConfirmarRendicion: (idConductor: number, nombreConductor: string) => void;
+  onConfirmarRendicion: (conductor: ILiquidacionResumen) => void;
   isPendingConfirmacion: boolean;
 }
 
@@ -294,7 +294,7 @@ export const TablaResumenRendicion: React.FC<Props> = ({
                         {/* Confirm Cash Received Button */}
                         {tienePendiente && (
                           <button
-                            onClick={() => onConfirmarRendicion(item.idConductor, item.nombreConductor)}
+                            onClick={() => onConfirmarRendicion(item)}
                             disabled={isPendingConfirmacion}
                             className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-[11px] flex items-center gap-1 cursor-pointer transition-all shadow-sm shadow-emerald-600/30 active:scale-95"
                             title="Confirmar recepción física de dinero"

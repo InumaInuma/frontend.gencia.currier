@@ -23,7 +23,7 @@ interface Props {
     total: number;
   };
   onVolver: () => void;
-  onConfirmarRendicion: (idConductor: number, nombreConductor: string) => void;
+  onConfirmarRendicion: (conductor: ILiquidacionResumen) => void;
   isPendingConfirmacion: boolean;
 }
 

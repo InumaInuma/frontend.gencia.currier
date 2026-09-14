@@ -20,6 +20,15 @@ interface Props {
   setObservaciones: (val: string) => void;
   step1Error: string;
   handleNext: () => void;
+  // Fulfillment props
+  tieneSuscripcionAlmacenaje?: boolean;
+  esFulfillment?: boolean;
+  setEsFulfillment?: (val: boolean) => void;
+  idProductoAlmacen?: number | '';
+  setIdProductoAlmacen?: (val: number | '') => void;
+  cantidadProducto?: number;
+  setCantidadProducto?: (val: number) => void;
+  productosAlmacen?: Array<{ id: number; nombreProducto: string; stockDisponible: number; codigoSKU: string }>;
 }
 
 export const Paso1DatosEnvio: React.FC<Props> = ({
@@ -41,6 +50,14 @@ export const Paso1DatosEnvio: React.FC<Props> = ({
   setObservaciones,
   step1Error,
   handleNext,
+  tieneSuscripcionAlmacenaje = false,
+  esFulfillment = false,
+  setEsFulfillment,
+  idProductoAlmacen = '',
+  setIdProductoAlmacen,
+  cantidadProducto = 1,
+  setCantidadProducto,
+  productosAlmacen = []
 }) => {
   return (
     <div className="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl space-y-5">
@@ -48,6 +65,97 @@ export const Paso1DatosEnvio: React.FC<Props> = ({
         <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
           <AlertCircle size={15} className="shrink-0" />
           {step1Error}
+        </div>
+      )}
+
+      {/* Opción de Fulfillment si el comercio tiene suscripción activa */}
+      {tieneSuscripcionAlmacenaje && setEsFulfillment && (
+        <div className="bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-950 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <ShoppingBag size={18} />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-white block">
+                  Despachar desde Almacén (Fulfillment)
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  Omite el recojo: Fragata Courier alista el producto desde su almacén
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const nextVal = !esFulfillment;
+                setEsFulfillment(nextVal);
+                if (nextVal && productosAlmacen.length > 0 && setIdProductoAlmacen && !idProductoAlmacen) {
+                  setIdProductoAlmacen(productosAlmacen[0].id);
+                  setDescripcionProducto(`${productosAlmacen[0].nombreProducto} x${cantidadProducto}`);
+                }
+              }}
+              className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ${
+                esFulfillment ? 'bg-amber-500 justify-end' : 'bg-slate-700 justify-start'
+              }`}
+            >
+              <div className="w-4 h-4 rounded-full bg-white shadow-md" />
+            </button>
+          </div>
+
+          {esFulfillment && (
+            <div className="pt-3 border-t border-amber-500/20 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold text-amber-300 block mb-1">
+                  Producto de Almacén *
+                </label>
+                <select
+                  value={idProductoAlmacen}
+                  onChange={(e) => {
+                    const id = Number(e.target.value);
+                    if (setIdProductoAlmacen) setIdProductoAlmacen(id);
+                    const prod = productosAlmacen.find(p => p.id === id);
+                    if (prod) {
+                      setDescripcionProducto(`${prod.nombreProducto} x${cantidadProducto}`);
+                    }
+                  }}
+                  className="w-full bg-slate-950 border border-amber-500/30 text-white text-xs sm:text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500"
+                >
+                  <option value="">Seleccione un producto</option>
+                  {productosAlmacen.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombreProducto} ({p.stockDisponible} disponibles en almacén)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-amber-300 block mb-1">
+                  Cantidad a Despachar *
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={cantidadProducto}
+                  onChange={(e) => {
+                    const cant = Math.max(1, Number(e.target.value));
+                    if (setCantidadProducto) setCantidadProducto(cant);
+                    const prod = productosAlmacen.find(p => p.id === idProductoAlmacen);
+                    if (prod) {
+                      setDescripcionProducto(`${prod.nombreProducto} x${cant}`);
+                    }
+                  }}
+                  className="w-full bg-slate-950 border border-amber-500/30 text-white text-xs sm:text-sm rounded-xl px-3 py-2.5 outline-none focus:border-amber-500 font-bold"
+                />
+              </div>
+
+              <div className="sm:col-span-3 text-[11px] text-amber-400/90 bg-amber-500/10 p-2.5 rounded-xl flex items-center gap-2">
+                <span>⚡ <strong>Envío directo:</strong> Este pedido pasará automáticamente a estado <strong>"En Almacén"</strong> y no requerirá recojo motorizado en tu tienda.</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -4,7 +4,7 @@ import type { IDistrito } from '../../../domain/models/IDistrito';
 import type { DistritoTarifaDto, ZonaAlejadaDto, ZonaRestringidaDto } from '../../../application/useCases/useCoberturaAdmin';
 import type { IZonaCoberturaInfo } from '../../../infrastructure/utils/coberturaData';
 import { detectarDistritoCercano } from '../../../infrastructure/utils/coberturaData';
-import { extraerCoordenadasDeTexto } from './agendarEnvioUtils';
+import { extraerCoordenadasDeTexto, buscarDistritoEnLista } from './agendarEnvioUtils';
 import { useResolverLinkMaps } from '../../../application/useCases/useMisPedidos';
 import { SmartLinkParserCard } from './subcomponents/SmartLinkParserCard';
 import { DireccionFormFields, type NominatimResult } from './subcomponents/DireccionFormFields';
@@ -125,22 +125,13 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const processCoordinatesAndAddress = async (lat: number, lng: number) => {
+  const processCoordinatesAndAddress = async (lat: number, lng: number, shouldNotify = true) => {
     setSelectedCoords({ lat, lng });
     setGoogleMapsUrl(`https://www.google.com/maps?q=${lat},${lng}`);
 
-    // Auto detect district
-    const closestInfo = detectarDistritoCercano(lat, lng);
-    if (closestInfo && distritos) {
-      const match = distritos.find(
-        (d) => d.nombre.toLowerCase().trim() === closestInfo.nombre.toLowerCase().trim() || d.id === closestInfo.id
-      );
-      if (match) {
-        setIdDistritoDestinatario(match.id);
-      }
-    }
+    let districtMatched: { id: number; nombre: string } | undefined = undefined;
 
-    // Reverse geocode street address
+    // 1. Reverse geocode street address con Nominatim para máxima precisión
     try {
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
@@ -157,20 +148,54 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
             if (data.address.suburb) cleanAddress += `, ${data.address.suburb}`;
           }
           setDireccionDestinatario(cleanAddress);
+
+          // Buscar coincidencia del distrito exacto desde la dirección oficial devuelta por Nominatim
+          if (distritos && distritos.length > 0 && data.address) {
+            const posiblesCandidatos = [
+              data.address.suburb,
+              data.address.city_district,
+              data.address.district,
+              data.address.neighbourhood,
+              data.address.town,
+              data.address.city
+            ].filter(Boolean) as string[];
+
+            for (const cand of posiblesCandidatos) {
+              districtMatched = buscarDistritoEnLista(cand, distritos);
+              if (districtMatched) break;
+            }
+          }
         }
       }
     } catch (e) {
       console.error('Error reverse geocoding:', e);
     }
 
-    setParseSuccessMsg('🟢 ¡Ubicación detectada exitosamente! El pin del mapa se ha posicionado.');
-    setTimeout(() => setParseSuccessMsg(''), 5000);
+    // 2. Si el reverse geocoding no determinó el distrito (o falló red), usar fallback por proximidad geométrica
+    if (!districtMatched && distritos && distritos.length > 0) {
+      const closestInfo = detectarDistritoCercano(lat, lng);
+      if (closestInfo) {
+        // Buscar exclusivamente por NOMBRE normalizado, NUNCA por ID (porque los IDs de coberturaData difieren de la BD)
+        districtMatched = buscarDistritoEnLista(closestInfo.nombre, distritos);
+      }
+    }
+
+    // 3. Asignar el ID de distrito correspondiente
+    if (districtMatched) {
+      setIdDistritoDestinatario(districtMatched.id);
+    }
+
+    if (shouldNotify) {
+      setParseSuccessMsg('🟢 ¡Ubicación detectada exitosamente! El pin del mapa se ha posicionado.');
+      setTimeout(() => setParseSuccessMsg(''), 5000);
+    }
   };
 
   const handleProcessLink = async (textToProcess?: string) => {
     const targetText = textToProcess !== undefined ? textToProcess : linkInput;
     if (!targetText || !targetText.trim()) return;
 
+    setLinkInput(targetText);
     setIsProcessingLink(true);
     try {
       // 1. Local parsing (DMS, @lat,lng, !3d!4d, decimal)
@@ -245,39 +270,38 @@ export const Paso2UbicacionGPS: React.FC<Props> = ({
     setShowSuggestions(false);
 
     // Auto match district by text or distance
-    const districtNameFromApi =
-      s.address?.suburb || s.address?.city_district || s.address?.district || s.address?.town || '';
+    const posiblesCandidatos = [
+      s.address?.suburb,
+      s.address?.city_district,
+      s.address?.district,
+      s.address?.town,
+      s.address?.city
+    ].filter(Boolean) as string[];
 
-    let matchedDistritoId: number | null = null;
+    let matchedDistrito: { id: number; nombre: string } | undefined = undefined;
 
-    if (districtNameFromApi && distritos) {
-      const directMatch = distritos.find(
-        (d) => d.nombre.toLowerCase().trim() === districtNameFromApi.toLowerCase().trim()
-      );
-      if (directMatch) {
-        matchedDistritoId = directMatch.id;
+    if (distritos && distritos.length > 0) {
+      for (const cand of posiblesCandidatos) {
+        matchedDistrito = buscarDistritoEnLista(cand, distritos);
+        if (matchedDistrito) break;
       }
-    }
 
-    if (!matchedDistritoId) {
-      const closestInfo = detectarDistritoCercano(lat, lng);
-      if (closestInfo && distritos) {
-        const match = distritos.find(
-          (d) => d.nombre.toLowerCase().trim() === closestInfo.nombre.toLowerCase().trim() || d.id === closestInfo.id
-        );
-        if (match) {
-          matchedDistritoId = match.id;
+      if (!matchedDistrito) {
+        const closestInfo = detectarDistritoCercano(lat, lng);
+        if (closestInfo) {
+          matchedDistrito = buscarDistritoEnLista(closestInfo.nombre, distritos);
         }
       }
-    }
 
-    if (matchedDistritoId) {
-      setIdDistritoDestinatario(matchedDistritoId);
+      if (matchedDistrito) {
+        setIdDistritoDestinatario(matchedDistrito.id);
+      }
     }
   };
 
-  const handleMapClick = (lat: number, lng: number) => {
+  const handleMapClick = async (lat: number, lng: number) => {
     setSelectedCoords({ lat, lng });
+    await processCoordinatesAndAddress(lat, lng, false);
   };
 
   return (

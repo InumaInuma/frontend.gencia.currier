@@ -64,6 +64,11 @@ export const useSignalR = () => {
       queryClient.invalidateQueries({ queryKey: ['liquidacion-detalle-motorizado'] });
     });
 
+    connection.on('InventarioAlmacenActualizado', () => {
+      console.log('⚡ SignalR: InventarioAlmacenActualizado');
+      window.dispatchEvent(new CustomEvent('inventario-almacen-actualizado'));
+    });
+
     // Iniciar conexión Hub
     connection
       .start()
