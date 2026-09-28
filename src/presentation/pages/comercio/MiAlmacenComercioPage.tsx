@@ -102,7 +102,7 @@ export const MiAlmacenComercioPage: React.FC = () => {
                 </span>
               </h1>
               <p className="text-[11px] text-slate-400 hidden sm:block">
-                Inventario físico en sede de Fragata Courier y despachos automáticos
+                Inventario físico en sede de Almain Courier y despachos automáticos
               </p>
             </div>
           </div>
@@ -137,7 +137,7 @@ export const MiAlmacenComercioPage: React.FC = () => {
                 </h2>
                 <p className="text-sm text-slate-300 leading-relaxed">
                   ¿No tienes espacio para guardar tus productos o pierdes tiempo esperando los recojos de cada pedido?
-                  Con el servicio de <strong>Almacenaje & Fulfillment de Fragata Courier</strong>, dejas tu mercadería
+                  Con el servicio de <strong>Almacenaje & Fulfillment de Almain Courier</strong>, dejas tu mercadería
                   en nuestra sede central y, cuando vendas, nosotros alistamos y entregamos tu paquete el mismo día.
                 </p>
               </div>
@@ -170,7 +170,7 @@ export const MiAlmacenComercioPage: React.FC = () => {
 
               <div className="pt-4 flex flex-col sm:flex-row items-center gap-4 border-t border-slate-800">
                 <a
-                  href="https://wa.me/51999999999?text=Hola,%20deseo%20activar%20el%20servicio%20de%20Almacenaje%20Fulfillment%20en%20Fragata%20Courier"
+                  href="https://wa.me/51999999999?text=Hola,%20deseo%20activar%20el%20servicio%20de%20Almacenaje%20Fulfillment%20en%20Almain%20Courier"
                   target="_blank"
                   rel="noreferrer"
                   className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-500 hover:from-amber-500 hover:to-orange-400 text-white font-bold rounded-xl text-sm shadow-xl shadow-orange-500/20 transition flex items-center justify-center gap-2"
@@ -235,7 +235,7 @@ export const MiAlmacenComercioPage: React.FC = () => {
                     ))}
                   </div>
                   <p className="text-[11px] text-slate-400 pt-1">
-                    Coordina con Fragata Courier para ingresar más unidades a nuestro almacén y no quedarte sin stock.
+                    Coordina con Almain Courier para ingresar más unidades a nuestro almacén y no quedarte sin stock.
                   </p>
                 </div>
               )}

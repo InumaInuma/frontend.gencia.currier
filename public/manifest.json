@@ -1,9 +1,9 @@
 {
   "id": "/",
   "scope": "/",
-  "name": "FRAGATA COURIER — Agencia Logística & Envíos Expresos",
-  "short_name": "FRAGATA",
-  "description": "Plataforma de Logística Expresa, Envíos y Seguimiento en Tiempo Real — FRAGATA COURIER",
+  "name": "ALMAIN COURIER — Agencia Logística & Envíos Expresos",
+  "short_name": "ALMAIN",
+  "description": "Plataforma de Logística Expresa, Envíos y Seguimiento en Tiempo Real — ALMAIN COURIER",
   "start_url": "/",
   "display": "standalone",
   "display_override": [

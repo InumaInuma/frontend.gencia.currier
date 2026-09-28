@@ -242,7 +242,7 @@ export const ColaboradoresAdminPage: React.FC = () => {
           {cargando ? (
             <div className="py-16 text-center space-y-3">
               <div className="w-8 h-8 border-3 border-rose-500 border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-xs text-slate-400">Cargando colaboradores de Fragata Courier...</p>
+              <p className="text-xs text-slate-400">Cargando colaboradores de Almain Courier...</p>
             </div>
           ) : (
             <TablaColaboradores colaboradores={colaboradoresFiltrados} />

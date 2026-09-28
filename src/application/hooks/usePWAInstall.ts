@@ -34,7 +34,7 @@ export const usePWAInstall = () => {
       setIsInstalled(true);
       setIsInstallable(false);
       setDeferredPrompt(null);
-      console.log('🎉 PWA FRAGATA COURIER instalada exitosamente');
+      console.log('🎉 PWA ALMAIN COURIER instalada exitosamente');
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -58,12 +58,12 @@ export const usePWAInstall = () => {
       setDeferredPrompt(null);
     } else if (isIOS) {
       alert(
-        '📱 Para instalar FRAGATA COURIER en tu iPhone/iPad:\n1. Toca el botón "Compartir" en Safari (cuadro con flecha arriba).\n2. Selecciona "Agregar a pantalla de inicio".'
+        '📱 Para instalar ALMAIN COURIER en tu iPhone/iPad:\n1. Toca el botón "Compartir" en Safari (cuadro con flecha arriba).\n2. Selecciona "Agregar a pantalla de inicio".'
       );
     } else {
       // Direct user fallback instructions
       alert(
-        '📱 Para instalar FRAGATA COURIER como App:\nEn tu navegador Chrome/Edge/Samsung, presiona el menú de 3 puntos (⋮) y elige "Instalar Aplicación" o "Agregar a Pantalla Principal".'
+        '📱 Para instalar ALMAIN COURIER como App:\nEn tu navegador Chrome/Edge/Samsung, presiona el menú de 3 puntos (⋮) y elige "Instalar Aplicación" o "Agregar a Pantalla Principal".'
       );
     }
   };

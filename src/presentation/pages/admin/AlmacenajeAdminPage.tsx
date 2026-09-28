@@ -266,7 +266,7 @@ export const AlmacenajeAdminPage: React.FC = () => {
               <h1 className="font-bold text-white text-base sm:text-lg leading-tight flex items-center gap-2">
                 Almacén & Fulfillment
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase tracking-wider">
-                  Fragata Courier
+                  Almain Courier
                 </span>
               </h1>
               <p className="text-[11px] text-slate-400 hidden sm:block">

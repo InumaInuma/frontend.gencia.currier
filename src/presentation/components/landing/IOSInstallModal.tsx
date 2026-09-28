@@ -25,7 +25,7 @@ export const IOSInstallModal: React.FC<IOSInstallModalProps> = ({ isOpen, onClos
         <div className="flex items-center gap-3.5 pr-6">
           <img
             src="/icons/icon-192.png"
-            alt="Fragata Courier"
+            alt="Almain Courier"
             className="w-12 h-12 rounded-2xl object-contain bg-white p-1 shadow-lg shadow-red-500/20 border border-slate-700 shrink-0"
           />
           <div>
@@ -33,7 +33,7 @@ export const IOSInstallModal: React.FC<IOSInstallModalProps> = ({ isOpen, onClos
               Instalar en iPhone & iPad
             </h3>
             <p className="text-[11px] text-red-400 font-bold mt-0.5">
-              FRAGATA COURIER iOS App
+              ALMAIN COURIER iOS App
             </p>
           </div>
         </div>

@@ -81,7 +81,7 @@ export const Paso1DatosEnvio: React.FC<Props> = ({
                   Despachar desde Almacén (Fulfillment)
                 </span>
                 <span className="text-[11px] text-slate-400">
-                  Omite el recojo: Fragata Courier alista el producto desde su almacén
+                  Omite el recojo: Almain Courier alista el producto desde su almacén
                 </span>
               </div>
             </div>

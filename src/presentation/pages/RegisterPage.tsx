@@ -78,8 +78,8 @@ export const RegisterPage: React.FC = () => {
         {/* Header */}
         <div className="mb-8">
           <Link to="/" className="inline-flex items-center gap-3 mb-4 group cursor-pointer">
-            <img src="/icons/icon-192.png" alt="Fragata Courier" className="w-9 h-9 object-contain bg-white rounded-xl p-0.5 shadow-md shadow-red-500/20 group-hover:scale-105 transition-all" />
-            <span className="font-black text-lg text-white">FRAGATA <span className="text-red-500">COURIER</span></span>
+            <img src="/icons/icon-192.png" alt="Almain Courier" className="w-9 h-9 object-contain bg-white rounded-xl p-0.5 shadow-md shadow-red-500/20 group-hover:scale-105 transition-all" />
+            <span className="font-black text-lg text-white">ALMAIN <span className="text-red-500">COURIER</span></span>
           </Link>
           <h1 className="text-2xl font-bold tracking-tight text-white">
             Crear Cuenta de Cliente

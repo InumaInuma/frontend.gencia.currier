@@ -74,8 +74,8 @@ export const LandingPage: React.FC = () => {
 
   const handleSendWhatsAppContact = (e: React.FormEvent) => {
     e.preventDefault();
-    const phone = '51966622023'; // WhatsApp Fragata Courier
-    const text = `Hola Fragata Courier, me contacto desde la web.%0A*Nombre:* ${encodeURIComponent(contactName)}%0A*Comercio:* ${encodeURIComponent(contactBusiness)}%0A*Teléfono:* ${encodeURIComponent(contactPhone)}%0A*Consulta:* ${encodeURIComponent(contactMessage || 'Deseo cotizar envíos para mi negocio.')}`;
+    const phone = '51966622023'; // WhatsApp Almain Courier
+    const text = `Hola Almain Courier, me contacto desde la web.%0A*Nombre:* ${encodeURIComponent(contactName)}%0A*Comercio:* ${encodeURIComponent(contactBusiness)}%0A*Teléfono:* ${encodeURIComponent(contactPhone)}%0A*Consulta:* ${encodeURIComponent(contactMessage || 'Deseo cotizar envíos para mi negocio.')}`;
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
   };
 
@@ -122,12 +122,12 @@ export const LandingPage: React.FC = () => {
           <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <img
               src="/icons/icon-192.png"
-              alt="Logo Fragata Courier"
+              alt="Logo Almain Courier"
               className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl object-contain bg-white p-0.5 shadow-md shadow-red-500/20 border border-slate-800 group-hover:scale-105 transition-all shrink-0"
             />
             <div className="flex flex-col">
               <span className="font-black text-white text-base sm:text-lg lg:text-xl tracking-tight leading-none whitespace-nowrap">
-                FRAGATA <span className="text-red-500">COURIER</span>
+                ALMAIN <span className="text-red-500">COURIER</span>
               </span>
               <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-wider hidden xs:block mt-1 leading-none">
                 Agencia Logística Expresa
@@ -279,7 +279,7 @@ export const LandingPage: React.FC = () => {
             {/* WhatsApp Quick Link inside Drawer */}
             <div className="pt-2 border-t border-slate-900">
               <a
-                href="https://wa.me/51966622023?text=Hola%20Fragata%20Courier,%20deseo%20afiliar%20mi%20tienda%20para%20env%C3%ADos."
+                href="https://wa.me/51966622023?text=Hola%20Almain%20Courier,%20deseo%20afiliar%20mi%20tienda%20para%20env%C3%ADos."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-2.5 px-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center justify-center gap-2 hover:bg-emerald-500/20 transition-all"
@@ -316,9 +316,9 @@ export const LandingPage: React.FC = () => {
                   className="w-full max-w-sm sm:max-w-md px-3.5 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-red-950/90 via-slate-900 to-slate-950 border border-red-500/40 hover:border-red-400 text-white text-xs sm:text-sm font-extrabold shadow-xl shadow-red-600/20 active:scale-[0.98] transition-all cursor-pointer flex items-center justify-between gap-3 group"
                 >
                   <div className="flex items-center gap-2.5 sm:gap-3 text-left">
-                    <img src="/icons/icon-192.png" alt="Logo Fragata" className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-xl bg-white p-0.5 shadow-md shrink-0" />
+                    <img src="/icons/icon-192.png" alt="Logo Almain" className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-xl bg-white p-0.5 shadow-md shrink-0" />
                     <div>
-                      <span className="block leading-tight font-extrabold text-red-200 text-xs sm:text-sm">Instalar FRAGATA App</span>
+                      <span className="block leading-tight font-extrabold text-red-200 text-xs sm:text-sm">Instalar ALMAIN App</span>
                       <span className="block text-[9px] sm:text-[10px] text-slate-400 font-normal">Acceso directo en Android / iOS / PC</span>
                     </div>
                   </div>
@@ -334,7 +334,7 @@ export const LandingPage: React.FC = () => {
             </h1>
 
             <p className="text-xs sm:text-sm md:text-base text-slate-400 max-w-2xl mx-auto px-2">
-              Si compraste en una tienda afiliada a <strong className="text-white">FRAGATA COURIER</strong>, ingresa aquí tu código de envío para conocer el estado y ubicación de tu paquete en vivo.
+              Si compraste en una tienda afiliada a <strong className="text-white">ALMAIN COURIER</strong>, ingresa aquí tu código de envío para conocer el estado y ubicación de tu paquete en vivo.
             </p>
           </div>
 
@@ -664,7 +664,7 @@ export const LandingPage: React.FC = () => {
                 Puntualidad, Confianza y Tecnología en Cada Entrega
               </h2>
               <p className="text-sm text-slate-400 leading-relaxed">
-                En <strong className="text-white">Fragata Courier</strong> somos especialistas en logística express de última milla para comercio electrónico, marcas y emprendimientos en Lima Metropolitana y Callao.
+                En <strong className="text-white">Almain Courier</strong> somos especialistas en logística express de última milla para comercio electrónico, marcas y emprendimientos en Lima Metropolitana y Callao.
               </p>
             </div>
 
@@ -851,7 +851,7 @@ export const LandingPage: React.FC = () => {
                   <Star size={16} fill="currentColor" />
                 </div>
                 <p className="text-xs text-slate-300 italic leading-relaxed">
-                  "Desde que trabajamos con Fragata Courier, nuestras entregas contra-entrega no fallan. La liquidación de dinero es exacta y al día siguiente."
+                  "Desde que trabajamos con Almain Courier, nuestras entregas contra-entrega no fallan. La liquidación de dinero es exacta y al día siguiente."
                 </p>
                 <div className="pt-2 border-t border-slate-800">
                   <span className="font-bold text-white text-xs block">Contacto Mochilas Premium</span>
@@ -924,7 +924,7 @@ export const LandingPage: React.FC = () => {
                     <span className="text-xs font-bold text-white block">WhatsApp Comercial & Operaciones</span>
                     <span className="text-xs text-slate-400 block mt-0.5">+51 966 622 023</span>
                     <a
-                      href="https://wa.me/51966622023?text=Hola%20Fragata%20Courier,%20deseo%20afiliar%20mi%20tienda%20para%20env%C3%ADos."
+                      href="https://wa.me/51966622023?text=Hola%20Almain%20Courier,%20deseo%20afiliar%20mi%20tienda%20para%20env%C3%ADos."
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-bold mt-2 hover:underline"
@@ -940,7 +940,7 @@ export const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-white block">Correo Corporativo</span>
-                    <span className="text-xs text-slate-400 block mt-0.5">contacto@fragatacourier.pe</span>
+                    <span className="text-xs text-slate-400 block mt-0.5">contacto@almaincourier.pe</span>
                     <span className="text-[11px] text-slate-500 block">Atención a empresas y contratos corporativos</span>
                   </div>
                 </div>
@@ -1036,7 +1036,7 @@ export const LandingPage: React.FC = () => {
                 ¿Tienes una tienda o emprendimiento?
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
-                Afíliate gratis a <strong className="text-red-400">FRAGATA COURIER</strong> para gestionar tus envíos, definir direcciones de recojo y brindar seguimiento en vivo a tus clientes.
+                Afíliate gratis a <strong className="text-red-400">ALMAIN COURIER</strong> para gestionar tus envíos, definir direcciones de recojo y brindar seguimiento en vivo a tus clientes.
               </p>
             </div>
 
@@ -1058,11 +1058,11 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img
-              src="/logofragata.jpg"
-              alt="Fragata Courier"
+              src="/icons/icon-192.png"
+              alt="Almain Courier"
               className="w-8 h-8 rounded-xl object-contain bg-white p-0.5 shadow-sm"
             />
-            <span className="font-extrabold text-white text-sm">FRAGATA COURIER S.A.C.</span>
+            <span className="font-extrabold text-white text-sm">ALMAIN COURIER S.A.C.</span>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-slate-400 text-xs font-medium">
@@ -1076,13 +1076,13 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="max-w-7xl mx-auto text-center border-t border-slate-900/80 pt-6">
-          <p>© {new Date().getFullYear()} FRAGATA COURIER. Todos los derechos reservados. Lima, Perú.</p>
+          <p>© {new Date().getFullYear()} ALMAIN COURIER. Todos los derechos reservados. Lima, Perú.</p>
         </div>
       </footer>
 
       {/* Floating Fast WhatsApp Action Button */}
       <a
-        href="https://wa.me/51966622023?text=Hola%20Fragata%20Courier,%20deseo%20hacer%20una%20consulta%20sobre%20env%C3%ADos."
+        href="https://wa.me/51966622023?text=Hola%20Almain%20Courier,%20deseo%20hacer%20una%20consulta%20sobre%20env%C3%ADos."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-5 right-5 z-40 p-3.5 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-2xl shadow-emerald-500/40 hover:scale-110 active:scale-95 transition-all flex items-center justify-center group cursor-pointer border border-emerald-400/40"

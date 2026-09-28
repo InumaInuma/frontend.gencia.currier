@@ -95,7 +95,7 @@ export const ModalNuevoColaborador: React.FC<ModalNuevoColaboradorProps> = ({
 
   const URL_PRODUCCION = 'https://fragata-courier.vercel.app';
 
-  const mensajeCredenciales = `¡Hola ${nombre}! Te damos la bienvenida al equipo de Fragata Courier 🚀
+  const mensajeCredenciales = `¡Hola ${nombre}! Te damos la bienvenida al equipo de Almain Courier 🚀
 Aquí tienes tus credenciales de acceso a la plataforma:
 
 👤 Usuario: ${correo}
@@ -211,7 +211,7 @@ Aquí tienes tus credenciales de acceso a la plataforma:
               <div>
                 <h2 className="text-lg font-bold text-white">Registrar Nuevo Colaborador</h2>
                 <p className="text-xs text-slate-400">
-                  Crea un usuario y asígnale su rol en Fragata Courier
+                  Crea un usuario y asígnale su rol en Almain Courier
                 </p>
               </div>
             </div>
@@ -359,7 +359,7 @@ Aquí tienes tus credenciales de acceso a la plataforma:
                     type="email"
                     value={correo}
                     onChange={(e) => setCorreo(e.target.value)}
-                    placeholder="colaborador@fragata.pe"
+                    placeholder="colaborador@almain.pe"
                     className="w-full bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500"
                     required
                   />

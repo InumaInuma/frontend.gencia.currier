@@ -57,12 +57,12 @@ export const LoginPage: React.FC = () => {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white p-2 mb-3 shadow-xl shadow-red-500/20 group-hover:scale-105 transition-all border border-slate-200">
                 <img
                   src="/icons/icon-192.png"
-                  alt="Fragata Courier"
+                  alt="Almain Courier"
                   className="w-full h-full object-contain"
                 />
               </div>
               <h1 className="text-2xl font-black tracking-tight text-white group-hover:text-red-400 transition-colors">
-                FRAGATA <span className="text-red-500">COURIER</span>
+                ALMAIN <span className="text-red-500">COURIER</span>
               </h1>
             </Link>
             <p className="text-xs text-slate-400 mt-1 font-medium">
@@ -92,7 +92,7 @@ export const LoginPage: React.FC = () => {
                   type="email"
                   value={correo}
                   onChange={(e) => setCorreo(e.target.value)}
-                  placeholder="ejemplo@fragatacourier.pe"
+                  placeholder="ejemplo@almaincourier.pe"
                   className="w-full bg-slate-950/80 border border-slate-800 focus:border-red-500 focus:ring-1 focus:ring-red-500 text-white placeholder-slate-500 text-xs sm:text-sm rounded-xl pl-10 pr-4 py-3 outline-none transition-all duration-200"
                   required
                 />

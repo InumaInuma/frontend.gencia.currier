@@ -96,7 +96,7 @@ export const ModalActualizarClaveObligatoria: React.FC = () => {
             </div>
             <h3 className="text-base font-bold text-white">¡Contraseña Guardada con Éxito!</h3>
             <p className="text-xs text-slate-400">
-              Bienvenido a Fragata Courier. Ingresando a tu panel de control...
+              Bienvenido a Almain Courier. Ingresando a tu panel de control...
             </p>
           </div>
         ) : (

@@ -194,13 +194,13 @@ export const LeftSidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center gap-3">
             <img
               src="/icons/icon-192.png"
-              alt="Fragata Courier"
+              alt="Almain Courier"
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-contain bg-white p-0.5 shrink-0 shadow-md shadow-red-500/20 border border-slate-800"
             />
             {!contraido && (
               <div className="flex flex-col truncate">
                 <span className="font-black tracking-tight text-white text-sm sm:text-base leading-tight">
-                  FRAGATA <span className="text-red-500">COURIER</span>
+                  ALMAIN <span className="text-red-500">COURIER</span>
                 </span>
                 <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider">
                   {isCurrentlyInClientView ? 'Vista Cliente Final' : user.rolNombre}

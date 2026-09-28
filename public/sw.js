@@ -1,5 +1,5 @@
-// Service Worker para FRAGATA COURIER PWA
-const CACHE_NAME = 'fragata-cache-v1';
+// Service Worker para ALMAIN COURIER PWA
+const CACHE_NAME = 'almain-cache-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

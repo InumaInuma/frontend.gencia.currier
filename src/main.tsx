@@ -15,7 +15,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('/sw.js')
       .then((reg) => {
-        console.log('✅ Service Worker FRAGATA COURIER activo:', reg.scope);
+        console.log('✅ Service Worker ALMAIN COURIER activo:', reg.scope);
       })
       .catch((err) => {
         console.warn('SW registration failed:', err);
